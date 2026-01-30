@@ -104,6 +104,6 @@ elif skript == "AuxiliaryQuantities.py":
     print(aq.duration(time))
     print(aq.n(time))
     print(aq.p(time))
-# util
+# default
 else:
     print("Skript nicht gefunden!")
