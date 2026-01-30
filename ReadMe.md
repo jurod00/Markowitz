@@ -2,12 +2,12 @@
 ## Markowitz-Problem
 Das Porgramm löst folgendene Minimierungsprobleme
 ```math
-\text{minimize}_{x\in\mathbb{R}^J}\text{var}x^T\xi \\
+\text{minimize}_{x\in\mathbb{R}^J}\;\text{var}\;x^T\xi \\
 \text{subject to}\;\mathbb{E}\,x^T\xi\geq\mu\;
 ```
 ```math
 \text{minimize}_{x\in\mathbb{R}^J}\mathbb{E}\,x^T\xi+\mathcal{R}(-x^T\xi) \\
-\text{subject to}\;\mathbb{E}\,x^T\xi\geq\mu\text{ with}\hspace*{26pt} \\
+\text{subject to}\;\mathbb{E}\,x^T\xi\geq\mu\;\text{with}\; \\
 \mathcal{R}(X) = (1-\gamma)\mathbb{E}X+\gamma\text{AVaR}_\alpha(X)
 ```
 ## Notwendige Bibliotheken
