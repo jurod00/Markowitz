@@ -7,8 +7,10 @@ Das Porgramm löst folgendene Minimierungsprobleme
 ```
 ```math
 \text{minimize}_{x\in\mathbb{R}^J}\mathbb{E}\,x^T\xi+\mathcal{R}(-x^T\xi) \\
-\text{subject to}\;\mathbb{E}\,x^T\xi\geq\mu\;\text{with}\; \\
-\mathcal{R}(X) = (1-\gamma)\mathbb{E}X+\gamma\text{AVaR}_\alpha(X)
+\text{subject to}\;\mathbb{E}\,x^T\xi\geq\mu\;
+```
+```math
+\text{with}\;\mathcal{R}(X) = (1-\gamma)\mathbb{E}X+\gamma\text{AVaR}_\alpha(X)
 ```
 ## Notwendige Bibliotheken
 ```bash
