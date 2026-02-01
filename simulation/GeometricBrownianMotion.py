@@ -26,10 +26,10 @@ class GeometricBrownianMotion:
         self.stock.append(self.s0)
 
         aq = Aq()
-        n = aq.n(self.time)
-        p = aq.p(self.time)
+        n = aq.numberTimestamps(self.time)
+        prob = aq.prob(self.time)
         
         for i in range(n):
             stockPrev = self.stock[i]
-            stockNext = stockPrev*np.exp((self.drift - self.volatility**2/2)*p[i] + self.volatility*np.random.normal(0, np.sqrt(p[i])))
+            stockNext = stockPrev*np.exp((self.drift - self.volatility**2/2)*prob[i] + self.volatility*np.random.normal(0, np.sqrt(prob[i])))
             self.stock.append(stockNext)

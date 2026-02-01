@@ -1,11 +1,14 @@
 import pandas as pd
+import datetime as dt
 
 class ReadDatabase:
     def __init__(self):
         data = pd.read_csv(r"C:\Users\j.rode\Desktop\Markowitz\iO\database\lecture.csv", delimiter=";").set_index("Date")
         self.symbols = data.columns.values.tolist()
         self.data = data
-        self.time = data.index.tolist()
+        #self.time = data.index.tolist()
+        timeTemp = data.index.tolist()
+        self.time = [dt.datetime.strptime(t, "%Y-%m-%d") for t in timeTemp]
 
         self.stocks = []
         J = len(self.symbols)

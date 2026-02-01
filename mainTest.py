@@ -1,4 +1,4 @@
-skript = "ReadDataBase.py"
+skript = "AuxiliaryQuantities.py"
 
 import datetime as dt
 
@@ -38,7 +38,7 @@ if skript == "Input.py":
     print(portfolio.time)
 
     plotPortfolio = PlotPortfolio(portfolio)
-    plotPortfolio.plot()
+    plotPortfolio.plot("abs")
 # iO.database
 elif skript == "ReadDataBase.py":
     readDatabase = ReadDatabase()
@@ -68,7 +68,7 @@ elif skript == "PlotPortfolio.py":
     portfolio.simulatePortfolio(s0, drift, volatility)
 
     plt = PlotPortfolio(portfolio)
-    plt.plot()
+    plt.plot("abs")
 # portfolio
 elif skript == "PortfolioShares.py":
     time = [dt.datetime(2025, 12, 17), dt.datetime(2025, 12, 18), dt.datetime(2025, 12, 19)]
@@ -89,7 +89,10 @@ elif skript == "GeometricBrownianMotion.py":
     drift = 0.1
     volatility = 0.1
 
-    gbm = Gbm(s0, time, drift, volatility)
+    gbm = Gbm(time)
+    gbm.setS0(s0)
+    gbm.setDrift(drift)
+    gbm.setVolatility(volatility)
     gbm.simulate()
     print(gbm.getStock())
 # util
@@ -101,9 +104,24 @@ elif skript == "AuxiliaryQuantities.py":
     time = [dt.datetime(2025, 12, 17), dt.datetime(2025, 12, 18), dt.datetime(2025, 12, 19)]
 
     aq = Aq()
+    #print(aq.duration(time))
+    #print(aq.n(time))
+    #print(aq.p(time))
+
+    readDatabase = ReadDatabase()
+
+    data = readDatabase.getData()
+    time = readDatabase.getTime()
+    stocks = readDatabase.getStocks()
+
     print(aq.duration(time))
-    print(aq.n(time))
-    print(aq.p(time))
+    print(aq.prob(time))
+
+    print(aq.annualizedReturn(time, stocks))
+    print(aq.expectedReturn(time, stocks))
+    print(aq.covariance(time, stocks))
+    print(aq.precision(time, stocks))
+    print(aq.allocationBasic(time, stocks, 0.0))
 # default
 else:
     print("Skript nicht gefunden!")
