@@ -46,6 +46,12 @@ class AuxiliaryQuantities:
         r = np.matmul(prob, XI)
         return r
     
+    def expectedReturnPercent(self, time: list, stocks: list):
+        r = self.expectedReturn(time, stocks)
+
+        i = np.exp(r) - 1
+        return i
+    
     def covariance(self, time: list, stocks: list):
         prob = self.prob(time)
         XI = self.annualizedReturn(time, stocks)
@@ -61,7 +67,7 @@ class AuxiliaryQuantities:
         SIGMAinv = np.linalg.inv(SIGMA)
         return SIGMAinv
     
-    def allocationBasic(self, time: list, stocks: list, minimumReturn: float):
+    def allocationBasic(self, time: list, stocks: list, minimumReturn: float, unit: str="log%"):
         r = self.expectedReturn(time, stocks)
         SIGMAinv = self.precision(time, stocks)
         ones = np.ones(self.numberStocks(stocks))
@@ -73,6 +79,12 @@ class AuxiliaryQuantities:
 
         slopeVector = c/d*SIGMAinv.dot(r) - b/d*SIGMAinv.dot(ones)
         shiftVector = a/d*SIGMAinv.dot(ones) - b/d*SIGMAinv.dot(r)
+
+        if unit == "%":
+            i = minimumReturn
+            my = np.log(1+i)
+        else:
+            my = minimumReturn
         
-        x = minimumReturn*slopeVector + shiftVector
+        x = my*slopeVector + shiftVector
         return x

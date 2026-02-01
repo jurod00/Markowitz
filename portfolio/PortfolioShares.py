@@ -8,18 +8,32 @@ from util import Time
 from iO import Input
 from iO.database import ReadDatabase
 
+from util import AuxiliaryQuantities as Aq
+
 class PortfolioShares:
 
-    def __init__(self, time: list, symbols: list):
-        self.time = time
+    def __init__(self):
+        self.time = []
         self.stocks = []
-        self.symbols = symbols
+        self.symbols = []
+
+    def getTime(self) -> list:
+        return self.time
+    
+    def setTime(self, time) -> None:
+        self.time = time
 
     def getStocks(self) -> list:
         return self.stocks
     
     def setStocks(self, stocks) -> None:
         self.stocks = stocks
+
+    def getSymbols(self) -> list:
+        return self.symbols
+    
+    def setSymbols(self, symbols) -> list:
+        self.symbols = symbols
     
     def downloadPortfolio(self) -> None:
         input = Input()
@@ -47,7 +61,25 @@ class PortfolioShares:
 
             self.stocks.append(gbm.getStock())
 
-    allocation : list
+    def databasePortfolio(self):
+        data = pd.read_csv(r"C:\Users\j.rode\Desktop\Markowitz\iO\database\lecture.csv", delimiter=";").set_index("Date")
+        
+        self.symbols = data.columns.values.tolist()
 
-    def getAllocation(self) -> list:
-        return self.allocation
+        timeTemp = data.index.tolist()
+        self.time = [dt.datetime.strptime(t, "%Y-%m-%d") for t in timeTemp]
+
+        self.stocks = []
+        J = len(self.symbols)
+
+        for j in range(J):
+            self.stocks.append(data.iloc[:, j].tolist())
+
+    def calculateAllocationBasic(self, returnMin: float=0.0, returnMax: float=0.25) -> None:
+        self.returnMin = returnMin
+        self.returnMax = returnMax
+
+        aq = Aq()
+
+        self.allocationMin = aq.allocationBasic(self.time, self.stocks, returnMin)
+        self.allocationMax = aq.allocationBasic(self.time, self.stocks, returnMax)

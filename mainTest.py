@@ -1,4 +1,4 @@
-skript = "AuxiliaryQuantities.py"
+skript = "PlotPortfolio.py"
 
 import datetime as dt
 
@@ -56,19 +56,28 @@ elif skript == "ReadDataBase.py":
     plotPortfolio.plot("rel")
 # plot
 elif skript == "PlotPortfolio.py":
-    time = Time(dt.datetime(2025,12,1), dt.datetime(2025,12,29))
-    symbols = ["A", "B", "C", "D", "E"]
+    # time = Time(dt.datetime(2025,12,1), dt.datetime(2025,12,29))
+    # symbols = ["A", "B", "C", "D", "E"]
 
-    portfolio = PortfolioShares(time.getTime(), symbols)
+    # portfolio = PortfolioShares(time.getTime(), symbols)
 
-    s0 = [100,100,100,100,100]
-    drift = [0.1,0.1,0.1,0.1,0.1]
-    volatility = [0.1,0.1,0.1,0.1,0.1]
+    # s0 = [100,100,100,100,100]
+    # drift = [0.1,0.1,0.1,0.1,0.1]
+    # volatility = [0.1,0.1,0.1,0.1,0.1]
 
-    portfolio.simulatePortfolio(s0, drift, volatility)
+    # portfolio.simulatePortfolio(s0, drift, volatility)
 
+    # plt = PlotPortfolio(portfolio)
+    # plt.plotStocks("abs")
+
+    # plt.plotAllocation()
+
+    portfolio = PortfolioShares()
+    portfolio.databasePortfolio()
+    portfolio.calculateAllocationBasic()
+    
     plt = PlotPortfolio(portfolio)
-    plt.plot("abs")
+    plt.plotAllocation()
 # portfolio
 elif skript == "PortfolioShares.py":
     time = [dt.datetime(2025, 12, 17), dt.datetime(2025, 12, 18), dt.datetime(2025, 12, 19)]
@@ -121,7 +130,10 @@ elif skript == "AuxiliaryQuantities.py":
     print(aq.expectedReturn(time, stocks))
     print(aq.covariance(time, stocks))
     print(aq.precision(time, stocks))
-    print(aq.allocationBasic(time, stocks, 0.0))
+    print(aq.allocationBasic(time, stocks, 0.07, "%"))
+    #print(sum(aq.allocationBasic(time, stocks, 1.1)))
+    #print(100*aq.expectedReturn(time, stocks))
+    #print(100*aq.expectedReturnPercent(time, stocks))
 # default
 else:
     print("Skript nicht gefunden!")
