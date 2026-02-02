@@ -1,11 +1,9 @@
-skript = "PlotPortfolio.py"
+skript = "AuxiliaryQuantities.py"
 
 import datetime as dt
 
 from iO import Input
-from iO.database import ReadDatabase
 
-from plot import PlotStock
 from plot import PlotPortfolio
 
 from portfolio import PortfolioShares
@@ -39,21 +37,6 @@ if skript == "Input.py":
 
     plotPortfolio = PlotPortfolio(portfolio)
     plotPortfolio.plot("abs")
-# iO.database
-elif skript == "ReadDataBase.py":
-    readDatabase = ReadDatabase()
-    data = readDatabase.getData()
-    print(data)
-
-    time = readDatabase.getTime()
-    stocks = readDatabase.getStocks()
-    symbols = readDatabase.getSymbols()
-    
-    portfolioShares = PortfolioShares(time, symbols)
-    portfolioShares.setStocks(stocks)
-
-    plotPortfolio = PlotPortfolio(portfolioShares)
-    plotPortfolio.plot("rel")
 # plot
 elif skript == "PlotPortfolio.py":
     # time = Time(dt.datetime(2025,12,1), dt.datetime(2025,12,29))
@@ -77,6 +60,7 @@ elif skript == "PlotPortfolio.py":
     portfolio.calculateAllocationBasic()
     
     plt = PlotPortfolio(portfolio)
+    plt.plotStocks("rel")
     plt.plotAllocation()
 # portfolio
 elif skript == "PortfolioShares.py":
@@ -110,30 +94,26 @@ elif skript == "Time.py":
     print(time.getTime())
 # util
 elif skript == "AuxiliaryQuantities.py":
-    time = [dt.datetime(2025, 12, 17), dt.datetime(2025, 12, 18), dt.datetime(2025, 12, 19)]
-
     aq = Aq()
-    #print(aq.duration(time))
-    #print(aq.n(time))
-    #print(aq.p(time))
+    
+    portfolio = PortfolioShares()
+    portfolio.databasePortfolio()
 
-    readDatabase = ReadDatabase()
-
-    data = readDatabase.getData()
-    time = readDatabase.getTime()
-    stocks = readDatabase.getStocks()
+    time = portfolio.time
+    stocks = portfolio.stocks
 
     print(aq.duration(time))
+    print(aq.numberTimestamps(time))
+    print(aq.numberStocks(stocks))
     print(aq.prob(time))
 
     print(aq.annualizedReturn(time, stocks))
     print(aq.expectedReturn(time, stocks))
+    print(aq.expectedReturnPercent(time, stocks))
     print(aq.covariance(time, stocks))
     print(aq.precision(time, stocks))
+    print(aq.allocationBasic(time, stocks, 0.07))
     print(aq.allocationBasic(time, stocks, 0.07, "%"))
-    #print(sum(aq.allocationBasic(time, stocks, 1.1)))
-    #print(100*aq.expectedReturn(time, stocks))
-    #print(100*aq.expectedReturnPercent(time, stocks))
 # default
 else:
     print("Skript nicht gefunden!")

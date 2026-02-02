@@ -6,7 +6,6 @@ from simulation import GeometricBrownianMotion as Gbm
 from util import Time
 
 from iO import Input
-from iO.database import ReadDatabase
 
 from util import AuxiliaryQuantities as Aq
 
