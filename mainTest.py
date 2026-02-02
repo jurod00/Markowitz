@@ -1,10 +1,10 @@
-skript = "AuxiliaryQuantities.py"
+skript = "PlotPortfolioShares.py"
 
 import datetime as dt
 
 from iO import Input
 
-from plot import PlotPortfolio
+from plot import PlotPortfolioShares
 
 from portfolio import PortfolioShares
 
@@ -16,52 +16,49 @@ from util import AuxiliaryQuantities as Aq
 # iO
 if skript == "Input.py":
     input = Input()
-    # input.downloadShare("ADS.DE", dt.datetime(2025,12,1), dt.datetime(2025,12,10))
 
-    # print(input.getData())  # .index.tolist() und tolist()
+    symbols = ["ADS.DE", "AMZN", "MCD"]
 
-    # Plt = PlotStock(input.getTime(), input.getStock())
-    # Plt.plot()
-
-    input.downloadShares(["ADS.DE", "AMZN", "MCD"], dt.datetime(2025,11,28), dt.datetime(2025,12,23))
+    input.downloadShares(symbols, dt.datetime(2025,11,28), dt.datetime(2025,12,23))
 
     print(input.getStocks())
 
     time = input.getTime()
+    stocks = input.getStocks()
 
-    portfolio = PortfolioShares(time, ["ADS.DE", "AMZN", "MCD"])
-    portfolio.downloadPortfolio()
+    portfolio = PortfolioShares()
+    portfolio.setTime(time)
+    portfolio.setStocks(stocks)
+    portfolio.setSymbols(symbols)
 
-    print(portfolio.getStocks())
-    print(portfolio.time)
-
-    plotPortfolio = PlotPortfolio(portfolio)
-    plotPortfolio.plot("abs")
+    plt = PlotPortfolioShares(portfolio)
+    plt.plotStocks("rel")
 # plot
-elif skript == "PlotPortfolio.py":
-    # time = Time(dt.datetime(2025,12,1), dt.datetime(2025,12,29))
-    # symbols = ["A", "B", "C", "D", "E"]
-
-    # portfolio = PortfolioShares(time.getTime(), symbols)
-
-    # s0 = [100,100,100,100,100]
-    # drift = [0.1,0.1,0.1,0.1,0.1]
-    # volatility = [0.1,0.1,0.1,0.1,0.1]
-
-    # portfolio.simulatePortfolio(s0, drift, volatility)
-
-    # plt = PlotPortfolio(portfolio)
-    # plt.plotStocks("abs")
-
-    # plt.plotAllocation()
-
+elif skript == "PlotPortfolioShares.py":
     portfolio = PortfolioShares()
     portfolio.databasePortfolio()
     portfolio.calculateAllocationBasic()
     
-    plt = PlotPortfolio(portfolio)
+    plt = PlotPortfolioShares(portfolio)
     plt.plotStocks("rel")
     plt.plotAllocation()
+
+    # Neues simuliertes Portfolio
+    # s0 = [100.0, 100.0, 100.0]
+    # drift = [0.1, 0.1, 0.1]
+    # volatility = [0.1, 0.1, 0.1]
+
+    # time = Time(dt.datetime(2026, 1, 1), dt.datetime(2026, 2, 1))
+
+    # portfolioNew = PortfolioShares()
+    # portfolioNew.setSymbols(["a", "b", "c"])
+    # portfolioNew.setTime(time.getTime())
+    # portfolioNew.simulatePortfolio(s0, drift, volatility)
+    # portfolioNew.calculateAllocationBasic()
+
+    # pltNew = PlotPortfolioShares(portfolioNew)
+    # pltNew.plotStocks("abs")
+    # pltNew.plotAllocation()
 # portfolio
 elif skript == "PortfolioShares.py":
     time = [dt.datetime(2025, 12, 17), dt.datetime(2025, 12, 18), dt.datetime(2025, 12, 19)]

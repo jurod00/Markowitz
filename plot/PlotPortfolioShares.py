@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 plt.style.use("dark_background")
 
-class PlotPortfolio:
+class PlotPortfolioShares:
     def __init__(self, portfolio):
         self.portfolio = portfolio
 
@@ -32,7 +32,7 @@ class PlotPortfolio:
         plt.xticks(rotation=45)
         plt.show()
 
-        #fig.savefig("C:/Users/j.rode/Desktop/Markowitz/plot/plot.svg")
+        fig.savefig("C:/Users/j.rode/Desktop/Markowitz/plot/assets/plotStocks.svg")
 
     def plotAllocation(self):
         myMin = self.portfolio.returnMin
@@ -53,7 +53,8 @@ class PlotPortfolio:
         ax1.set_ylabel("allocation")
 
         ax1.set_xlim(myMin, myMax)
-        ax1.set_ylim(min(xMin + xMax) - 0.1, max(xMin + xMax) + 0.1)
+        ax1.set_ylim(-0.05, 1.05)
+        ax1.set_yticks([i/10 for i in range(11)])
 
         ax1.grid(linewidth=0.25)
         ax1.legend(loc="best")
@@ -61,4 +62,4 @@ class PlotPortfolio:
         plt.xticks(rotation=45)
         plt.show()
 
-        #fig.savefig("C:/Users/j.rode/Desktop/Markowitz/plot/plotAllocation.svg")
+        fig.savefig("C:/Users/j.rode/Desktop/Markowitz/plot/assets/plotAllocation.svg")

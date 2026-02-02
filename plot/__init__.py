@@ -1,2 +1,2 @@
-from .PlotPortfolio import PlotPortfolio
-__all__ = ["PlotPortfolio"]
+from .PlotPortfolioShares import PlotPortfolioShares
+__all__ = ["PlotPortfolioShares"]
