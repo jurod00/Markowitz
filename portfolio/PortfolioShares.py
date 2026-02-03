@@ -74,6 +74,19 @@ class PortfolioShares:
         for j in range(J):
             self.stocks.append(data.iloc[:, j].tolist())
 
+    def addRiskFreeAsset(self, symbol: str="risk-free asset", interestRate: float=0.02):
+        aq = Aq()
+        n = aq.numberTimestamps(self.time)
+
+        self.symbols.append(symbol)
+
+        stock = [100.0]
+        for i in range(n):
+            stock.append(stock[i]*np.exp(1/n*interestRate))
+
+        self.stocks.append(stock)
+
+
     def calculateAllocationBasic(self, my0: float=0.0, my1: float=0.25) -> None:
         aq = Aq()
         self.x0 = aq.allocationBasic(self.time, self.stocks, my0)

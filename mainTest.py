@@ -37,6 +37,7 @@ if skript == "Input.py":
 elif skript == "PlotPortfolioShares.py":
     portfolio = PortfolioShares()
     portfolio.databasePortfolio()
+    portfolio.addRiskFreeAsset()
     portfolio.calculateAllocationBasic()
     
     plt = PlotPortfolioShares(portfolio)
