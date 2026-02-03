@@ -34,29 +34,34 @@ class PlotPortfolioShares:
 
         fig.savefig("C:/Users/j.rode/Desktop/Markowitz/plot/assets/plotStocks.svg")
 
-    def plotAllocation(self):
-        myMin = self.portfolio.returnMin
-        myMax = self.portfolio.returnMax
+    def plotAllocation(self, myStart: float=0, myEnde: float=0.25):
+        my0 = self.portfolio.getMy0()
+        my1 = self.portfolio.getMy1()
 
-        xMin = self.portfolio.allocationMin
-        xMax = self.portfolio.allocationMax
+        x0 = self.portfolio.getX0()
+        x1 = self.portfolio.getX1()
 
-        labels = self.portfolio.symbols
+        labels = self.portfolio.getSymbols()
 
         fig, ax1 = plt.subplots(figsize=(15, 10))
         # ax2 = ax1.twinx()
 
-        for i, (xStart, xEnde) in enumerate(zip(xMin, xMax), 0):
-            ax1.plot([myMin, myMax], [xStart, xEnde], label=labels[i])
+        for j in range(len(labels)):
+            m = (x1[j] - x0[j])/(my1 - my0)
+            n = x0[j] - m*my0
+
+            ax1.plot([myStart, myEnde], [m*myStart+n, m*myEnde+n], linestyle="-", label=labels[j])
 
         ax1.set_xlabel("minimum return")
         ax1.set_ylabel("allocation")
 
-        ax1.set_xlim(myMin, myMax)
+        ax1.set_xlim(myStart, myEnde)
         ax1.set_ylim(-0.05, 1.05)
+
         ax1.set_yticks([i/10 for i in range(11)])
 
         ax1.grid(linewidth=0.25)
+        ax1.hlines(y=0, xmin=myStart, xmax=myEnde, linewidth=1.5, color="silver", zorder=-1)
         ax1.legend(loc="best")
 
         plt.xticks(rotation=45)

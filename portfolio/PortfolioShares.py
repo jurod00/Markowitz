@@ -60,7 +60,7 @@ class PortfolioShares:
 
             self.stocks.append(gbm.getStock())
 
-    def databasePortfolio(self):
+    def databasePortfolio(self) -> None:
         data = pd.read_csv(r"C:\Users\j.rode\Desktop\Markowitz\iO\database\lecture.csv", delimiter=";").set_index("Date")
         
         self.symbols = data.columns.values.tolist()
@@ -74,11 +74,22 @@ class PortfolioShares:
         for j in range(J):
             self.stocks.append(data.iloc[:, j].tolist())
 
-    def calculateAllocationBasic(self, returnMin: float=0.0, returnMax: float=0.25) -> None:
-        self.returnMin = returnMin
-        self.returnMax = returnMax
-
+    def calculateAllocationBasic(self, my0: float=0.0, my1: float=0.25) -> None:
         aq = Aq()
+        self.x0 = aq.allocationBasic(self.time, self.stocks, my0)
+        self.x1 = aq.allocationBasic(self.time, self.stocks, my1)
 
-        self.allocationMin = aq.allocationBasic(self.time, self.stocks, returnMin)
-        self.allocationMax = aq.allocationBasic(self.time, self.stocks, returnMax)
+        self.my0 = my0
+        self.my1 = my1
+
+    def getX0(self):
+        return self.x0
+    
+    def getX1(self):
+        return self.x1
+    
+    def getMy0(self):
+        return self.my0
+    
+    def getMy1(self):
+        return self.my1
