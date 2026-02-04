@@ -37,12 +37,13 @@ if skript == "Input.py":
 elif skript == "PlotPortfolioShares.py":
     portfolio = PortfolioShares()
     portfolio.databasePortfolio()
-    portfolio.addRiskFreeAsset()
+    # portfolio.addRiskFreeAsset()
     portfolio.calculateAllocationBasic()
     
     plt = PlotPortfolioShares(portfolio)
     plt.plotStocks("rel")
     plt.plotAllocation()
+    plt.plotMeanVariance()
 
     # Neues simuliertes Portfolio
     # s0 = [100.0, 100.0, 100.0]

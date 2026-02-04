@@ -67,6 +67,18 @@ class AuxiliaryQuantities:
         SIGMAinv = np.linalg.inv(SIGMA)
         return SIGMAinv
     
+    def abcdQuantities(self, time:list, stocks: list):
+        r = self.expectedReturn(time, stocks)
+        SIGMAinv = self.precision(time, stocks)
+        ones = np.ones(self.numberStocks(stocks))
+
+        a = r.dot(SIGMAinv.dot(r))
+        b = r.dot(SIGMAinv.dot(ones))
+        c = ones.dot(SIGMAinv.dot(ones))
+        d = a*c - b**2
+
+        return [a, b, c, d]
+    
     def allocationBasic(self, time: list, stocks: list, minimumReturn: float, unit: str="log%"):
         r = self.expectedReturn(time, stocks)
         SIGMAinv = self.precision(time, stocks)

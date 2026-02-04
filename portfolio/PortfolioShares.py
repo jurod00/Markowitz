@@ -92,6 +92,8 @@ class PortfolioShares:
         self.x0 = aq.allocationBasic(self.time, self.stocks, my0)
         self.x1 = aq.allocationBasic(self.time, self.stocks, my1)
 
+        self.a, self.b, self.c, self.d = aq.abcdQuantities(self.time, self.stocks)
+
         self.my0 = my0
         self.my1 = my1
 
@@ -106,3 +108,15 @@ class PortfolioShares:
     
     def getMy1(self):
         return self.my1
+    
+    def getA(self):
+        return self.a
+    
+    def getB(self):
+        return self.b
+    
+    def getC(self):
+        return self.c
+    
+    def getD(self):
+        return self.d

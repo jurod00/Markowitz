@@ -1,3 +1,4 @@
+import numpy as np
 import matplotlib.pyplot as plt
 plt.style.use("dark_background")
 
@@ -34,12 +35,15 @@ class PlotPortfolioShares:
 
         fig.savefig("C:/Users/j.rode/Desktop/Markowitz/plot/assets/plotStocks.svg")
 
-    def plotAllocation(self, myStart: float=0, myEnde: float=0.25):
+    def plotAllocation(self, myStart: float=0.0, myEnde: float=0.25):
         my0 = self.portfolio.getMy0()
         my1 = self.portfolio.getMy1()
 
         x0 = self.portfolio.getX0()
         x1 = self.portfolio.getX1()
+
+        b = self.portfolio.getB()
+        c = self.portfolio.getC()
 
         labels = self.portfolio.getSymbols()
 
@@ -62,9 +66,44 @@ class PlotPortfolioShares:
 
         ax1.grid(linewidth=0.25)
         ax1.hlines(y=0, xmin=myStart, xmax=myEnde, linewidth=1.5, color="silver", zorder=-1)
+        ax1.vlines(x=b/c, ymin=-0.05, ymax=1.05, linestyle=":", label="minimal risk")
+
         ax1.legend(loc="best")
 
         plt.xticks(rotation=45)
         plt.show()
 
         fig.savefig("C:/Users/j.rode/Desktop/Markowitz/plot/assets/plotAllocation.svg")
+
+    def plotMeanVariance(self, sigmaStart: float=0.0, sigmaEnde: float=0.3):
+        a = self.portfolio.getA()
+        b = self.portfolio.getB()
+        c = self.portfolio.getC()
+
+        def mean(variance):
+            return b/c + np.sqrt((a - b**2/c)*(variance**2 - 1/c))
+        
+        fig, ax1 = plt.subplots(figsize=(15, 10))
+        # ax2 = ax1.twinx()
+
+        sigma = np.linspace(sigmaStart, sigmaEnde, num=1000)
+        my = np.empty(len(sigma))
+
+        for i in range(len(sigma)):
+            if sigma[i]**2 > 1/c:
+                my[i] = mean(sigma[i])
+            else:
+                my[i] = np.nan
+
+        ax1.plot(sigma, my)
+
+        ax1.set_xlabel("risk " + r"$\sigma$")
+        ax1.set_ylabel("return " + r"$\mu$")
+
+        ax1.set_xlim(sigmaStart, sigmaEnde)
+        ax1.set_ylim(0, np.nanmax(my))
+
+        ax1.grid(linewidth=0.25)
+
+        plt.xticks(rotation=45)
+        plt.show()
