@@ -100,3 +100,20 @@ class AuxiliaryQuantities:
         
         x = my*slopeVector + shiftVector
         return x
+    
+    def mean(self, time, stocks, allocation):
+        # Methode gibt Erwartungswert = Return = Nebenbedingung zu gegebener Allocation zurück
+        r = self.expectedReturn(time, stocks)
+        x = allocation
+
+        my = r.dot(x)
+        return my
+
+    
+    def variance(self, time, stocks, allocation):
+        # Methode gibt Varianz = Risiko = Objective zu gegebener Allocation zurück
+        SIGMA = self.covariance(time, stocks)
+        x = allocation
+
+        var = x.dot(SIGMA.dot(x))
+        return var

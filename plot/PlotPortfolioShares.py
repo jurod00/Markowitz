@@ -2,6 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 plt.style.use("dark_background")
 
+from util import AuxiliaryQuantities as Aq
+
 class PlotPortfolioShares:
     def __init__(self, portfolio):
         self.portfolio = portfolio
@@ -75,7 +77,7 @@ class PlotPortfolioShares:
 
         fig.savefig("C:/Users/j.rode/Desktop/Markowitz/plot/assets/plotAllocation.svg")
 
-    def plotMeanVariance(self, sigmaStart: float=0.0, sigmaEnde: float=0.3):
+    def plotMeanVariance(self, sigmaStart: float=0.0, sigmaEnde: float=0.3, allocation=np.empty(0)):
         a = self.portfolio.getA()
         b = self.portfolio.getB()
         c = self.portfolio.getC()
@@ -86,16 +88,30 @@ class PlotPortfolioShares:
         fig, ax1 = plt.subplots(figsize=(15, 10))
         # ax2 = ax1.twinx()
 
-        sigma = np.linspace(sigmaStart, sigmaEnde, num=1000)
+        sigma = np.linspace(sigmaStart, sigmaEnde, num=int(1e+5))
+        sigmaOpt = 1/np.sqrt(c)
         my = np.empty(len(sigma))
+        myOpt = b/c
 
         for i in range(len(sigma)):
             if sigma[i]**2 > 1/c:
                 my[i] = mean(sigma[i])
             else:
                 my[i] = np.nan
+        
+        ax1.plot(sigma, my, label=r"$\mu(\sigma)$"+" mean-variance")
+        ax1.plot(sigmaOpt, myOpt, ".", label="minimal-risk allocation")
 
-        ax1.plot(sigma, my)
+        if allocation != np.empty(0):
+            aq = Aq()
+
+            time = self.portfolio.getTime()
+            stocks = self.portfolio.getStocks()
+
+            sigmaAllocation = np.sqrt(aq.variance(time, stocks, allocation))
+            myAllocation = aq.mean(time, stocks, allocation)
+            
+            ax1.plot(sigmaAllocation, myAllocation, ".", label="chosen allocation")
 
         ax1.set_xlabel("risk " + r"$\sigma$")
         ax1.set_ylabel("return " + r"$\mu$")
@@ -105,5 +121,9 @@ class PlotPortfolioShares:
 
         ax1.grid(linewidth=0.25)
 
+        ax1.legend(loc="best")
+
         plt.xticks(rotation=45)
         plt.show()
+
+        fig.savefig("C:/Users/j.rode/Desktop/Markowitz/plot/assets/plotMeanVariance.svg")

@@ -1,5 +1,6 @@
 skript = "PlotPortfolioShares.py"
 
+import numpy as np
 import datetime as dt
 
 from iO import Input
@@ -43,7 +44,7 @@ elif skript == "PlotPortfolioShares.py":
     plt = PlotPortfolioShares(portfolio)
     plt.plotStocks("rel")
     plt.plotAllocation()
-    plt.plotMeanVariance()
+    plt.plotMeanVariance(sigmaStart=0, sigmaEnde=0.3, allocation=np.array([0.05, 0.05, 0.05, 0.05, 0.8]))
 
     # Neues simuliertes Portfolio
     # s0 = [100.0, 100.0, 100.0]
