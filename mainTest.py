@@ -39,12 +39,15 @@ elif skript == "PlotPortfolioShares.py":
     portfolio = PortfolioShares()
     portfolio.databasePortfolio()
     # portfolio.addRiskFreeAsset()
-    portfolio.calculateAllocationBasic()
+    # portfolio.calculateAllocationBasic()
+
+    portfolio.calculateAllocationUtilityMaximization([i for i in range(1, 50)])
     
     plt = PlotPortfolioShares(portfolio)
     plt.plotStocks("rel")
-    plt.plotAllocation()
-    plt.plotMeanVariance(sigmaStart=0, sigmaEnde=0.3, allocation=np.array([0.05, 0.05, 0.05, 0.05, 0.8]))
+    # plt.plotAllocation()
+    # plt.plotMeanVariance(sigmaStart=0, sigmaEnde=0.3, allocation=np.array([0.05, 0.05, 0.05, 0.05, 0.8]))
+    plt.plotAllocationUtilityMaximization()
 
     # Neues simuliertes Portfolio
     # s0 = [100.0, 100.0, 100.0]

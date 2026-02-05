@@ -97,6 +97,15 @@ class PortfolioShares:
         self.my0 = my0
         self.my1 = my1
 
+    def calculateAllocationUtilityMaximization(self, kappas: list) -> None:
+        aq = Aq()
+        self.kappas = kappas
+        self.xSet = []
+
+        for kappa in kappas:
+            x = aq.allocationUtilityMaximization(self.time, self.stocks, kappa)
+            self.xSet.append(x)
+
     def getX0(self):
         return self.x0
     
@@ -120,3 +129,9 @@ class PortfolioShares:
     
     def getD(self):
         return self.d
+    
+    def getKappas(self):
+        return self.kappas
+    
+    def getXSet(self):
+        return self.xSet

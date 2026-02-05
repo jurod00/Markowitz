@@ -101,7 +101,7 @@ class AuxiliaryQuantities:
         x = my*slopeVector + shiftVector
         return x
     
-    def mean(self, time, stocks, allocation):
+    def mean(self, time: list, stocks: list, allocation):
         # Methode gibt Erwartungswert = Return = Nebenbedingung zu gegebener Allocation zurück
         r = self.expectedReturn(time, stocks)
         x = allocation
@@ -110,10 +110,19 @@ class AuxiliaryQuantities:
         return my
 
     
-    def variance(self, time, stocks, allocation):
+    def variance(self, time: list, stocks: list, allocation):
         # Methode gibt Varianz = Risiko = Objective zu gegebener Allocation zurück
         SIGMA = self.covariance(time, stocks)
         x = allocation
 
         var = x.dot(SIGMA.dot(x))
         return var
+    
+    def allocationUtilityMaximization(self, time: list, stocks: list, kappa: float):
+        r = self.expectedReturn(time, stocks)
+        SIGMAinv = self.precision(time, stocks)
+        ones = np.ones(self.numberStocks(stocks))
+        
+        x = 1/kappa*np.matmul(SIGMAinv, r + (kappa - ones.dot(SIGMAinv.dot(r)))/ones.dot(SIGMAinv.dot(ones))*ones)
+        print(x)
+        return x
