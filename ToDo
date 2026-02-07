@@ -1,6 +1,7 @@
 1.  Kurzfristig
 1.1 LP aus der Vorlesung implementieren
 1.2 Market-portfolio im Mean-Variance-plot darstellen
+1.3 Optimales kappa in kappa Allocation darstellen
 
 2.  Mittelfristig
 2.1 Speichere Allokationen anderer Methoden in einer csv, um Allocationen im Mean-Variance-plot mit Markowitz darzustellen und mit market-portfolio zu vergleichen
