@@ -77,18 +77,26 @@ class PlotPortfolioShares:
 
         fig.savefig("C:/Users/j.rode/Desktop/Markowitz/plot/assets/plotAllocation.svg")
 
-    def plotMeanVariance(self, sigmaStart: float=0.0, sigmaEnde: float=0.3, allocation=np.empty(0)):
+    def plotMeanVariance(self, sigmaStart: float=0.0, sigmaEnde: float=0.3, allocation=np.empty(0), riskFreeRate: float=0.0):
         a = self.portfolio.getA()
         b = self.portfolio.getB()
         c = self.portfolio.getC()
 
-        def mean(variance):
-            return b/c + np.sqrt((a - b**2/c)*(variance**2 - 1/c))
+        r0 = riskFreeRate
+        sigmaMarket = np.sqrt((a - 2*r0*b + r0**2*c)/(b - r0*c)**2)
+        myMarket = (a - r0*b)/(b - r0*c)
+        sharpeRatio = (myMarket - r0)/sigmaMarket
+
+        def mean(sigma):
+            return b/c + np.sqrt((a - b**2/c)*(sigma**2 - 1/c))
+        
+        def tangent(sigma):
+            return r0 + sigma*sharpeRatio
         
         fig, ax1 = plt.subplots(figsize=(15, 10))
         # ax2 = ax1.twinx()
 
-        sigma = np.linspace(sigmaStart, sigmaEnde, num=int(1e+5))
+        sigma = np.linspace(sigmaStart, sigmaMarket + 0.1*sigmaMarket, num=int(1e+5))
         sigmaOpt = 1/np.sqrt(c)
         my = np.empty(len(sigma))
         myOpt = b/c
@@ -100,7 +108,9 @@ class PlotPortfolioShares:
                 my[i] = np.nan
         
         ax1.plot(sigma, my, label=r"$\mu(\sigma)$"+" mean-variance")
-        ax1.plot(sigmaOpt, myOpt, ".", label="minimal-risk allocation")
+        ax1.plot(sigma, tangent(sigma), label="capital market line")
+        ax1.plot(sigmaOpt, myOpt, "D", label="minimal-risk allocation")
+        ax1.plot(sigmaMarket, myMarket, "D", label="market portfolio")
 
         if allocation != np.empty(0):
             aq = Aq()
@@ -116,8 +126,8 @@ class PlotPortfolioShares:
         ax1.set_xlabel("risk " + r"$\sigma$")
         ax1.set_ylabel("return " + r"$\mu$")
 
-        ax1.set_xlim(sigmaStart, sigmaEnde)
-        ax1.set_ylim(0, np.nanmax(my))
+        ax1.set_xlim(sigmaStart, sigmaMarket + 0.1*sigmaMarket)
+        ax1.set_ylim(0, myMarket + 0.1*myMarket)
 
         ax1.grid(linewidth=0.25)
 
@@ -140,12 +150,9 @@ class PlotPortfolioShares:
         fig, ax1 = plt.subplots(figsize=(15, 10))
         # ax2 = ax1.twinx()
 
-        # print(kappas)
-        # print(xSet)
-
         for j in range(len(xSet[0])):
-            y_j = [xSet[i][j] for i in range(len(kappas))]
-            plt.plot(kappas, y_j, marker='o', label=labels[j])
+            x = [xSet[i][j] for i in range(len(kappas))]
+            plt.plot(kappas, x, marker='o', label=labels[j])
 
         ax1.set_xlabel("kappa")
         ax1.set_ylabel("allocation")
