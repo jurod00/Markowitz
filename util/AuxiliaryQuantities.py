@@ -126,3 +126,61 @@ class AuxiliaryQuantities:
         x = 1/kappa*np.matmul(SIGMAinv, r + (kappa - ones.dot(SIGMAinv.dot(r)))/ones.dot(SIGMAinv.dot(ones))*ones)
         print(x)
         return x
+    
+    def objectiveCostVector(self, time: list, stocks: list, alpha: float, gamma: float):
+        n = self.numberTimestamps(time)
+        J = self.numberStocks(stocks)
+        p = self.prob(time)
+        r = self.expectedReturn(time, stocks)
+
+        c = np.empty(J+n+1)
+        c[:J] = gamma*r
+        c[J] = gamma
+        c[J+1:] = gamma/(1-alpha)*p
+
+        return c
+    
+    def constraintsLeftHandSide(self, time: list, stocks: list):
+        n = self.numberTimestamps(time)
+        J = self.numberStocks(stocks)
+
+        r = self.expectedReturn(time, stocks)
+        XI = self.annualizedReturn(time, stocks)
+
+        A = np.empty((n+2, J+n+1))
+        print("r = " + str(r))
+        A[0,:J] = -r
+        A[0,J:] = 0
+        A[1,:J] = 1
+        A[1,J:] = 0
+        for i in range(n):
+            A[i+2,:J] = -XI[i, :]
+            A[i+2, J] = -1
+            A[i+2,J+1:] = 0
+            A[i+2,J+1+i] = -1
+
+        return A
+    
+    def constraintsRightHandSide(self, my: float, time: list):
+        n = self.numberTimestamps(time)
+
+        b = np.empty(n+2)
+        b[0] = -my
+        b[1] = 1
+        b[2:] = 0
+
+        return b
+
+    def constraintsBounds(self, time: list, stocks: list):
+        n = self.numberTimestamps(time)
+        J = self.numberStocks(stocks)
+
+        bound = []
+
+        for j in range(J+1):
+            bound.append((None, None))
+
+        for i in range(n):
+            bound.append((0, None))
+
+        return bound

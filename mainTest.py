@@ -1,4 +1,4 @@
-skript = "PlotPortfolioShares.py"
+skript = "AuxiliaryQuantities.py"
 
 import numpy as np
 import datetime as dt
@@ -117,6 +117,13 @@ elif skript == "AuxiliaryQuantities.py":
     print(aq.precision(time, stocks))
     print(aq.allocationBasic(time, stocks, 0.07))
     print(aq.allocationBasic(time, stocks, 0.07, "%"))
+
+    np.set_printoptions(formatter={'float': lambda x: "{0:0.4f}".format(x)}, linewidth=200)
+    print(aq.constraintsLeftHandSide(time, stocks))
+    print(aq.constraintsRightHandSide(0.25, time))
+    print(aq.constraintsBounds(time, stocks))
+    print("p = " + str(aq.prob(time)))
+    print(aq.objectiveCostVector(time, stocks, 0, 1))
 # default
 else:
     print("Skript nicht gefunden!")
