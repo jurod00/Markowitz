@@ -1,4 +1,4 @@
-skript = "AuxiliaryQuantities.py"
+skript = "PlotPortfolioShares.py"
 
 import numpy as np
 import datetime as dt
@@ -39,15 +39,17 @@ elif skript == "PlotPortfolioShares.py":
     portfolio = PortfolioShares()
     portfolio.databasePortfolio()
     # portfolio.addRiskFreeAsset()
-    portfolio.calculateAllocationBasic()
+    # portfolio.calculateAllocationBasic()
 
     # portfolio.calculateAllocationUtilityMaximization([i for i in range(1, 50)])
+    portfolio.calculateAllocationLinearProgram([i/100 for i in range(0, 100)])
     
     plt = PlotPortfolioShares(portfolio)
-    plt.plotStocks("rel")
+    # plt.plotStocks("rel")
     # plt.plotAllocation()
-    plt.plotMeanVariance(sigmaStart=0, sigmaEnde=0.3, allocation=np.array([0.05, 0.05, 0.05, 0.05, 0.8]), riskFreeRate=0.0)
+    # plt.plotMeanVariance(sigmaStart=0, sigmaEnde=0.3, allocation=np.array([0.05, 0.05, 0.05, 0.05, 0.8]), riskFreeRate=0.0)
     # plt.plotAllocationUtilityMaximization()
+    plt.plotAllocationLinearProgram()
 
     # Neues simuliertes Portfolio
     # s0 = [100.0, 100.0, 100.0]

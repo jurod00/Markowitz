@@ -172,3 +172,38 @@ class PlotPortfolioShares:
         plt.show()
 
         fig.savefig("C:/Users/j.rode/Desktop/Markowitz/plot/assets/plotAllocation.svg")
+
+    def plotAllocationLinearProgram(self):
+        mySet = self.portfolio.getMySet()
+        xSet = self.portfolio.getXSet()
+
+        # b = self.portfolio.getB()
+        # c = self.portfolio.getC()
+
+        labels = self.portfolio.getSymbols()
+
+        fig, ax1 = plt.subplots(figsize=(15, 10))
+        # ax2 = ax1.twinx()
+
+        for j in range(len(xSet[0])):
+            x = [xSet[i][j] for i in range(len(mySet))]
+            plt.plot(mySet, x, marker='o', label=labels[j])
+
+        ax1.set_xlabel("kappa")
+        ax1.set_ylabel("allocation")
+
+        ax1.set_xlim(mySet[0], mySet[-1])
+        ax1.set_ylim(-0.05, 1.05)
+
+        ax1.set_yticks([i/10 for i in range(11)])
+
+        ax1.grid(linewidth=0.25)
+        ax1.hlines(y=0, xmin=mySet[0], xmax=mySet[-1], linewidth=1.5, color="silver", zorder=-1)
+        # ax1.vlines(x=b/c, ymin=-0.05, ymax=1.05, linestyle=":", label="minimal risk")
+
+        ax1.legend(loc="best")
+
+        plt.xticks(rotation=45)
+        plt.show()
+
+        fig.savefig("C:/Users/j.rode/Desktop/Markowitz/plot/assets/plotAllocation.svg")

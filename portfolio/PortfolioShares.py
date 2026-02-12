@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import datetime as dt
+import scipy.optimize as opt
 
 from simulation import GeometricBrownianMotion as Gbm
 from util import Time
@@ -106,6 +107,37 @@ class PortfolioShares:
             x = aq.allocationUtilityMaximization(self.time, self.stocks, kappa)
             self.xSet.append(x)
 
+    def calculateAllocationLinearProgram(self, mySet: list) -> None:
+        aq = Aq()
+
+        c = aq.objectiveCostVector(self.time, self.stocks, 0.95, 1)
+        bounds = aq.constraintsBounds(self.time, self.stocks)
+
+        self.mySet = mySet
+        self.xSet = []
+
+        J = aq.numberStocks(self.stocks)
+        for my in mySet:
+            A_ub = aq.constraintsInequality(self.time, self.stocks, my, "left")
+            A_eq = aq.constraintsEquality(self.time, self.stocks, "left")
+
+            b_ub = aq.constraintsInequality(self.time, self.stocks, my, "right")
+            b_eq = aq.constraintsEquality(self.time, self.stocks, "right")
+
+            solution = opt.linprog(
+                c=c, 
+                A_ub=A_ub, 
+                b_ub=b_ub, 
+                A_eq=A_eq, 
+                b_eq=b_eq, 
+                bounds=bounds, 
+                method="highs")
+            
+            x = solution.x[:J]
+            print(sum(x))
+            print(x)
+            self.xSet.append(x)
+
     def getX0(self):
         return self.x0
     
@@ -118,20 +150,23 @@ class PortfolioShares:
     def getMy1(self):
         return self.my1
     
-    def getA(self):
+    def getA(self) -> float:
         return self.a
     
-    def getB(self):
+    def getB(self) -> float:
         return self.b
     
-    def getC(self):
+    def getC(self) -> float:
         return self.c
     
-    def getD(self):
+    def getD(self) -> float:
         return self.d
     
-    def getKappas(self):
+    def getKappas(self) -> list:
         return self.kappas
     
-    def getXSet(self):
+    def getMySet(self) -> list:
+        return self.mySet
+    
+    def getXSet(self) -> list:
         return self.xSet

@@ -161,7 +161,7 @@ class AuxiliaryQuantities:
 
         return A
     
-    def constraintsRightHandSide(self, my: float, time: list):
+    def constraintsRightHandSide(self, time: list, my: float):
         n = self.numberTimestamps(time)
 
         b = np.empty(n+2)
@@ -170,6 +170,51 @@ class AuxiliaryQuantities:
         b[2:] = 0
 
         return b
+    
+    def constraintsInequality(self, time: list, stocks: list, my: float, leftRight: str):
+        n = self.numberTimestamps(time)
+        J = self.numberStocks(stocks)
+
+        if leftRight == "left":
+            r = self.expectedReturn(time, stocks)
+            XI = self.annualizedReturn(time, stocks)
+
+            A = np.empty((n+1, J+n+1))
+            A[0,:J] = -r
+            A[0,J:] = 0
+
+            for i in range(n):
+                A[i+1,:J] = -XI[i,:]
+                A[i+1, J] = -1
+                A[i+1,J+1:] = 0
+                A[i+1,J+1+i] = -1
+
+            return A
+
+        elif leftRight == "right":
+            b = np.empty(n+1)
+            b[0] = -my
+            b[1] = 1
+            b[2:] = 0
+
+            return b
+        
+    def constraintsEquality(self, time: list, stocks: list, leftRight: str):
+        n = self.numberTimestamps(time)
+        J = self.numberStocks(stocks)
+
+        if leftRight == "left":
+            A = np.empty((1, J+n+1))
+            A[0,:J] = 1
+            A[0,J:] = 0
+
+            return A
+        
+        if leftRight == "right":
+            b = np.empty(1)
+            b[0] = 1
+
+            return b
 
     def constraintsBounds(self, time: list, stocks: list):
         n = self.numberTimestamps(time)
@@ -177,8 +222,10 @@ class AuxiliaryQuantities:
 
         bound = []
 
-        for j in range(J+1):
+        for j in range(J):
             bound.append((None, None))
+
+        bound.append((None, None))
 
         for i in range(n):
             bound.append((0, None))
