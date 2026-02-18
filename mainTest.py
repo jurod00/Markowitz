@@ -1,7 +1,9 @@
-skript = "PlotPortfolioShares.py"
+skript = "SensitivityAnalysis.py"
 
 import numpy as np
 import datetime as dt
+
+from analysis import SensitivityAnalysis
 
 from iO import Input
 
@@ -14,8 +16,11 @@ from simulation import GeometricBrownianMotion as Gbm
 from util import Time
 from util import AuxiliaryQuantities as Aq
 
+# analysis
+if skript == "SensitivityAnalysis.py":
+    sensitivityAnalysis = SensitivityAnalysis()
 # iO
-if skript == "Input.py":
+elif skript == "Input.py":
     input = Input()
 
     symbols = ["ADS.DE", "AMZN", "MCD"]
