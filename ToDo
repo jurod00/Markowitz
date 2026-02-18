@@ -1,4 +1,5 @@
 1.  Kurzfristig
+1.1 SensitivityAnalysis in Package analysis einführen
 
 2.  Mittelfristig
 2.1 Speichere Allokationen anderer Methoden in einer csv, um Allocationen im Mean-Variance-plot mit Markowitz darzustellen und mit market-portfolio zu vergleichen
