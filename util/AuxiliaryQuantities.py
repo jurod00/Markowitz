@@ -124,7 +124,6 @@ class AuxiliaryQuantities:
         ones = np.ones(self.numberStocks(stocks))
         
         x = 1/kappa*np.matmul(SIGMAinv, r + (kappa - ones.dot(SIGMAinv.dot(r)))/ones.dot(SIGMAinv.dot(ones))*ones)
-        print(x)
         return x
     
     def objectiveCostVector(self, time: list, stocks: list, alpha: float, gamma: float):
