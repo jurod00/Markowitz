@@ -1,4 +1,4 @@
-skript = "SensitivityAnalysis.py"
+skript = "PlotPortfolioShares.py"
 
 import numpy as np
 import datetime as dt
@@ -8,8 +8,10 @@ from analysis import SensitivityAnalysis
 from iO import Input
 
 from plot import PlotPortfolioShares
+from plot import PlotSensitivityAnalysis
 
 from portfolio import PortfolioShares
+from portfolio import FinancialMathematics as FiMa
 
 from simulation import GeometricBrownianMotion as Gbm
 
@@ -19,6 +21,51 @@ from util import AuxiliaryQuantities as Aq
 # analysis
 if skript == "SensitivityAnalysis.py":
     sensitivityAnalysis = SensitivityAnalysis()
+    sensitivityAnalysis.setSeed(1)
+
+    portfolio = PortfolioShares()
+    portfolio.databasePortfolio()
+    portfolio.calculateAllocationBasic()
+
+    portfolioNoisy = PortfolioShares()
+    portfolioNoisy.setStocks(sensitivityAnalysis.addNormalNoise(portfolio.getStocks(), 0.001))
+    portfolioNoisy.setTime(portfolio.getTime())
+    portfolioNoisy.setSymbols(portfolio.getSymbols())
+    portfolioNoisy.calculateAllocationBasic()
+
+    # plt1 = PlotPortfolioShares(portfolio)
+    # plt2 = PlotPortfolioShares(portfolioNoisy)
+
+    # plt1.plotStocks("rel")
+    # plt1.plotAllocation()
+    
+    # plt2.plotStocks("rel")
+    # plt2.plotAllocation()
+
+    x = FiMa.allocationBasic(portfolio.getTime(), portfolio.getStocks(), 0.07)
+    xNoisy = FiMa.allocationBasic(portfolioNoisy.getTime(), portfolioNoisy.getStocks(), 0.07)
+
+    print(x)
+    print(xNoisy)
+
+    print(sensitivityAnalysis.err(x, xNoisy))
+
+    # new
+    my = np.linspace(0, 0.25, num=int(1e+3))
+    allocations = []
+    for m in my:
+        stocksNoisy = sensitivityAnalysis.addNormalNoise(portfolio.getStocks(), 0.005)
+        x = FiMa.allocationBasic(portfolioNoisy.getTime(), stocksNoisy, m)
+        allocations.append(x)
+
+    plt3 = PlotSensitivityAnalysis()
+    plt3.plotMeanVariance(portfolio, allocations)
+
+    print(sensitivityAnalysis.err([0,1],[3,5]))
+
+    A = np.array([[1,2,3],[4,5,6],[3,8,9]])
+    print(sensitivityAnalysis.conditionNumber(A))
+    print(sensitivityAnalysis.conditionNumber(np.linalg.inv(A)))
 # iO
 elif skript == "Input.py":
     input = Input()

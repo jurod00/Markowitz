@@ -1,2 +1,3 @@
 from .PortfolioShares import PortfolioShares
-__all__ = ["PortfolioShares"]
+from .FinancialMathematics import FinancialMathematics
+__all__ = ["PortfolioShares", "FinancialMathematics"]

@@ -1,9 +1,12 @@
 1.  Kurzfristig
-1.1 SensitivityAnalysis in Package analysis einführen
+1.1 Mean-Riskmeasure-Plot statt Mean-Variance-Plot für LP
+1.2 Numerische Sensitivität nach x für alle Modelle
+1.3 Sensititvität nach alpha für LP
 
 2.  Mittelfristig
 2.1 Speichere Allokationen anderer Methoden in einer csv, um Allocationen im Mean-Variance-plot mit Markowitz darzustellen und mit market-portfolio zu vergleichen
-2.2 AuxiliaryQuantities ablösen und durch Klasse FiMa in package Portfolio static-Methoden ersetzen (@staticmethod)
+2.2 Überflüssige Methoden in PortfolioShares.py entfernen
+2.3 AuxiliaryQuantities.py entfernen
 
 3.  Langfristig
 3.1 Frontend entwickeln

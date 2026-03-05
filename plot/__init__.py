@@ -1,2 +1,3 @@
 from .PlotPortfolioShares import PlotPortfolioShares
-__all__ = ["PlotPortfolioShares"]
+from .PlotSensitivityAnalysis import PlotSensitivityAnalysis
+__all__ = ["PlotPortfolioShares", "PlotSensitivityAnalysis"]

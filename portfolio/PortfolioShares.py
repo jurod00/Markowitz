@@ -10,6 +10,8 @@ from iO import Input
 
 from util import AuxiliaryQuantities as Aq
 
+from portfolio import FinancialMathematics as FiMa
+
 class PortfolioShares:
 
     def __init__(self):
@@ -87,7 +89,7 @@ class PortfolioShares:
 
         self.stocks.append(stock)
 
-
+# Fortfolgend überflüssig:
     def calculateAllocationBasic(self, my0: float=0.0, my1: float=0.25) -> None:
         aq = Aq()
         self.x0 = aq.allocationBasic(self.time, self.stocks, my0)
@@ -170,3 +172,21 @@ class PortfolioShares:
     
     def getXSet(self) -> list:
         return self.xSet
+    
+# +++ New +++
+    def allocationMarkowitz(self, my: float) -> list:
+        x = FiMa.allocationBasic(
+            time=self.time, 
+            stocks=self.stocks, 
+            minimumReturn=my, 
+            unit="log%"
+        )
+        return x
+    
+    def allocationUtilityMaximization(self, kappa: float) -> list:
+        x = FiMa.allocationUtilityMaximization(
+            time=self.time,
+            stocks=self.stocks,
+            kappa=kappa
+        )
+        return x
