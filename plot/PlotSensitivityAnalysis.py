@@ -67,3 +67,56 @@ class PlotSensitivityAnalysis:
 
         plt.xticks(rotation=45)
         plt.show()
+
+    def plotMeanRiskmeasure(self, portfolio, epsilon) -> None:
+        # Portfolios with noise
+        my = [i/10000 for i in range(10000)]
+        riskMeasure = []
+
+        for m in my:
+            objTemp = FiMa.objectiveLinearProgramming(
+                time=portfolio.getTime(),
+                stocks=portfolio.getStocks(),
+                minimumReturn=m
+            )
+            riskMeasure.append(objTemp)
+
+        allocations = self.analysis.allocationsNoisy(portfolio, epsilon, "linearProgramming")
+        myScatter, objectiveScatter = self.analysis.meanObjectiveScatterData(portfolio, allocations)
+
+        # Plot
+        fig, ax1 = plt.subplots(figsize=(15, 10))
+        # ax2 = ax1.twinx()
+
+        ax1.plot(
+            riskMeasure, 
+            my, 
+            linewidth=1, 
+            color="black", 
+            label=r"$\mu(\sigma)$"
+        )
+        
+        ax1.scatter(
+            x=objectiveScatter, 
+            y=myScatter, 
+            s=1, 
+            c="black", 
+            marker=".", 
+            label=r"$\left(\rho(x^*),\mu(x^*)\right)$"
+        )
+
+        ax1.set_xlabel("risk " + r"$\rho = Ex^T\xi + \mathcal{R}_{\alpha,\gamma}(-x^T\xi)$")
+        ax1.set_ylabel("return " + r"$\mu$")
+
+        ax1.set_xlim(0, 0.5)
+        ax1.set_ylim(0, 0.5)
+
+        ax1.set_xticks([i/10 for i in range(6)])
+        ax1.set_yticks([i/10 for i in range(6)])
+
+        ax1.grid(linewidth=0.25)
+
+        ax1.legend(loc="best")
+
+        plt.xticks(rotation=45)
+        plt.show()

@@ -5,6 +5,9 @@ class FinancialMathematics:
     
     def __init__(self):
         pass
+    
+    alpha = 0.95
+    gamma = 0.5
 
     @staticmethod
     def duration(time: list):
@@ -131,6 +134,41 @@ class FinancialMathematics:
         return var
     
     @staticmethod
+    def averageValueAtRisk(time: list, stocks: list, allocation, alpha):
+        n = FiMa.numberTimestamps(time)
+        p = FiMa.prob(time)
+        XI = FiMa.annualizedReturn(time, stocks)
+
+        c = np.empty(n+1)
+        c[0] = 1
+        c[1:] = 1/(1-alpha)*p
+
+        A_ub = np.empty((n, n+1))
+        for i in range(n):
+            A_ub[i, 0] = -1
+            A_ub[i,1:] = 0
+            A_ub[i,1+i] = -1
+
+        b_ub = np.empty(n)
+        for i in range(n):
+            b_ub[i] = allocation.dot(XI[i,:])
+
+        bounds = []
+        bounds.append((None, None))
+        for _ in range(n):
+            bounds.append((0, None))
+
+        solution = opt.linprog(
+            c=c, 
+            A_ub=A_ub, 
+            b_ub=b_ub, 
+            bounds=bounds, 
+            method="highs"
+        )
+        AVaR = solution.fun
+        return AVaR
+    
+    @staticmethod
     def allocationUtilityMaximization(time: list, stocks: list, kappa: float):
         r = FiMa.expectedReturn(time, stocks)
         SIGMAinv = FiMa.precision(time, stocks)
@@ -140,51 +178,18 @@ class FinancialMathematics:
         return x
     
     @staticmethod
-    def objectiveCostVector(time: list, stocks: list, alpha: float, gamma: float):
+    def objectiveCostVector(time: list, stocks: list):
         n = FiMa.numberTimestamps(time)
         J = FiMa.numberStocks(stocks)
         p = FiMa.prob(time)
         r = FiMa.expectedReturn(time, stocks)
 
         c = np.empty(J+n+1)
-        c[:J] = gamma*r
-        c[J] = gamma
-        c[J+1:] = gamma/(1-alpha)*p
+        c[:J] = FiMa.gamma*r
+        c[J] = FiMa.gamma
+        c[J+1:] = FiMa.gamma/(1-FiMa.alpha)*p
 
         return c
-    
-    @staticmethod
-    def constraintsLeftHandSide(time: list, stocks: list):
-        n = FiMa.numberTimestamps(time)
-        J = FiMa.numberStocks(stocks)
-
-        r = FiMa.expectedReturn(time, stocks)
-        XI = FiMa.annualizedReturn(time, stocks)
-
-        A = np.empty((n+2, J+n+1))
-        print("r = " + str(r))
-        A[0,:J] = -r
-        A[0,J:] = 0
-        A[1,:J] = 1
-        A[1,J:] = 0
-        for i in range(n):
-            A[i+2,:J] = -XI[i, :]
-            A[i+2, J] = -1
-            A[i+2,J+1:] = 0
-            A[i+2,J+1+i] = -1
-
-        return A
-    
-    @staticmethod
-    def constraintsRightHandSide(time: list, my: float):
-        n = FiMa.numberTimestamps(time)
-
-        b = np.empty(n+2)
-        b[0] = -my
-        b[1] = 1
-        b[2:] = 0
-
-        return b
     
     @staticmethod
     def constraintsInequality(time: list, stocks: list, my: float, leftRight: str):
@@ -210,7 +215,7 @@ class FinancialMathematics:
         elif leftRight == "right":
             b = np.empty(n+1)
             b[0] = -my
-            b[1] = 1
+            b[1] = 0 # Todo: Fehler
             b[2:] = 0
 
             return b
@@ -238,21 +243,23 @@ class FinancialMathematics:
         n = FiMa.numberTimestamps(time)
         J = FiMa.numberStocks(stocks)
 
-        bound = []
+        bounds = []
 
-        for j in range(J):
-            bound.append((None, None))
+        for _ in range(J):
+            bounds.append((None, None))
 
-        bound.append((None, None))
+        bounds.append((None, None))
 
-        for i in range(n):
-            bound.append((0, None))
+        for _ in range(n):
+            bounds.append((0, None))
 
-        return bound
+        return bounds
     
     @staticmethod
     def allocationLinearProgramming(time: list, stocks: list, minimumReturn: float):
-        c = FiMa.objectiveCostVector(time, stocks, 0.40, 1)
+        alpha = 0.95
+        gamma = 0.5
+        c = FiMa.objectiveCostVector(time, stocks)
         bounds = FiMa.constraintsBounds(time, stocks)
 
         my = minimumReturn
@@ -276,5 +283,34 @@ class FinancialMathematics:
             
         x = solution.x[:J]
         return x
+    
+    @staticmethod
+    def objectiveLinearProgramming(time: list, stocks: list, minimumReturn: float):
+        alpha = 0.95
+        gamma = 0.5
+        c = FiMa.objectiveCostVector(time, stocks)
+        bounds = FiMa.constraintsBounds(time, stocks)
+
+        my = minimumReturn
+
+        A_ub = FiMa.constraintsInequality(time, stocks, my, "left")
+        A_eq = FiMa.constraintsEquality(time, stocks, "left")
+
+        b_ub = FiMa.constraintsInequality(time, stocks, my, "right")
+        b_eq = FiMa.constraintsEquality(time, stocks, "right")
+
+        solution = opt.linprog(
+            c=c, 
+            A_ub=A_ub, 
+            b_ub=b_ub, 
+            A_eq=A_eq, 
+            b_eq=b_eq, 
+            bounds=bounds, 
+            method="highs"
+        )
+            
+        #obj = solution.fun/gamma
+        obj = solution.fun
+        return obj
     
 FiMa = FinancialMathematics

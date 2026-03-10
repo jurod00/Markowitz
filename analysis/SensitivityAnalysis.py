@@ -4,7 +4,8 @@ from portfolio import FinancialMathematics as FiMa
 
 class SensitivityAnalysis:
     def __init__(self):
-        pass
+        self.alpha = 0.95
+        self.gamma = 0.5
 
     def conditionNumber(self, Sigma):
         return np.linalg.cond(Sigma)
@@ -55,6 +56,28 @@ class SensitivityAnalysis:
             sigma.append(sigmaTemp)
         
         return my, sigma
+    
+    def meanObjectiveScatterData(self, portfolio, allocations):
+        my, obj = [], []
+        
+        for allocation in allocations:
+            myTemp = FiMa.mean(
+                time=portfolio.getTime(), 
+                stocks=portfolio.getStocks(), 
+                allocation=allocation
+            )
+            my.append(myTemp)
+
+            objTemp = FiMa.averageValueAtRisk(
+                time=portfolio.getTime(),
+                stocks=portfolio.getStocks(),
+                allocation=allocation,
+                alpha=self.alpha
+            ) + myTemp
+            obj.append(self.gamma*objTemp)
+
+        return my, obj
+
     
     def allocationsNoisy(self, portfolio, epsilon, method):
         allocations = []
