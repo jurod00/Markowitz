@@ -257,8 +257,6 @@ class FinancialMathematics:
     
     @staticmethod
     def allocationLinearProgramming(time: list, stocks: list, minimumReturn: float):
-        alpha = 0.95
-        gamma = 0.5
         c = FiMa.objectiveCostVector(time, stocks)
         bounds = FiMa.constraintsBounds(time, stocks)
 
@@ -286,8 +284,6 @@ class FinancialMathematics:
     
     @staticmethod
     def objectiveLinearProgramming(time: list, stocks: list, minimumReturn: float):
-        alpha = 0.95
-        gamma = 0.5
         c = FiMa.objectiveCostVector(time, stocks)
         bounds = FiMa.constraintsBounds(time, stocks)
 

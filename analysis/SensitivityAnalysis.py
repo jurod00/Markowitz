@@ -97,7 +97,7 @@ class SensitivityAnalysis:
                 x = FiMa.allocationUtilityMaximization(portfolio.getTime(), stocksNoisy, k)
                 allocations.append(x)
         elif method == "linearProgramming":
-            my = np.linspace(0, 0.3, num=int(3e+3))
+            my = np.linspace(0, 0.5, num=int(3e+3))
 
             for m in my:
                 stocksNoisy = self.addNormalNoise(portfolio.getStocks(), epsilon)
@@ -105,3 +105,37 @@ class SensitivityAnalysis:
                 allocations.append(x)
 
         return allocations
+    
+    def sensitivity(self, portfolio, method, theta=-1):
+        if method == "markowitz":
+            if theta == -1:
+                _, b, c, d = FiMa.abcd(portfolio.getTime(), portfolio.getStocks())
+                SIGMAinv = FiMa.precision(portfolio.getTime(), portfolio.getStocks())
+                r = FiMa.expectedReturn(portfolio.getTime(), portfolio.getStocks())
+                ones = np.ones(FiMa.numberStocks(portfolio.getStocks()))
+
+                sensitivity = np.linalg.norm(c/d*SIGMAinv.dot(r) - b/d*SIGMAinv.dot(ones))
+                return sensitivity
+            else:
+                pass # Delta x / Delta theta
+        elif method == "utilityMaximization":
+            _, b, c, d = FiMa.abcd(portfolio.getTime(), portfolio.getStocks())
+            SIGMAinv = FiMa.precision(portfolio.getTime(), portfolio.getStocks())
+            r = FiMa.expectedReturn(portfolio.getTime(), portfolio.getStocks())
+            ones = np.ones(FiMa.numberStocks(portfolio.getStocks()))
+
+            sensitivity = np.linalg.norm((b/c*SIGMAinv.dot(ones) - SIGMAinv.dot(r))/theta**2)
+            return sensitivity
+        elif method == "linearProgramming":
+            pass
+
+    def elasticity(self, portfolio, method, theta=-1):
+        if method == "markowitz":
+            if theta == -1:
+                pass
+            else:
+                pass # (Delta x / x) / (Delta theta / theta)
+        elif method == "utilityMaximization":
+            pass
+        elif method == "linearProgramming":
+            pass

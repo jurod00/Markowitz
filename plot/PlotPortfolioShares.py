@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 #plt.style.use("dark_background")
 
 from util import AuxiliaryQuantities as Aq
+from portfolio import FinancialMathematics as FiMa
 
 class PlotPortfolioShares:
     def __init__(self, portfolio):
@@ -14,9 +15,12 @@ class PlotPortfolioShares:
 
         J = len(self.portfolio.symbols)
 
+        cmap    = plt.cm.get_cmap("Blues")
+        colors  = cmap(np.linspace(0.2, 1.0, J))
+
         if absRel == "abs":
             for j in range(J):
-                ax1.plot(self.portfolio.time, self.portfolio.stocks[j], label=self.portfolio.symbols[j])
+                ax1.plot(self.portfolio.time, self.portfolio.stocks[j], label=self.portfolio.symbols[j], colors=colors)
 
         if absRel == "rel":
             for j in range(J):
@@ -27,10 +31,14 @@ class PlotPortfolioShares:
 
                 stocksTemp[0] = 1
 
-                ax1.plot(self.portfolio.time, stocksTemp, label=self.portfolio.symbols[j])
+                ax1.plot(self.portfolio.time, stocksTemp, label=self.portfolio.symbols[j], color=colors[j])
 
         ax1.grid(axis="y", linewidth=0.25)
         ax1.legend(loc="best")
+
+        ax1.set_ylabel("relative stock prices " + r"$S_t\,/\,S_0$")
+
+        ax1.set_xlim(self.portfolio.time[0], self.portfolio.time[-1])
         
         plt.xticks(rotation=45)
         plt.show()
@@ -52,14 +60,18 @@ class PlotPortfolioShares:
         fig, ax1 = plt.subplots(figsize=(15, 10))
         # ax2 = ax1.twinx()
 
-        for j in range(len(labels)):
+        J = len(labels)
+        cmap    = plt.cm.get_cmap("Blues")
+        colors  = cmap(np.linspace(0.2, 1.0, J))
+
+        for j in range(J):
             m = (x1[j] - x0[j])/(my1 - my0)
             n = x0[j] - m*my0
 
-            ax1.plot([myStart, myEnde], [m*myStart+n, m*myEnde+n], linestyle="-", label=labels[j])
+            ax1.plot([myStart, myEnde], [m*myStart+n, m*myEnde+n], linestyle="-", color=colors[j], label=labels[j])
 
-        ax1.set_xlabel("minimum return")
-        ax1.set_ylabel("allocation")
+        ax1.set_xlabel("minimum return " + r"$\mu$")
+        ax1.set_ylabel("allocation " + r"$x^*(\mu)$")
 
         ax1.set_xlim(myStart, myEnde)
         ax1.set_ylim(-0.05, 1.05)
@@ -147,12 +159,16 @@ class PlotPortfolioShares:
         fig, ax1 = plt.subplots(figsize=(15, 10))
         # ax2 = ax1.twinx()
 
-        for j in range(len(xSet[0])):
-            x = [xSet[i][j] for i in range(len(kappas))]
-            plt.plot(kappas, x, linestyle="-", label=labels[j])
+        J = len(xSet[0])
+        cmap    = plt.cm.get_cmap("Blues")
+        colors  = cmap(np.linspace(0.2, 1.0, J))
 
-        ax1.set_xlabel("kappa")
-        ax1.set_ylabel("allocation")
+        for j in range(J):
+            x = [xSet[i][j] for i in range(len(kappas))]
+            plt.plot(kappas, x, linestyle="-", label=labels[j], color=colors[j])
+
+        ax1.set_xlabel("risk aversion " + r"$\kappa$")
+        ax1.set_ylabel("allocation " + r"$x^*(\kappa)$")
 
         ax1.set_xlim(kappas[0], kappas[-1])
         ax1.set_ylim(-0.05, 1.05)
@@ -170,24 +186,68 @@ class PlotPortfolioShares:
 
         fig.savefig("C:/Users/j.rode/Desktop/Markowitz/plot/assets/plotAllocation.svg")
 
-    def plotAllocationLinearProgram(self):
-        mySet = self.portfolio.getMySet()
-        xSet = self.portfolio.getXSet()
+    # def plotAllocationLinearProgram(self):
+    #     mySet = self.portfolio.getMySet()
+    #     xSet = self.portfolio.getXSet()
 
-        # b = self.portfolio.getB()
-        # c = self.portfolio.getC()
+    #     # b = self.portfolio.getB()
+    #     # c = self.portfolio.getC()
+
+    #     labels = self.portfolio.getSymbols()
+
+    #     fig, ax1 = plt.subplots(figsize=(15, 10))
+    #     # ax2 = ax1.twinx()
+
+    #     for j in range(len(xSet[0])):
+    #         x = [xSet[i][j] for i in range(len(mySet))]
+    #         plt.plot(mySet, x, marker='o', label=labels[j])
+
+    #     ax1.set_xlabel("kappa")
+    #     ax1.set_ylabel("allocation")
+
+    #     ax1.set_xlim(mySet[0], mySet[-1])
+    #     ax1.set_ylim(-0.05, 1.05)
+
+    #     ax1.set_yticks([i/10 for i in range(11)])
+
+    #     ax1.grid(linewidth=0.25)
+    #     ax1.hlines(y=0, xmin=mySet[0], xmax=mySet[-1], linewidth=1.5, color="silver", zorder=-1)
+    #     # ax1.vlines(x=b/c, ymin=-0.05, ymax=1.05, linestyle=":", label="minimal risk")
+
+    #     ax1.legend(loc="best")
+
+    #     plt.xticks(rotation=45)
+    #     plt.show()
+
+    #     fig.savefig("C:/Users/j.rode/Desktop/Markowitz/plot/assets/plotAllocation.svg")
+
+    def plotAllocationLinearProgramming(self):
+        mySet = np.linspace(0, 0.25, num=int(1e+4))
+        xSet = []
+
+        for my in mySet:
+            x = FiMa.allocationLinearProgramming(
+                time=self.portfolio.getTime(),
+                stocks=self.portfolio.getStocks(),
+                minimumReturn=my
+            )
+            xSet.append(x)
 
         labels = self.portfolio.getSymbols()
 
         fig, ax1 = plt.subplots(figsize=(15, 10))
         # ax2 = ax1.twinx()
 
-        for j in range(len(xSet[0])):
-            x = [xSet[i][j] for i in range(len(mySet))]
-            plt.plot(mySet, x, marker='o', label=labels[j])
+        J = len(xSet[0])
+        cmap    = plt.cm.get_cmap("Blues")
+        colors  = cmap(np.linspace(0.2, 1.0, J))
 
-        ax1.set_xlabel("kappa")
-        ax1.set_ylabel("allocation")
+        for j in range(J):
+            x = [xSet[i][j] for i in range(len(mySet))]
+            plt.plot(mySet, x, label=labels[j], color=colors[j])
+
+        ax1.set_xlabel("minimum return " + r"$\mu$")
+        ax1.set_ylabel("allocation " + r"$x^*(\mu)$")
 
         ax1.set_xlim(mySet[0], mySet[-1])
         ax1.set_ylim(-0.05, 1.05)
@@ -196,7 +256,6 @@ class PlotPortfolioShares:
 
         ax1.grid(linewidth=0.25)
         ax1.hlines(y=0, xmin=mySet[0], xmax=mySet[-1], linewidth=1.5, color="silver", zorder=-1)
-        # ax1.vlines(x=b/c, ymin=-0.05, ymax=1.05, linestyle=":", label="minimal risk")
 
         ax1.legend(loc="best")
 
