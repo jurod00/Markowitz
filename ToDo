@@ -1,15 +1,11 @@
 1.  Kurzfristig
-1.1 Numerische Sensitivität nach x für alle Modelle
-1.2 Overleaf: Corollary Elastisity
-1.3 Overleaf: Elasticity Utility Max O(1/k)
-1.4 ReadMe überarbeiten
-1.5 Overleaf: Elasticity eps > 0 elastisch, blabla
 
 2.  Mittelfristig
-2.1 Speichere Allokationen anderer Methoden in einer csv, um Allocationen im Mean-Variance-plot mit Markowitz darzustellen und mit market-portfolio zu vergleichen
-2.2 Überflüssige Methoden in PortfolioShares.py entfernen
-2.3 AuxiliaryQuantities.py entfernen
+2.1 Überflüssige Methoden in PortfolioShares.py entfernen
+2.2 AuxiliaryQuantities.py entfernen
 
 3.  Langfristig
 3.1 Frontend entwickeln
 3.2 Speichere bereits heruntergeladene Daten in einer csv (im Package database) und gleiche anschließend ab, ob ein erneuter download notwendig ist.
+3.3 Leverage z.B. mit Optionen
+3.4 Hedgen z.B. mit Anleihen

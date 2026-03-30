@@ -6,6 +6,9 @@ Das Porgramm löst folgendene Minimierungsprobleme
 \text{subject to}\;\mathbb{E}\,x^T\xi\geq\mu\;
 ```
 ```math
+\text{maximize}_{x\in\mathbb{R}^J}\;\text{E}\,x^T\xi-\frac{\kappa}{2}\text{var}\;x^T\xi
+```
+```math
 \text{minimize}_{x\in\mathbb{R}^J}\mathbb{E}\,x^T\xi+\mathcal{R}(-x^T\xi) \\
 \text{subject to}\;\mathbb{E}\,x^T\xi\geq\mu\;
 ```
