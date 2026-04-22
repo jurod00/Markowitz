@@ -1,11 +1,12 @@
 import numpy as np
 
-from portfolio import FinancialMathematics as FiMa
+from mathematics.financialMathematics import FinancialMathematics as FiMa
 
 class SensitivityAnalysis:
     def __init__(self):
-        self.alpha = 0.95
-        self.gamma = 0.5
+        self.alphaDefault = 0.95
+        self.gammaDefault = 0.5
+        self.myDefault = 0.07
 
     def conditionNumber(self, Sigma):
         return np.linalg.cond(Sigma)
@@ -57,7 +58,7 @@ class SensitivityAnalysis:
         
         return my, sigma
     
-    def meanObjectiveScatterData(self, portfolio, allocations):
+    def meanObjectiveScatterData(self, portfolio, allocations, alpha, gamma):
         my, obj = [], []
         
         for allocation in allocations:
@@ -72,31 +73,31 @@ class SensitivityAnalysis:
                 time=portfolio.getTime(),
                 stocks=portfolio.getStocks(),
                 allocation=allocation,
-                alpha=self.alpha
+                alpha=alpha
             ) + myTemp
-            obj.append(self.gamma*objTemp)
+            obj.append(gamma*objTemp)
 
         return my, obj
 
-    
-    def allocationsNoisy(self, portfolio, epsilon, method):
+    # Relevante Methode
+    def allocationsNoisy(self, portfolio, epsilon, model):
         allocations = []
 
-        if method == "markowitz":
+        if model == "Markowitz":
             my = np.linspace(0, 0.3, num=int(3e+3))
 
             for m in my:
                 stocksNoisy = self.addNormalNoise(portfolio.getStocks(), epsilon)
                 x = FiMa.allocationBasic(portfolio.getTime(), stocksNoisy, m)
                 allocations.append(x)
-        elif method == "utilityMaximization":
+        elif model == "UtilityMaximization":
             kappa = np.linspace(1.5, 1000, num=int(3e+3))
 
             for k in kappa:
                 stocksNoisy = self.addNormalNoise(portfolio.getStocks(), epsilon)
                 x = FiMa.allocationUtilityMaximization(portfolio.getTime(), stocksNoisy, k)
                 allocations.append(x)
-        elif method == "linearProgramming":
+        elif model == "LinearProgramming":
             my = np.linspace(0, 0.5, num=int(3e+3))
 
             for m in my:
@@ -106,8 +107,8 @@ class SensitivityAnalysis:
 
         return allocations
     
-    def sensitivity(self, portfolio, method, theta=-1):
-        if method == "markowitz":
+    def sensitivity(self, portfolio, model, theta=-1):
+        if model == "Markowitz":
             if theta == -1:
                 _, b, c, d = FiMa.abcd(portfolio.getTime(), portfolio.getStocks())
                 SIGMAinv = FiMa.precision(portfolio.getTime(), portfolio.getStocks())
@@ -118,7 +119,7 @@ class SensitivityAnalysis:
                 return sensitivity
             else:
                 pass # Delta x / Delta theta
-        elif method == "utilityMaximization":
+        elif model == "UtilityMaximization":
             _, b, c, d = FiMa.abcd(portfolio.getTime(), portfolio.getStocks())
             SIGMAinv = FiMa.precision(portfolio.getTime(), portfolio.getStocks())
             r = FiMa.expectedReturn(portfolio.getTime(), portfolio.getStocks())
@@ -126,7 +127,7 @@ class SensitivityAnalysis:
 
             sensitivity = np.linalg.norm((b/c*SIGMAinv.dot(ones) - SIGMAinv.dot(r))/theta**2)
             return sensitivity
-        elif method == "linearProgramming":
+        elif model == "LinearProgramming":
             pass
 
     def elasticity(self, portfolio, method, theta=-1):
@@ -139,3 +140,51 @@ class SensitivityAnalysis:
             pass
         elif method == "linearProgramming":
             pass
+
+    def sensitivityNew(self, model, parameter, portfolio, theta) -> float:
+        # Delta x / Delta theta
+
+        time = portfolio.getTime()
+        stocks = portfolio.getStocks()
+
+        h = float(1e-6)
+
+        if model == "Markowitz":
+            if parameter == "my":
+                x1 = FiMa.allocationBasic(time=time, stocks=stocks, minimumReturn=theta)
+                x2 = FiMa.allocationBasic(time=time, stocks=stocks, minimumReturn=theta+h)
+
+                sensitivity = np.linalg.norm(x2-x1)/h
+                return sensitivity
+            else:
+                print("Parameter \"" + parameter + "\" in model \"" + model + "\" not available!")
+        elif model == "UtilityMaximization":
+            if parameter == "kappa":
+                x1 = FiMa.allocationUtilityMaximization(time=time, stocks=stocks, kappa=theta)
+                x2 = FiMa.allocationUtilityMaximization(time=time, stocks=stocks, kappa=theta+h)
+
+                sensitivity = np.linalg.norm(x2-x1)/h
+                return sensitivity
+            else:
+                print("Parameter \"" + parameter + "\" in model \"" + model + "\" not available!")
+        elif model == "LinearProgramming":
+            if parameter == "alpha":
+                x1 = FiMa.allocationLinearProgramming(time=time, stocks=stocks, alpha=theta, gamma=self.gammaDefault, minimumReturn=self.myDefault)
+                x2 = FiMa.allocationLinearProgramming(time=time, stocks=stocks, alpha=theta+h, gamma=self.gammaDefault, minimumReturn=self.myDefault)
+
+                sensitivity = np.linalg.norm(x2-x1)/h
+                return sensitivity
+            elif parameter == "gamma":
+                x1 = FiMa.allocationLinearProgramming(time=time, stocks=stocks, alpha=self.alphaDefault, gamma=theta, minimumReturn=self.myDefault)
+                x2 = FiMa.allocationLinearProgramming(time=time, stocks=stocks, alpha=self.alphaDefault, gamma=theta+h, minimumReturn=self.myDefault)
+
+                sensitivity = np.linalg.norm(x2-x1)/h
+                return sensitivity
+            elif parameter == "my":
+                x1 = FiMa.allocationLinearProgramming(time=time, stocks=stocks, alpha=self.alphaDefault, gamma=self.gammaDefault, minimumReturn=theta)
+                x2 = FiMa.allocationLinearProgramming(time=time, stocks=stocks, alpha=self.alphaDefault, gamma=self.gammaDefault, minimumReturn=theta+h)
+
+                sensitivity = np.linalg.norm(x2-x1)/h
+                return sensitivity
+            else:
+                print("Parameter \"" + parameter + "\" in model \"" + model + "\" not available!")

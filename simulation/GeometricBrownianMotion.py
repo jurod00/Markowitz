@@ -1,5 +1,6 @@
 import numpy as np
-from util import AuxiliaryQuantities as Aq
+
+from mathematics.financialMathematics import FinancialMathematics as FiMa
 
 class GeometricBrownianMotion:
 
@@ -25,9 +26,8 @@ class GeometricBrownianMotion:
         self.stock = []
         self.stock.append(self.s0)
 
-        aq = Aq()
-        n = aq.numberTimestamps(self.time)
-        prob = aq.prob(self.time)
+        n = FiMa.numberTimestamps(time=self.time)
+        prob = FiMa.prob(time=self.time)
         
         for i in range(n):
             stockPrev = self.stock[i]

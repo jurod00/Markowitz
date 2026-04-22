@@ -5,9 +5,6 @@ class FinancialMathematics:
     
     def __init__(self):
         pass
-    
-    alpha = 0.95
-    gamma = 0.5
 
     @staticmethod
     def duration(time: list):
@@ -178,16 +175,16 @@ class FinancialMathematics:
         return x
     
     @staticmethod
-    def objectiveCostVector(time: list, stocks: list):
+    def objectiveCostVector(time: list, stocks: list, alpha: float, gamma: float):
         n = FiMa.numberTimestamps(time)
         J = FiMa.numberStocks(stocks)
         p = FiMa.prob(time)
         r = FiMa.expectedReturn(time, stocks)
 
         c = np.empty(J+n+1)
-        c[:J] = FiMa.gamma*r
-        c[J] = FiMa.gamma
-        c[J+1:] = FiMa.gamma/(1-FiMa.alpha)*p
+        c[:J] = -(1-gamma)*r
+        c[J] = gamma
+        c[J+1:] = gamma/(1-alpha)*p
 
         return c
     
@@ -256,8 +253,8 @@ class FinancialMathematics:
         return bounds
     
     @staticmethod
-    def allocationLinearProgramming(time: list, stocks: list, minimumReturn: float):
-        c = FiMa.objectiveCostVector(time, stocks)
+    def allocationLinearProgramming(time: list, stocks: list, alpha: float, gamma: float, minimumReturn: float):
+        c = FiMa.objectiveCostVector(time, stocks, alpha, gamma)
         bounds = FiMa.constraintsBounds(time, stocks)
 
         my = minimumReturn
@@ -283,8 +280,8 @@ class FinancialMathematics:
         return x
     
     @staticmethod
-    def objectiveLinearProgramming(time: list, stocks: list, minimumReturn: float):
-        c = FiMa.objectiveCostVector(time, stocks)
+    def objectiveLinearProgramming(time: list, stocks: list, alpha: float, gamma: float, minimumReturn: float):
+        c = FiMa.objectiveCostVector(time, stocks, alpha, gamma)
         bounds = FiMa.constraintsBounds(time, stocks)
 
         my = minimumReturn

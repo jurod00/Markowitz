@@ -3,14 +3,9 @@ import pandas as pd
 import datetime as dt
 import scipy.optimize as opt
 
-from simulation import GeometricBrownianMotion as Gbm
-from util import Time
-
-from iO import Input
-
-from util import AuxiliaryQuantities as Aq
-
-from portfolio import FinancialMathematics as FiMa
+from mathematics.financialMathematics import FinancialMathematics as FiMa
+from simulation.geometricBrownianMotion import GeometricBrownianMotion as Gbm
+from iO.input import Input
 
 class PortfolioShares:
 
@@ -78,8 +73,7 @@ class PortfolioShares:
             self.stocks.append(data.iloc[:, j].tolist())
 
     def addRiskFreeAsset(self, symbol: str="risk-free asset", interestRate: float=0.02):
-        aq = Aq()
-        n = aq.numberTimestamps(self.time)
+        n = FiMa.numberTimestamps(time=self.time)
 
         self.symbols.append(symbol)
 
@@ -91,40 +85,37 @@ class PortfolioShares:
 
 # Fortfolgend überflüssig:
     def calculateAllocationBasic(self, my0: float=0.0, my1: float=0.25) -> None:
-        aq = Aq()
-        self.x0 = aq.allocationBasic(self.time, self.stocks, my0)
-        self.x1 = aq.allocationBasic(self.time, self.stocks, my1)
+        print(FiMa.numberStocks([[1,2],[3,4]]))
+        self.x0 = FiMa.allocationBasic(time=self.time, stocks=self.stocks, minimumReturn=my0, unit="log%")
+        self.x1 = FiMa.allocationBasic(time=self.time, stocks=self.stocks, minimumReturn=my1, unit="log%")
 
-        self.a, self.b, self.c, self.d = aq.abcdQuantities(self.time, self.stocks)
+        self.a, self.b, self.c, self.d = FiMa.abcd(time=self.time, stocks=self.stocks)
 
         self.my0 = my0
         self.my1 = my1
 
     def calculateAllocationUtilityMaximization(self, kappas: list) -> None:
-        aq = Aq()
         self.kappas = kappas
         self.xSet = []
 
         for kappa in kappas:
-            x = aq.allocationUtilityMaximization(self.time, self.stocks, kappa)
+            x = FiMa.allocationUtilityMaximization(time=self.time, stocks=self.stocks, kappa=kappa)
             self.xSet.append(x)
 
     def calculateAllocationLinearProgram(self, mySet: list) -> None:
-        aq = Aq()
-
-        c = aq.objectiveCostVector(self.time, self.stocks, 0.95, 1)
-        bounds = aq.constraintsBounds(self.time, self.stocks)
+        c = FiMa.objectiveCostVector(time=self.time, stocks=self.stocks)
+        bounds = FiMa.constraintsBounds(time=self.time, stocks=self.stocks)
 
         self.mySet = mySet
         self.xSet = []
 
-        J = aq.numberStocks(self.stocks)
+        J = FiMa.numberStocks(stocks=self.stocks)
         for my in mySet:
-            A_ub = aq.constraintsInequality(self.time, self.stocks, my, "left")
-            A_eq = aq.constraintsEquality(self.time, self.stocks, "left")
+            A_ub = FiMa.constraintsInequality(self.time, self.stocks, my, "left")
+            A_eq = FiMa.constraintsEquality(self.time, self.stocks, "left")
 
-            b_ub = aq.constraintsInequality(self.time, self.stocks, my, "right")
-            b_eq = aq.constraintsEquality(self.time, self.stocks, "right")
+            b_ub = FiMa.constraintsInequality(self.time, self.stocks, my, "right")
+            b_eq = FiMa.constraintsEquality(self.time, self.stocks, "right")
 
             solution = opt.linprog(
                 c=c, 
