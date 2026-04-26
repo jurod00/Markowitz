@@ -10,7 +10,7 @@ class PlotPortfolioShares:
 
         self.alphaDefault = 0.95
         self.gammaDefault = 0.5
-        self.myDefault = 0.07
+        self.myDefault = 0.25 # 0.07
 
     def plotStocks(self, absRel) -> None:
         fig, ax1 = plt.subplots(figsize=(15,10))
@@ -258,7 +258,7 @@ class PlotPortfolioShares:
 
         fig.savefig("C:/Users/j.rode/Desktop/Markowitz/plot/assets/plotAllocationUtilityMaximization.svg")
 
-    def plotAllocationLinearProgramming(self, returnMin: float=0.0, returnMax: float=0.25) -> None:
+    def plotAllocationLinearProgramming(self, alpha: float=0.95, gamma: float=0.5, returnMin: float=0.0, returnMax: float=0.25) -> None:
         fig, ax1 = plt.subplots(figsize=(15, 10))
         # ax2 = ax1.twinx()
 
@@ -270,13 +270,18 @@ class PlotPortfolioShares:
 
         mys = np.linspace(returnMin, returnMax, num=int(1e+3))
 
+        if alpha != self.alphaDefault:
+            print("Warning: alpha = " + str(alpha) + " != " + str(self.alphaDefault) + " = alphaDefault")
+        if gamma != self.gammaDefault:
+            print("Warning: gamma = " + str(gamma) + " != " + str(self.gammaDefault) + " = gammaDefault")
+
         allocations = []
         for my in mys:
             x = FiMa.allocationLinearProgramming(
                 time=time,
                 stocks=stocks,
-                alpha=self.alphaDefault,
-                gamma=self.gammaDefault,
+                alpha=alpha,
+                gamma=gamma,
                 minimumReturn=my
             )
             allocations.append(x)

@@ -6,7 +6,7 @@ class SensitivityAnalysis:
     def __init__(self):
         self.alphaDefault = 0.95
         self.gammaDefault = 0.5
-        self.myDefault = 0.07
+        self.myDefault = 0.25 # 0.07
 
     def conditionNumber(self, Sigma):
         return np.linalg.cond(Sigma)
@@ -69,13 +69,19 @@ class SensitivityAnalysis:
             )
             my.append(myTemp)
 
-            objTemp = FiMa.averageValueAtRisk(
-                time=portfolio.getTime(),
-                stocks=portfolio.getStocks(),
-                allocation=allocation,
+            AVaR = FiMa.averageValueAtRisk(
+                time=portfolio.getTime(), 
+                stocks=portfolio.getStocks(), 
+                allocation=allocation, 
                 alpha=alpha
-            ) + myTemp
-            obj.append(gamma*objTemp)
+            )
+
+            if AVaR == None:
+                objTemp = None
+            else:
+                objTemp = -(1-gamma)*myTemp + gamma*AVaR
+
+            obj.append(objTemp)
 
         return my, obj
 
@@ -102,7 +108,13 @@ class SensitivityAnalysis:
 
             for m in my:
                 stocksNoisy = self.addNormalNoise(portfolio.getStocks(), epsilon)
-                x = FiMa.allocationLinearProgramming(portfolio.getTime(), stocksNoisy, m)
+                x = FiMa.allocationLinearProgramming(
+                    time=portfolio.getTime(), 
+                    stocks=stocksNoisy, 
+                    alpha=self.alphaDefault, 
+                    gamma=self.gammaDefault, 
+                    minimumReturn=m
+                )
                 allocations.append(x)
 
         return allocations
@@ -147,7 +159,7 @@ class SensitivityAnalysis:
         time = portfolio.getTime()
         stocks = portfolio.getStocks()
 
-        h = float(1e-6)
+        h = float(1e-2)
 
         if model == "Markowitz":
             if parameter == "my":
@@ -183,6 +195,9 @@ class SensitivityAnalysis:
             elif parameter == "my":
                 x1 = FiMa.allocationLinearProgramming(time=time, stocks=stocks, alpha=self.alphaDefault, gamma=self.gammaDefault, minimumReturn=theta)
                 x2 = FiMa.allocationLinearProgramming(time=time, stocks=stocks, alpha=self.alphaDefault, gamma=self.gammaDefault, minimumReturn=theta+h)
+
+                if None in x1 or None in x2:
+                    return None
 
                 sensitivity = np.linalg.norm(x2-x1)/h
                 return sensitivity

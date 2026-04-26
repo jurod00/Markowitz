@@ -118,6 +118,9 @@ class FinancialMathematics:
         r = FiMa.expectedReturn(time, stocks)
         x = allocation
 
+        if None in x:
+            return None
+
         my = r.dot(x)
         return my
 
@@ -131,7 +134,11 @@ class FinancialMathematics:
         return var
     
     @staticmethod
-    def averageValueAtRisk(time: list, stocks: list, allocation, alpha):
+    def averageValueAtRisk(time: list, stocks: list, allocation: list, alpha: float):
+        
+        if None in allocation:
+            return None
+        
         n = FiMa.numberTimestamps(time)
         p = FiMa.prob(time)
         XI = FiMa.annualizedReturn(time, stocks)
@@ -145,7 +152,7 @@ class FinancialMathematics:
             A_ub[i, 0] = -1
             A_ub[i,1:] = 0
             A_ub[i,1+i] = -1
-
+        
         b_ub = np.empty(n)
         for i in range(n):
             b_ub[i] = allocation.dot(XI[i,:])
@@ -212,8 +219,7 @@ class FinancialMathematics:
         elif leftRight == "right":
             b = np.empty(n+1)
             b[0] = -my
-            b[1] = 0 # Todo: Fehler
-            b[2:] = 0
+            b[1:] = 0
 
             return b
         
@@ -243,7 +249,7 @@ class FinancialMathematics:
         bounds = []
 
         for _ in range(J):
-            bounds.append((None, None))
+            bounds.append((0, None))
 
         bounds.append((None, None))
 
@@ -275,6 +281,9 @@ class FinancialMathematics:
             bounds=bounds, 
             method="highs"
         )
+
+        if not solution.success:
+            return J*[None]
             
         x = solution.x[:J]
         return x

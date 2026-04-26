@@ -1,4 +1,4 @@
-analysis = "LinearProgrammingSensitivityElasticityGamma"
+analysis = "LinearProgrammingAllocation"
 
 from portfolio.portfolioShares import PortfolioShares
 from mathematics.financialMathematics import FinancialMathematics as FiMa
@@ -17,38 +17,47 @@ def main():
         plot = PlotPortfolioShares(portfolio)
         plot.plotStocks("rel")
         plot.plotAllocationMarkowitz()
+
     elif analysis == "MarkowitzSensitivityElasticityMy":
         plot = PlotSensitivityAnalysis(portfolio, sensitivityAnalysis)
         plot.plotSensitivityElasticityMarkowitz()
+
     elif analysis == "MarkowitzMeanVariancePlot":
         plot = PlotSensitivityAnalysis("Markowitz", portfolio, sensitivityAnalysis)
         plot.plotMeanVariance(0.02)
+
     elif analysis == "UtilityMaximizationAllocation":
         plot = PlotPortfolioShares(portfolio)
         plot.plotStocks("rel")
         plot.plotAllocationUtilityMaximization()
+
     elif analysis == "UtilityMaximizationSensitivityElasticityKappa":
         plot = PlotSensitivityAnalysis("UtilityMaximization", portfolio, sensitivityAnalysis)
         plot.plotSensitivityElasticityUtilityMaximization()
+
     elif analysis == "UtilityMaximizationMeanVariancePlot":
         plot = PlotSensitivityAnalysis("UtilityMaximization", portfolio, sensitivityAnalysis)
         plot.plotMeanVariance(0.005)
+
     elif analysis == "LinearProgrammingAllocation":
         plot = PlotPortfolioShares(portfolio)
-        plot.plotStocks("rel")
         plot.plotAllocationLinearProgramming()
+
     elif analysis == "LinearProgrammingSensitivityElasticityMy":
         plot = PlotSensitivityAnalysis("LinearProgramming", portfolio, sensitivityAnalysis)
         plot.plotSensitivityElasticityLinearProgrammingMy()
+
     elif analysis == "LinearProgrammingSensitivityElasticityAlpha":
         plot = PlotSensitivityAnalysis("LinearProgramming", portfolio, sensitivityAnalysis)
         plot.plotSensitivityElasticityLinearProgrammingAlpha()
+
     elif analysis == "LinearProgrammingSensitivityElasticityGamma":
         plot = PlotSensitivityAnalysis("LinearProgramming", portfolio, sensitivityAnalysis)
         plot.plotSensitivityElasticityLinearProgrammingGamma()
+
     elif analysis == "LinearProgrammingMeanVariancePlot":
         plot = PlotSensitivityAnalysis("LinearProgramming", portfolio, sensitivityAnalysis)
-        plot.plotMeanRiskmeasure(0.005)
+        plot.plotMeanRiskmeasure(0.02)
     else:
         print("Analysis not available.")
     # 0.005, 0.01, 0.015, 0.02

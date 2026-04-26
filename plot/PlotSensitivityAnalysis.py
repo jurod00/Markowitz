@@ -11,7 +11,7 @@ class PlotSensitivityAnalysis:
 
         self.alphaDefault = 0.95
         self.gammaDefault = 0.5
-        self.myDefault = 0.07
+        self.myDefault = 0.25 # 0.07
 
     def plotMeanVariance(self, epsilon: float) -> None:
         fig, ax1 = plt.subplots(figsize=(15, 10))
@@ -74,31 +74,28 @@ class PlotSensitivityAnalysis:
         fig.savefig("C:/Users/j.rode/Desktop/Markowitz/plot/assets/plotMeanVariance" + self.model + str(epsilon*1000)[:2] + ".svg")
 
     def plotMeanRiskmeasure(self, epsilon: float) -> None:
-        # Portfolios with noise
-        # my = [i/10000 for i in range(10000)]
-        my = np.linspace(0.07, 0.5, num=int(1e+4))
+        fig, ax1 = plt.subplots(figsize=(15, 10))
+        # ax2 = ax1.twinx()
+
+        mys = np.linspace(0, 1, num=int(1e+4))
         riskMeasure = []
 
-        for m in my:
+        for my in mys:
             objTemp = FiMa.objectiveLinearProgramming(
                 time=self.portfolio.getTime(),
                 stocks=self.portfolio.getStocks(),
                 alpha=self.alphaDefault,
                 gamma=self.gammaDefault,
-                minimumReturn=m
+                minimumReturn=my
             )
             riskMeasure.append(objTemp)
 
-        allocations = self.sensitivityAnalysis.allocationsNoisy(self.portfolio, epsilon, "linearProgramming")
+        allocations = self.sensitivityAnalysis.allocationsNoisy(self.portfolio, epsilon, "LinearProgramming")
         myScatter, objectiveScatter = self.sensitivityAnalysis.meanObjectiveScatterData(self.portfolio, allocations, self.alphaDefault, self.gammaDefault)
-
-        # Plot
-        fig, ax1 = plt.subplots(figsize=(15, 10))
-        # ax2 = ax1.twinx()
 
         ax1.plot(
             riskMeasure, 
-            my, 
+            mys, 
             linewidth=1, 
             color="midnightblue", 
             label=r"$(\rho(x^*),\mu(x^*))$"
@@ -113,7 +110,7 @@ class PlotSensitivityAnalysis:
             label=r"$(\rho(x^\epsilon),\mu(x^\epsilon))$"
         )
 
-        ax1.set_xlabel("risk " + r"$\rho = \mathrm{E}\,x^T\xi + \mathcal{R}_{\alpha,\gamma}(-x^T\xi)$")
+        ax1.set_xlabel("risk " + r"$\rho = (1-\gamma)\,\mathrm{E}(-x^\top\xi) + \gamma\,\mathrm{AVaR}_\alpha(-x^\top\xi)$")
         ax1.set_ylabel("return " + r"$\mu = \mathrm{E}\,x^\top\xi$")
 
         ax1.set_xlim(0, 0.5)
@@ -265,7 +262,7 @@ class PlotSensitivityAnalysis:
         fig.savefig("C:/Users/j.rode/Desktop/Markowitz/plot/assets/plotElasticityUtilityMaximization.svg")
 
     def plotSensitivityElasticityLinearProgrammingMy(self) -> None:
-        mys = np.linspace(0.07, 1, num=int(1e+2))
+        mys = np.linspace(0, 0.4, num=int(1e+2))
 
         sensitivity = []
         elasticity = []
@@ -279,7 +276,11 @@ class PlotSensitivityAnalysis:
                 minimumReturn=my
             )
             sensitivity.append(self.sensitivityAnalysis.sensitivityNew("LinearProgramming", "my", self.portfolio, my))
-            elasticity.append(sensitivity[-1]*my/np.linalg.norm(x))
+
+            if sensitivity[-1] == None:
+                elasticity.append(None)
+            else:
+                elasticity.append(sensitivity[-1]*my/np.linalg.norm(x))
 
         fig, ax1 = plt.subplots(figsize=(15, 10))
         # ax2 = ax1.twinx()
@@ -288,7 +289,7 @@ class PlotSensitivityAnalysis:
         ax1.plot(mys, elasticity, ".-", label="elasticity", color="midnightblue")
         
         ax1.set_xlim(mys[0], mys[-1])
-        ax1.set_ylim(0, 5)
+        # ax1.set_ylim(0, 5)
 
         ax1.set_xlabel("parameter " + r"$\mu$")
         ax1.set_ylabel("sensitivity " + r"$\mathcal{S}\,(\mu)$" + "\nelasticity " + r"$\mathcal{E}\,(\mu)$")
@@ -301,23 +302,28 @@ class PlotSensitivityAnalysis:
         fig.savefig("C:/Users/j.rode/Desktop/Markowitz/plot/assets/plotSensitivityElasticityLinearProgrammingMy.svg")
 
     def plotSensitivityElasticityLinearProgrammingAlpha(self) -> None:
-        alphas = np.linspace(0.9, 0.99, num=int(1e+2))
+        alphas = np.linspace(0, 0.98, num=int(1e4))
 
         sensitivity = []
         
         for alpha in alphas:
             sensitivity.append(self.sensitivityAnalysis.sensitivityNew("LinearProgramming", "alpha", self.portfolio, alpha))
 
+        alphas = np.append(alphas, [1])
+        sensitivity.append(0)
+
         fig, ax1 = plt.subplots(figsize=(15, 10))
         # ax2 = ax1.twinx()
 
-        ax1.plot(alphas, sensitivity, ".-", label="sensitivity", color="dodgerblue")
+        ax1.plot(alphas, sensitivity, "-", label="sensitivity", color="dodgerblue")
         
         ax1.set_xlim(alphas[0], alphas[-1])
-        ax1.set_ylim(-0.05, 1)
+        ax1.set_ylim(-1, 50)
 
         ax1.set_xlabel("parameter " + r"$\alpha$")
         ax1.set_ylabel("sensitivity " + r"$\mathcal{S}\,(\alpha)$")
+
+        ax1.set_xticks([0.1*i for i in range(11)])
 
         ax1.grid(linewidth=0.25)
         ax1.legend(loc="best")
@@ -327,7 +333,7 @@ class PlotSensitivityAnalysis:
         fig.savefig("C:/Users/j.rode/Desktop/Markowitz/plot/assets/plotSensitivityElasticityLinearProgrammingAlpha.svg")
 
     def plotSensitivityElasticityLinearProgrammingGamma(self) -> None:
-        gammas = np.linspace(0.4, 0.99, num=int(1e+2))
+        gammas = np.linspace(0, 1, num=int(1e+4))
 
         sensitivity = []
         elasticity = []
@@ -346,11 +352,11 @@ class PlotSensitivityAnalysis:
         fig, ax1 = plt.subplots(figsize=(15, 10))
         # ax2 = ax1.twinx()
 
-        ax1.plot(gammas, sensitivity, ".-", label="sensitivity", color="dodgerblue")
+        ax1.plot(gammas, sensitivity, "-", label="sensitivity", color="dodgerblue")
         #ax1.plot(gammas, elasticity, ".-", label="elasticity", color="midnightblue")
         
         ax1.set_xlim(gammas[0], gammas[-1])
-        # ax1.set_ylim(0, 5)
+        ax1.set_ylim(-2, 100)
 
         ax1.set_xlabel("parameter " + r"$\gamma$")
         ax1.set_ylabel("sensitivity " + r"$\mathcal{S}\,(\gamma)$" + "\nelasticity " + r"$\mathcal{E}\,(\gamma)$")
