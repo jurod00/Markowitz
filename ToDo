@@ -3,7 +3,7 @@
 1.2 Epsilon im Dateipfad intuitiver unterbringen
 1.3 Mean-Variance plot mit eigenen Allocationen
 1.4 Allocationen im Kreisdiagramm bzw. Prozentangaben
-1.5 senstitivity(theta, model)
+1.5 senstitivity(theta, model) bzw. senstitivityNew in senstitivity umbenennen
 1.6 allocationBasic in allocationMarkowitz umbenennen oder allocation(model) allgemein
 1.7 senstitivityAnalysis static methods
 
