@@ -1,6 +1,8 @@
 import numpy as np
+import pathlib as pl
 import matplotlib.pyplot as plt
-#plt.style.use("dark_background")
+plt.rcParams.update({'font.size': 20})
+plt.style.use("dark_background")
 
 from mathematics.financialMathematics import FinancialMathematics as FiMa
 
@@ -53,14 +55,20 @@ class PlotPortfolioShares:
         ax1.grid(axis="y", linewidth=0.25)
         ax1.legend(loc="best")
 
-        ax1.set_ylabel("relative stock prices " + r"$S_t\,/\,S_0$")
+        ax1.set_ylabel("relative stock prices " + r"$S_t\,/\,S_0$" + "\n")
 
         ax1.set_xlim(time[0], time[-1])
         
         plt.xticks(rotation=45)
-        plt.show()
 
-        fig.savefig("C:/Users/j.rode/Desktop/Markowitz/plot/assets/plotStocks.svg")
+        # plt.show()
+
+        pathDirectory = pl.Path(__file__).resolve().parent
+        pathAssets = pathDirectory / "assets"
+        pathAssets.mkdir(exist_ok=True)
+
+        fig.savefig(pathAssets / "plotStocksNew.svg")
+
 
     def plotAllocationMarkowitz(self, returnMin: float=0.0, returnMax: float=0.25) -> None:
         fig, ax1 = plt.subplots(figsize=(15, 10))
@@ -92,8 +100,8 @@ class PlotPortfolioShares:
                 label=symbols[j]
             )
 
-        ax1.set_xlabel("minimum return " + r"$\mu$")
-        ax1.set_ylabel("allocation " + r"$x^*(\mu)$")
+        ax1.set_xlabel("\n" + "minimum return " + r"$\mu$")
+        ax1.set_ylabel("allocation " + r"$x^*(\mu)$" + "\n")
 
         ax1.set_xlim(returnMin, returnMax)
         ax1.set_ylim(-0.05, 1.05)
@@ -121,10 +129,13 @@ class PlotPortfolioShares:
 
         ax1.legend(loc="best")
 
-        plt.xticks(rotation=45)
-        plt.show()
+        # plt.show()
 
-        fig.savefig("C:/Users/j.rode/Desktop/Markowitz/plot/assets/plotAllocationMarkowitz.svg")
+        pathDirectory = pl.Path(__file__).resolve().parent
+        pathAssets = pathDirectory / "assets"
+        pathAssets.mkdir(exist_ok=True)
+
+        fig.savefig(pathAssets / "plotAllocationMarkowitzNew.svg")
 
     # TODO: Verbessern oder weg!
     # def plotMeanVariance(self, sigmaStart: float=0.0, sigmaEnde: float=0.3, allocation=np.empty(0), riskFreeRate: float=0.0) -> None:
@@ -231,14 +242,14 @@ class PlotPortfolioShares:
                 color=colors[j]
             )
 
-        ax1.set_xlabel("risk aversion " + r"$\kappa$")
-        ax1.set_ylabel("allocation " + r"$x^*(\kappa)$")
+        ax1.set_xlabel("\n" + "risk aversion " + r"$\kappa$")
+        ax1.set_ylabel("allocation " + r"$x^*(\kappa)$" + "\n")
 
         ax1.set_xlim(kappas[0], kappas[-1])
         ax1.set_ylim(-0.05, 1.05)
 
         ax1.set_xscale("log")
-        ax1.set_yticks([i/10 for i in range(11)])
+        ax1.set_yticks([0.1*i for i in range(11)])
 
         ax1.grid(linewidth=0.25)
 
@@ -253,10 +264,13 @@ class PlotPortfolioShares:
 
         ax1.legend(loc="best")
 
-        plt.xticks(rotation=45)
-        plt.show()
+        # plt.show()
 
-        fig.savefig("C:/Users/j.rode/Desktop/Markowitz/plot/assets/plotAllocationUtilityMaximization.svg")
+        pathDirectory = pl.Path(__file__).resolve().parent
+        pathAssets = pathDirectory / "assets"
+        pathAssets.mkdir(exist_ok=True)
+
+        fig.savefig(pathAssets / "plotAllocationUtilityMaximizationNew.svg")
 
     def plotAllocationLinearProgramming(self, alpha: float=0.95, gamma: float=0.5, returnMin: float=0.0, returnMax: float=0.25) -> None:
         fig, ax1 = plt.subplots(figsize=(15, 10))
@@ -300,8 +314,8 @@ class PlotPortfolioShares:
                 color=colors[j]
             )
 
-        ax1.set_xlabel("minimum return " + r"$\mu$")
-        ax1.set_ylabel("allocation " + r"$x^*(\mu)$")
+        ax1.set_xlabel("\n" + "minimum return " + r"$\mu$")
+        ax1.set_ylabel("allocation " + r"$x^*(\mu)$" + "\n")
 
         ax1.set_xlim(mys[0], mys[-1])
         ax1.set_ylim(-0.05, 1.05)
@@ -313,7 +327,10 @@ class PlotPortfolioShares:
 
         ax1.legend(loc="best")
 
-        plt.xticks(rotation=45)
-        plt.show()
+        # plt.show()
 
-        fig.savefig("C:/Users/j.rode/Desktop/Markowitz/plot/assets/plotAllocationLinearProgramming.svg")
+        pathDirectory = pl.Path(__file__).resolve().parent
+        pathAssets = pathDirectory / "assets"
+        pathAssets.mkdir(exist_ok=True)
+
+        fig.savefig(pathAssets / "plotAllocationLinearProgrammingNew.svg")

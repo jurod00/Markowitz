@@ -1,11 +1,11 @@
 1.  Kurzfristig
-1.1 plotPortfolioShares.py in savefig(...) nicht den kompletten Pfad angeben
-1.2 Epsilon im Dateipfad intuitiver unterbringen
-1.3 Mean-Variance plot mit eigenen Allocationen
-1.4 Allocationen im Kreisdiagramm bzw. Prozentangaben
-1.5 senstitivity(theta, model) bzw. senstitivityNew in senstitivity umbenennen
-1.6 allocationBasic in allocationMarkowitz umbenennen oder allocation(model) allgemein
-1.7 senstitivityAnalysis static methods
+1.1 Epsilon im Dateipfad intuitiver oder gar nicht unterbringen
+1.2 Mean-Variance plot mit eigenen Allocationen
+1.3 Allocationen im Kreisdiagramm bzw. Prozentangaben
+1.4 senstitivity(theta, model) bzw. senstitivityNew in senstitivity umbenennen
+1.5 allocationBasic in allocationMarkowitz umbenennen oder allocation(model) allgemein
+1.6 fig, ax1 nach unten, erst wenn es gebraucht wird!
+1.7 ax1.set_xticks statt plt.xticks
 
 2.  Mittelfristig
 2.1 Überflüssige Methoden in PortfolioShares.py entfernen

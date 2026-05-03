@@ -310,8 +310,7 @@ class FinancialMathematics:
             bounds=bounds, 
             method="highs"
         )
-            
-        #obj = solution.fun/gamma
+        
         obj = solution.fun
         return obj
     
