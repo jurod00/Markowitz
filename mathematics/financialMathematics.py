@@ -1,4 +1,7 @@
+import math
 import numpy as np
+import datetime as dt
+import scipy.stats as st
 import scipy.optimize as opt
 
 class FinancialMathematics:
@@ -32,55 +35,145 @@ class FinancialMathematics:
         return prob
     
     @staticmethod
-    def annualizedReturn(time: list, stocks: list):
+    def annualizedReturn(time: list, stocks: list, options: dict=None):
         n = FiMa.numberTimestamps(time)
         J = FiMa.numberStocks(stocks)
         prob = FiMa.prob(time)
 
+        # XI = np.empty((n,J))
+        # for i in range(n):
+        #     for j in range(J):
+        #         XI[i,j] = np.log(stocks[j][i+1]/stocks[j][i])/prob[i]
+
         XI = np.empty((n,J))
         for i in range(n):
             for j in range(J):
-                XI[i,j] = np.log(stocks[j][i+1]/stocks[j][i])/prob[i]
+                XI[i,j] = ((stocks[j][i+1]-stocks[j][i])/stocks[j][0])/prob[i]
 
-        return XI
+        # XI = np.empty((n,J))
+        # for i in range(n):
+        #     for j in range(J):
+        #         XI[i,j] = (stocks[j][i+1]-stocks[j][i])/prob[i]
+
+        if options == None:
+            return XI
+        
+        Jcall = len(options["callIndices"])
+        XIcall = np.empty((n, Jcall))
+
+        for jCall, j in enumerate(options["callIndices"]):
+            for i in range(n):
+                tau = (time[-1]-time[i]).days
+
+                delta, _ = FiMa.delta(
+                    daysToMaturity=tau, 
+                    stockPrice=stocks[j][i], 
+                    strikePrice=options["callStrikes"][jCall], 
+                    volatility=options["volatilities"][jCall], 
+                    riskFreeRate=options["riskFreeRate"]
+                )
+                gamma = FiMa.gamma(
+                    daysToMaturity=tau, 
+                    stockPrice=stocks[j][i], 
+                    strikePrice=options["callStrikes"][jCall], 
+                    volatility=options["volatilities"][jCall], 
+                    riskFreeRate=options["riskFreeRate"]
+                )
+                theta, _ = FiMa.theta(
+                    daysToMaturity=tau, 
+                    stockPrice=stocks[j][i], 
+                    strikePrice=options["callStrikes"][jCall], 
+                    volatility=options["volatilities"][jCall], 
+                    riskFreeRate=options["riskFreeRate"]
+                )
+
+                deltaS = stocks[j][i+1]-stocks[j][i]
+                deltaT = prob[i]
+                deltaC = delta*deltaS + 0.5*gamma*deltaS**2 + theta*deltaT
+                
+                priceCall, _ = FiMa.priceOption(daysToMaturity=365, stockPrice=stocks[j][0], strikePrice=options["callStrikes"][jCall], volatility=options["volatilities"][jCall], riskFreeRate=options["riskFreeRate"])
+
+                XIcall[i, jCall] = deltaC/priceCall/prob[i]
+
+        Jput = len(options["putIndices"])
+        XIput = np.empty((n, Jput))
+
+        for jPut, j in enumerate(options["putIndices"]):
+            for i in range(n):
+                tau = (time[-1]-time[i]).days
+
+                _, delta = FiMa.delta(
+                    daysToMaturity=tau, 
+                    stockPrice=stocks[j][i], 
+                    strikePrice=options["putStrikes"][jPut], 
+                    volatility=options["volatilities"][jPut], 
+                    riskFreeRate=options["riskFreeRate"]
+                )
+                gamma = FiMa.gamma(
+                    daysToMaturity=tau, 
+                    stockPrice=stocks[j][i], 
+                    strikePrice=options["putStrikes"][jPut], 
+                    volatility=options["volatilities"][jPut], 
+                    riskFreeRate=options["riskFreeRate"]
+                )
+                _, theta = FiMa.theta(
+                    daysToMaturity=tau, 
+                    stockPrice=stocks[j][i], 
+                    strikePrice=options["putStrikes"][jPut], 
+                    volatility=options["volatilities"][jPut], 
+                    riskFreeRate=options["riskFreeRate"]
+                )
+
+                deltaS = stocks[j][i+1]-stocks[j][i]
+                deltaT = prob[i]
+                deltaP = delta*deltaS + 0.5*gamma*deltaS**2 + theta*deltaT
+
+                _, pricePut = FiMa.priceOption(daysToMaturity=365, stockPrice=stocks[j][0], strikePrice=options["putStrikes"][jPut], volatility=options["volatilities"][jPut], riskFreeRate=options["riskFreeRate"])
+
+                XIput[i, jPut] = deltaP/pricePut/prob[i]
+
+        XIoptions = np.hstack((XI, XIcall, XIput))
+        return XIoptions
     
     @staticmethod
-    def expectedReturn(time: list, stocks: list):
+    def expectedReturn(time: list, stocks: list, options: dict=None):
         prob = FiMa.prob(time)
-        XI = FiMa.annualizedReturn(time, stocks)
+        XI = FiMa.annualizedReturn(time, stocks, options)
 
         r = np.matmul(prob, XI)
         return r
     
     @staticmethod
-    def expectedReturnPercent(time: list, stocks: list):
-        r = FiMa.expectedReturn(time, stocks)
-
-        i = np.exp(r) - 1
-        return i
-    
-    @staticmethod
-    def covariance(time: list, stocks: list):
+    def covariance(time: list, stocks: list, options: dict=None):
         prob = FiMa.prob(time)
-        XI = FiMa.annualizedReturn(time, stocks)
-        r = FiMa.expectedReturn(time, stocks)
+        XI = FiMa.annualizedReturn(time, stocks, options)
+        r = FiMa.expectedReturn(time, stocks, options)
         D = np.diag(prob)
         
         SIGMA = XI.transpose().dot(D.dot(XI)) - np.outer(r, r)
         return SIGMA
     
     @staticmethod
-    def precision(time: list, stocks: list):
-        SIGMA = FiMa.covariance(time, stocks)
-
+    def precision(time: list, stocks: list, options: dict=None):
+        SIGMA = FiMa.covariance(time, stocks, options)
+        print(SIGMA)
         SIGMAinv = np.linalg.inv(SIGMA)
         return SIGMAinv
     
     @staticmethod
-    def abcd(time:list, stocks: list):
-        r = FiMa.expectedReturn(time, stocks)
-        SIGMAinv = FiMa.precision(time, stocks)
-        ones = np.ones(FiMa.numberStocks(stocks))
+    def abcd(time:list, stocks: list, options: dict=None):
+        r = FiMa.expectedReturn(time, stocks, options)
+        SIGMAinv = FiMa.precision(time, stocks, options)
+
+        J = FiMa.numberStocks(stocks)
+        if options != None:
+            Jcall = len(options["callIndices"])
+            Jput = len(options["putIndices"])
+        else:
+            Jcall = 0
+            Jput = 0
+
+        ones = np.ones(J + Jcall + Jput)
 
         a = r.dot(SIGMAinv.dot(r))
         b = r.dot(SIGMAinv.dot(ones))
@@ -90,10 +183,19 @@ class FinancialMathematics:
         return a, b, c, d
     
     @staticmethod
-    def allocationBasic(time: list, stocks: list, minimumReturn: float, unit: str="log%"):
-        r = FiMa.expectedReturn(time, stocks)
-        SIGMAinv = FiMa.precision(time, stocks)
-        ones = np.ones(FiMa.numberStocks(stocks))
+    def allocationBasic(time: list, stocks: list, minimumReturn: float, options: dict=None, unit: str="log%"):
+        r = FiMa.expectedReturn(time, stocks, options)
+        SIGMAinv = FiMa.precision(time, stocks, options)
+        
+        J = FiMa.numberStocks(stocks)
+        if options != None:
+            Jcall = len(options["callIndices"])
+            Jput = len(options["putIndices"])
+        else:
+            Jcall = 0
+            Jput = 0
+
+        ones = np.ones(J + Jcall + Jput)
 
         a = r.dot(SIGMAinv.dot(r))
         b = r.dot(SIGMAinv.dot(ones))
@@ -182,11 +284,16 @@ class FinancialMathematics:
         return x
     
     @staticmethod
-    def objectiveCostVector(time: list, stocks: list, alpha: float, gamma: float):
+    def objectiveCostVector(time: list, stocks: list, alpha: float, gamma: float, options: dict=None):
         n = FiMa.numberTimestamps(time)
+
         J = FiMa.numberStocks(stocks)
+        if options != None:
+            J += len(options["callIndices"])
+            J += len(options["putIndices"])
+
         p = FiMa.prob(time)
-        r = FiMa.expectedReturn(time, stocks)
+        r = FiMa.expectedReturn(time, stocks, options)
 
         c = np.empty(J+n+1)
         c[:J] = -(1-gamma)*r
@@ -196,13 +303,17 @@ class FinancialMathematics:
         return c
     
     @staticmethod
-    def constraintsInequality(time: list, stocks: list, my: float, leftRight: str):
+    def constraintsInequality(time: list, stocks: list, my: float, leftRight: str, options: dict=None):
         n = FiMa.numberTimestamps(time)
+
         J = FiMa.numberStocks(stocks)
+        if options != None:
+            J += len(options["callIndices"])
+            J += len(options["putIndices"])
 
         if leftRight == "left":
-            r = FiMa.expectedReturn(time, stocks)
-            XI = FiMa.annualizedReturn(time, stocks)
+            r = FiMa.expectedReturn(time, stocks, options)
+            XI = FiMa.annualizedReturn(time, stocks, options)
 
             A = np.empty((n+1, J+n+1))
             A[0,:J] = -r
@@ -224,9 +335,13 @@ class FinancialMathematics:
             return b
         
     @staticmethod
-    def constraintsEquality(time: list, stocks: list, leftRight: str):
+    def constraintsEquality(time: list, stocks: list, leftRight: str, options: dict=None):
         n = FiMa.numberTimestamps(time)
+
         J = FiMa.numberStocks(stocks)
+        if options != None:
+            J += len(options["callIndices"])
+            J += len(options["putIndices"])
 
         if leftRight == "left":
             A = np.empty((1, J+n+1))
@@ -242,9 +357,13 @@ class FinancialMathematics:
             return b
 
     @staticmethod
-    def constraintsBounds(time: list, stocks: list):
+    def constraintsBounds(time: list, stocks: list, options: dict=None):
         n = FiMa.numberTimestamps(time)
+
         J = FiMa.numberStocks(stocks)
+        if options != None:
+            J += len(options["callIndices"])
+            J += len(options["putIndices"])
 
         bounds = []
 
@@ -259,18 +378,22 @@ class FinancialMathematics:
         return bounds
     
     @staticmethod
-    def allocationLinearProgramming(time: list, stocks: list, alpha: float, gamma: float, minimumReturn: float):
-        c = FiMa.objectiveCostVector(time, stocks, alpha, gamma)
-        bounds = FiMa.constraintsBounds(time, stocks)
+    def allocationLinearProgramming(time: list, stocks: list, alpha: float, gamma: float, minimumReturn: float, options: dict=None):
+        c = FiMa.objectiveCostVector(time, stocks, alpha, gamma, options)
+        bounds = FiMa.constraintsBounds(time, stocks, options)
 
         my = minimumReturn
 
         J = FiMa.numberStocks(stocks)
-        A_ub = FiMa.constraintsInequality(time, stocks, my, "left")
-        A_eq = FiMa.constraintsEquality(time, stocks, "left")
+        if options != None:
+            J += len(options["callIndices"])
+            J += len(options["putIndices"])
 
-        b_ub = FiMa.constraintsInequality(time, stocks, my, "right")
-        b_eq = FiMa.constraintsEquality(time, stocks, "right")
+        A_ub = FiMa.constraintsInequality(time, stocks, my, "left", options)
+        A_eq = FiMa.constraintsEquality(time, stocks, "left", options)
+
+        b_ub = FiMa.constraintsInequality(time, stocks, my, "right", options)
+        b_eq = FiMa.constraintsEquality(time, stocks, "right", options)
 
         solution = opt.linprog(
             c=c, 
@@ -289,17 +412,17 @@ class FinancialMathematics:
         return x
     
     @staticmethod
-    def objectiveLinearProgramming(time: list, stocks: list, alpha: float, gamma: float, minimumReturn: float):
-        c = FiMa.objectiveCostVector(time, stocks, alpha, gamma)
-        bounds = FiMa.constraintsBounds(time, stocks)
+    def objectiveLinearProgramming(time: list, stocks: list, alpha: float, gamma: float, minimumReturn: float, options: dict=None):
+        c = FiMa.objectiveCostVector(time, stocks, alpha, gamma, options)
+        bounds = FiMa.constraintsBounds(time, stocks, options)
 
         my = minimumReturn
 
-        A_ub = FiMa.constraintsInequality(time, stocks, my, "left")
-        A_eq = FiMa.constraintsEquality(time, stocks, "left")
+        A_ub = FiMa.constraintsInequality(time, stocks, my, "left", options)
+        A_eq = FiMa.constraintsEquality(time, stocks, "left", options)
 
-        b_ub = FiMa.constraintsInequality(time, stocks, my, "right")
-        b_eq = FiMa.constraintsEquality(time, stocks, "right")
+        b_ub = FiMa.constraintsInequality(time, stocks, my, "right", options)
+        b_eq = FiMa.constraintsEquality(time, stocks, "right", options)
 
         solution = opt.linprog(
             c=c, 
@@ -313,5 +436,183 @@ class FinancialMathematics:
         
         obj = solution.fun
         return obj
+    
+    @staticmethod
+    def payOff(stock: float, strike: float):
+        S = stock
+        K = strike
+
+        payOffCall = max([S-K, 0])
+        payOffPut = max([K-S, 0])
+
+        return payOffCall, payOffPut
+    
+    @staticmethod
+    def priceOption(date: dt.datetime=None, dateExpiration: dt.datetime=None, daysToMaturity: int=None, stockPrice: float=0.00, strikePrice: float=0.00, volatility: float=0.00, riskFreeRate: float=0.00) -> float:
+        if stockPrice == 0.00 or strikePrice == 0.00 or volatility == 0.00 or riskFreeRate == 0.00:
+            print("Mindestens ein Eingabeparameter fehlt oder ist 0")
+            return 0.00, 0.00
+        
+        if date != None and dateExpiration != None and daysToMaturity == None:
+            tau = (dateExpiration - date) / dt.timedelta(days=365)
+        elif date == None and dateExpiration == None and daysToMaturity != None:
+            tau = dt.timedelta(days=daysToMaturity) / dt.timedelta(days=365)
+        else:
+            print("Entweder date & dateEpiration oder daysToMaturity müssen übergeben werden")
+            return 0.00, 0.00
+        
+        S = stockPrice
+        K = strikePrice
+        r = riskFreeRate
+        sigma = volatility
+
+        dPlus = ((r + 0.5*sigma**2)*tau + np.log(S/K))/(sigma*np.sqrt(tau))
+        dMinus = ((r - 0.5*sigma**2)*tau + np.log(S/K))/(sigma*np.sqrt(tau))
+
+        vCall = S*st.norm.cdf(dPlus) - K*np.exp(-r*tau)*st.norm.cdf(dMinus)
+        vPut = K*np.exp(-r*tau)*(1 - st.norm.cdf(dMinus)) - S*(1 - st.norm.cdf(dPlus))
+
+        return vCall, vPut
+    
+    @staticmethod
+    def volatilityEstimator(times, stock, method: str="rel"):
+        if method == "rel":
+            # bis maximal sigma = 0.5 geeignet
+            # unterschätzt für kleine sigma
+
+            myHat = 0
+            for i in range(len(times)-1):
+                deltaT = (times[i+1] - times[i]) / (times[-1] - times[0])
+                myHat += (stock[i+1] - stock[i]) / stock[i] * deltaT
+
+            sTemp = 0
+            for i in range(len(times)-1):
+                deltaT = (times[i+1] - times[i]) / (times[-1] - times[0])
+                sTemp += ((stock[i+1] - stock[i]) / stock[i] - myHat)**2 * deltaT
+
+            sigmaHat = np.sqrt(sTemp)
+            return sigmaHat
+
+        else:
+            print("Method \"" + method + "\" not available.")
+            return None
+    
+    @staticmethod
+    def impliedVolatility(optionPrice, daysToMaturity, stockPrice, strikePrice, riskFreeRate):
+        cancel = int(1e+4)
+        sigmaCallTemp = float(0.5)
+        sigmaPutTemp = float(0.5)
+        stepSize = float(1e-4)
+
+        for _ in range(cancel):
+            optionPriceCallTemp, _ = FiMa.priceOption(
+                daysToMaturity=daysToMaturity, 
+                stockPrice=stockPrice, 
+                strikePrice=strikePrice, 
+                volatility=sigmaCallTemp, 
+                riskFreeRate=riskFreeRate
+            )
+            if optionPriceCallTemp < optionPrice:
+                sigmaCallTemp += stepSize
+            else:
+                sigmaCallTemp -= stepSize
+
+            residuum = abs(optionPriceCallTemp - optionPrice)
+            if residuum < float(1e-3):
+                break
+
+        for _ in range(cancel):
+            _, optionPricePutTemp = FiMa.priceOption(
+                daysToMaturity=daysToMaturity, 
+                stockPrice=stockPrice, 
+                strikePrice=strikePrice, 
+                volatility=sigmaPutTemp, 
+                riskFreeRate=riskFreeRate
+            )
+            if optionPricePutTemp < optionPrice:
+                sigmaPutTemp += stepSize
+            else:
+                sigmaPutTemp -= stepSize
+
+            residuum = abs(optionPricePutTemp - optionPrice)
+            if residuum < float(1e-3):
+                break
+
+        return sigmaCallTemp, sigmaPutTemp
+    
+    @staticmethod
+    def delta(daysToMaturity: int=None, stockPrice: float=0.00, strikePrice: float=0.00, volatility: float=0.00, riskFreeRate: float=0.00):
+        tau = dt.timedelta(days=daysToMaturity) / dt.timedelta(days=365)
+        S = stockPrice
+        K = strikePrice
+        r = riskFreeRate
+        sigma = volatility
+
+        dPlus = ((r + 0.5*sigma**2)*tau + np.log(S/K))/(sigma*np.sqrt(tau))
+
+        deltaCall = st.norm.cdf(dPlus)
+        deltaPut = st.norm.cdf(dPlus) - 1
+
+        return deltaCall, deltaPut
+    
+    @staticmethod
+    def gamma(daysToMaturity: int=None, stockPrice: float=0.00, strikePrice: float=0.00, volatility: float=0.00, riskFreeRate: float=0.00):
+        tau = dt.timedelta(days=daysToMaturity) / dt.timedelta(days=365)
+        S = stockPrice
+        K = strikePrice
+        r = riskFreeRate
+        sigma = volatility
+
+        dPlus = ((r + 0.5*sigma**2)*tau + np.log(S/K))/(sigma*np.sqrt(tau))
+
+        gamma = st.norm.pdf(dPlus)/(S*sigma*np.sqrt(tau))
+
+        return gamma
+
+    @staticmethod
+    def theta(daysToMaturity: int=None, stockPrice: float=0.00, strikePrice: float=0.00, volatility: float=0.00, riskFreeRate: float=0.00):
+        tau = dt.timedelta(days=daysToMaturity) / dt.timedelta(days=365)
+        S = stockPrice
+        K = strikePrice
+        r = riskFreeRate
+        sigma = volatility
+
+        dPlus = ((r + 0.5*sigma**2)*tau + np.log(S/K))/(sigma*np.sqrt(tau))
+        dMinus = ((r - 0.5*sigma**2)*tau + np.log(S/K))/(sigma*np.sqrt(tau))
+
+        thetaCall = -r*K*np.exp(-r*tau)*st.norm.cdf(dMinus) - 0.5*S*sigma*st.norm.pdf(dPlus)/np.sqrt(tau)
+        thetaPut = r*K*np.exp(-r*tau)*st.norm.cdf(-dMinus) - 0.5*S*sigma*st.norm.pdf(dPlus)/np.sqrt(tau)
+
+        return thetaCall/365, thetaPut/365
+
+    # @staticmethod
+    # def vega(daysToMaturity: int=None, stockPrice: float=0.00, strikePrice: float=0.00, volatility: float=0.00, riskFreeRate: float=0.00):
+    #     tau = dt.timedelta(days=daysToMaturity) / dt.timedelta(days=365)
+    #     S = stockPrice
+    #     K = strikePrice
+    #     r = riskFreeRate
+    #     sigma = volatility
+
+    #     dPlus = ((r + 0.5*sigma**2)*tau + np.log(S/K))/(sigma*np.sqrt(tau))
+
+    #     vega = S*np.sqrt(tau)*st.norm.pdf(dPlus)
+
+    #     return vega
+
+    # @staticmethod
+    # def rho(daysToMaturity: int=None, stockPrice: float=0.00, strikePrice: float=0.00, volatility: float=0.00, riskFreeRate: float=0.00):
+    #     tau = dt.timedelta(days=daysToMaturity) / dt.timedelta(days=365)
+    #     S = stockPrice
+    #     K = strikePrice
+    #     r = riskFreeRate
+    #     sigma = volatility
+
+    #     dPlus = ((r + 0.5*sigma**2)*tau + np.log(S/K))/(sigma*np.sqrt(tau))
+    #     dMinus = ((r - 0.5*sigma**2)*tau + np.log(S/K))/(sigma*np.sqrt(tau))
+
+    #     rhoCall = K*tau*np.exp(-r*tau)*st.norm.cdf(dMinus)
+    #     rhoPut = -K*tau*np.exp(-r*tau)*st.norm.cdf(-dMinus)
+
+    #     return rhoCall, rhoPut
     
 FiMa = FinancialMathematics

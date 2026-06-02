@@ -29,7 +29,7 @@ class PortfolioShares:
     def getSymbols(self) -> list:
         return self.symbols
     
-    def setSymbols(self, symbols) -> list:
+    def setSymbols(self, symbols) -> None:
         self.symbols = symbols
     
     def downloadPortfolio(self) -> None:
@@ -82,102 +82,3 @@ class PortfolioShares:
             stock.append(stock[i]*np.exp(1/n*interestRate))
 
         self.stocks.append(stock)
-
-# Fortfolgend überflüssig:
-    def calculateAllocationBasic(self, my0: float=0.0, my1: float=0.25) -> None:
-        print(FiMa.numberStocks([[1,2],[3,4]]))
-        self.x0 = FiMa.allocationBasic(time=self.time, stocks=self.stocks, minimumReturn=my0, unit="log%")
-        self.x1 = FiMa.allocationBasic(time=self.time, stocks=self.stocks, minimumReturn=my1, unit="log%")
-
-        self.a, self.b, self.c, self.d = FiMa.abcd(time=self.time, stocks=self.stocks)
-
-        self.my0 = my0
-        self.my1 = my1
-
-    def calculateAllocationUtilityMaximization(self, kappas: list) -> None:
-        self.kappas = kappas
-        self.xSet = []
-
-        for kappa in kappas:
-            x = FiMa.allocationUtilityMaximization(time=self.time, stocks=self.stocks, kappa=kappa)
-            self.xSet.append(x)
-
-    def calculateAllocationLinearProgram(self, mySet: list) -> None:
-        c = FiMa.objectiveCostVector(time=self.time, stocks=self.stocks)
-        bounds = FiMa.constraintsBounds(time=self.time, stocks=self.stocks)
-
-        self.mySet = mySet
-        self.xSet = []
-
-        J = FiMa.numberStocks(stocks=self.stocks)
-        for my in mySet:
-            A_ub = FiMa.constraintsInequality(self.time, self.stocks, my, "left")
-            A_eq = FiMa.constraintsEquality(self.time, self.stocks, "left")
-
-            b_ub = FiMa.constraintsInequality(self.time, self.stocks, my, "right")
-            b_eq = FiMa.constraintsEquality(self.time, self.stocks, "right")
-
-            solution = opt.linprog(
-                c=c, 
-                A_ub=A_ub, 
-                b_ub=b_ub, 
-                A_eq=A_eq, 
-                b_eq=b_eq, 
-                bounds=bounds, 
-                method="highs")
-            
-            x = solution.x[:J]
-            print(sum(x))
-            print(x)
-            self.xSet.append(x)
-
-    def getX0(self):
-        return self.x0
-    
-    def getX1(self):
-        return self.x1
-    
-    def getMy0(self):
-        return self.my0
-    
-    def getMy1(self):
-        return self.my1
-    
-    def getA(self) -> float:
-        return self.a
-    
-    def getB(self) -> float:
-        return self.b
-    
-    def getC(self) -> float:
-        return self.c
-    
-    def getD(self) -> float:
-        return self.d
-    
-    def getKappas(self) -> list:
-        return self.kappas
-    
-    def getMySet(self) -> list:
-        return self.mySet
-    
-    def getXSet(self) -> list:
-        return self.xSet
-    
-# +++ New +++
-    def allocationMarkowitz(self, my: float) -> list:
-        x = FiMa.allocationBasic(
-            time=self.time, 
-            stocks=self.stocks, 
-            minimumReturn=my, 
-            unit="log%"
-        )
-        return x
-    
-    def allocationUtilityMaximization(self, kappa: float) -> list:
-        x = FiMa.allocationUtilityMaximization(
-            time=self.time,
-            stocks=self.stocks,
-            kappa=kappa
-        )
-        return x

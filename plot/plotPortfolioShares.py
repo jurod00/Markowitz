@@ -22,7 +22,7 @@ class PlotPortfolioShares:
         stocks = self.portfolio.getStocks()
         symbols = self.portfolio.getSymbols()
 
-        J = len(symbols)
+        J = len(stocks)
 
         cmap    = plt.cm.get_cmap("Blues")
         colors  = cmap(np.linspace(0.2, 1.0, J))
@@ -96,7 +96,7 @@ class PlotPortfolioShares:
                 [returnMin, returnMax], 
                 [m*returnMin + n, m*returnMax + n], 
                 linestyle="-", 
-                color=colors[j], 
+                #color=colors[j], 
                 label=symbols[j]
             )
 
@@ -104,7 +104,7 @@ class PlotPortfolioShares:
         ax1.set_ylabel("allocation " + r"$x^*(\mu)$" + "\n")
 
         ax1.set_xlim(returnMin, returnMax)
-        ax1.set_ylim(-0.05, 1.05)
+        #ax1.set_ylim(-0.05, 1.05)
 
         ax1.set_yticks([i/10 for i in range(11)])
 
