@@ -215,5 +215,232 @@ def mainImpliedVolatility():
     sigma = FiMa.impliedVolatility(optionPrice=3.73, daysToMaturity=17, stockPrice=306.31, strikePrice=300.00, riskFreeRate=0.0445)
     print(sigma)
 
+def mainTest1():
+    times = [dt.datetime(year=2026, month=6, day=1) + dt.timedelta(days=d) for d in range(17)]
+
+    S0 = 306.31
+    K0 = 320.00
+
+    my0 = 0.25
+    sigma0 = 0.25
+    implVola0 = 0.2456
+
+    stock0 = [S0]
+    
+    for i, time in enumerate(times):
+        t = (time - times[0]) / (times[-1] - times[0])
+
+        np.random.seed(i)
+        if i == len(times) - 1:
+            break
+        stock0.append(stock0[-1] + my0 + (1 if np.random.random() < 0.5 else -1)*sigma0*np.random.normal(0, 1))
+    
+    options = {
+        "riskFreeRate" : 0.0445,
+
+        "callPrices" : [2.09],
+        "callIndices" : [0],
+        "callStrikes" : [K0],
+        "callVolatilities" : [implVola0],
+
+        "putPrices" : [],
+        "putIndices" : [],
+        "putStrikes" : [],
+        "putVolatilities" : []
+        
+    }
+
+    portfolioSharesOptions = PortfolioSharesOptions()
+    portfolioSharesOptions.setTime(times)
+    portfolioSharesOptions.setStocks([stock0])
+    portfolioSharesOptions.setSymbols(["Stock /", "Call /"])
+    portfolioSharesOptions.setOptions(options)
+
+    plotPortfolioSharesOptions = PlotPortfolioSharesOptions(portfolioSharesOptions)
+    plotPortfolioSharesOptions.plotStocks("abs")
+    plotPortfolioSharesOptions.plotAllocationMarkowitz(returnMax=1)
+    plotPortfolioSharesOptions.plotAllocationLinearProgramming(returnMax=1, gamma=1)
+
+def mainTest2():
+    times = [dt.datetime(year=2026, month=6, day=1) + dt.timedelta(days=d) for d in range(17)]
+
+    S0 = 306.31
+    K0 = 300.00
+
+    my0 = -0.25
+
+    sigma0 = 0.5
+
+    implVola0 = 0.2571
+
+    stock0 = [S0]
+    
+    for i, time in enumerate(times):
+        t = (time - times[0]) / (times[-1] - times[0])
+
+        np.random.seed(i)
+        if i == len(times) - 1:
+            break
+        stock0.append(stock0[-1] + my0 + (1 if np.random.random() < 0.5 else -1)*sigma0*np.random.normal(0, 1))
+    
+    options = {
+        "riskFreeRate" : 0.0445,
+
+        "callPrices" : [],
+        "callIndices" : [],
+        "callStrikes" : [],
+        "callVolatilities" : [],
+
+        "putPrices" : [3.73],
+        "putIndices" : [0],
+        "putStrikes" : [K0],
+        "putVolatilities" : [implVola0]
+    }
+
+    portfolioSharesOptions = PortfolioSharesOptions()
+    portfolioSharesOptions.setTime(times)
+    portfolioSharesOptions.setStocks([stock0])
+    portfolioSharesOptions.setSymbols(["Stock \\", "Put \\"])
+    portfolioSharesOptions.setOptions(options)
+
+    plotPortfolioSharesOptions = PlotPortfolioSharesOptions(portfolioSharesOptions)
+    plotPortfolioSharesOptions.plotStocks("abs")
+    plotPortfolioSharesOptions.plotAllocationMarkowitz(returnMax=1)
+    plotPortfolioSharesOptions.plotAllocationLinearProgramming(returnMax=1, gamma=1)
+
+def mainTest3():
+    times = [dt.datetime(year=2026, month=6, day=1) + dt.timedelta(days=d) for d in range(17)]
+
+    S0 = 306.31
+    K0 = 300.00
+
+    S1 = 376.37
+    K1 = 350.00
+
+    S2 = 224.36
+    K2 = 220.00
+
+    my0 = -0.05
+    my1 = -0.05
+    my2 = -0.05
+
+    sigma0 = 0.5
+    sigma1 = 0.5
+    sigma2 = 0.5
+
+    implVola0 = 0.2571
+    implVola1 = 0.2696
+    implVola2 = 0.4280
+
+    stock0 = [S0]
+    stock1 = [S1]
+    stock2 = [S2]
+    
+    for i, time in enumerate(times):
+        t = (time - times[0]) / (times[-1] - times[0])
+
+        np.random.seed(i)
+        if i == len(times) - 1:
+            break
+        stock0.append(stock0[-1] + my0 + (1 if np.random.random() < 0.5 else -1)*sigma0*np.random.normal(0, 1))
+        stock1.append(stock1[-1] + my1 + (1 if np.random.random() < 0.5 else -1)*sigma1*np.random.normal(0, 1))
+        stock2.append(stock2[-1] + my2 + (1 if np.random.random() < 0.5 else -1)*sigma2*np.random.normal(0, 1))
+    
+    options = {
+        "riskFreeRate" : 0.0445,
+
+        "callPrices" : [],
+        "callIndices" : [],
+        "callStrikes" : [],
+        "callVolatilities" : [],
+
+        "putPrices" : [3.73, 1.86, 6.05],
+        "putIndices" : [0, 1, 2],
+        "putStrikes" : [K0, K1, K2],
+        "putVolatilities" : [implVola0, implVola1, implVola2]
+    }
+
+    portfolioSharesOptions = PortfolioSharesOptions()
+    portfolioSharesOptions.setTime(times)
+    portfolioSharesOptions.setStocks([stock0, stock1, stock2])
+    portfolioSharesOptions.setSymbols(["Stock 0", "Stock 1", "Stock 2", "Put 0", "Put 1", "Put 2"])
+    portfolioSharesOptions.setOptions(options)
+
+    plotPortfolioSharesOptions = PlotPortfolioSharesOptions(portfolioSharesOptions)
+    plotPortfolioSharesOptions.plotStocks("abs")
+    plotPortfolioSharesOptions.plotAllocationMarkowitz(returnMax=0.01)
+    plotPortfolioSharesOptions.plotAllocationLinearProgramming(returnMax=0.51, gamma=1)
+
+def mainTest4():
+    times = [dt.datetime(year=2026, month=6, day=1) + dt.timedelta(days=d) for d in range(17)]
+
+    S0 = 306.31
+    Kcall0 = 320.00
+    Kput0 = 300.00
+
+    S1 = 376.37
+    Kcall1 = 400.00
+    Kput1 = 350.00
+
+    S2 = 224.36
+    Kcall2 = 230.00
+    Kput2 = 220.00
+
+    my0 = -0.05
+    my1 = -0.05
+    my2 = -0.05
+
+    sigma0 = 0.5
+    sigma1 = 0.5
+    sigma2 = 0.5
+
+    implVolaCall0 = 0.2456
+    implVolaPut0 = 0.2571
+
+    implVolaCall1 = 0.3872
+    implVolaPut1 = 0.2696
+
+    implVolaCall2 = 0.4313
+    implVolaPut2 = 0.4280
+
+    stock0 = [S0]
+    stock1 = [S1]
+    stock2 = [S2]
+    
+    for i, time in enumerate(times):
+        t = (time - times[0]) / (times[-1] - times[0])
+
+        np.random.seed(i)
+        if i == len(times) - 1:
+            break
+        stock0.append(stock0[-1] + my0 + (1 if np.random.random() < 0.5 else -1)*sigma0*np.random.normal(0, 1))
+        stock1.append(stock1[-1] + my1 + (1 if np.random.random() < 0.5 else -1)*sigma1*np.random.normal(0, 1))
+        stock2.append(stock2[-1] + my2 + (1 if np.random.random() < 0.5 else -1)*sigma2*np.random.normal(0, 1))
+    
+    options = {
+        "riskFreeRate" : 0.0445,
+
+        "callPrices" : [2.09, 3.07, 6.03],
+        "callIndices" : [0, 1, 2],
+        "callStrikes" : [Kcall0, Kcall1, Kcall2],
+        "callVolatilities" : [implVolaCall0, implVolaCall1, implVolaCall2],
+
+        "putPrices" : [3.73, 1.86, 6.05],
+        "putIndices" : [0, 1, 2],
+        "putStrikes" : [Kput0, Kput1, Kput2],
+        "putVolatilities" : [implVolaPut0, implVolaPut1, implVolaPut2]
+    }
+
+    portfolioSharesOptions = PortfolioSharesOptions()
+    portfolioSharesOptions.setTime(times)
+    portfolioSharesOptions.setStocks([stock0, stock1, stock2])
+    portfolioSharesOptions.setSymbols(["Stock 0", "Stock 1", "Stock 2", "Call 0", "Call 1", "Call 2", "Put 0", "Put 1", "Put 2"])
+    portfolioSharesOptions.setOptions(options)
+
+    plotPortfolioSharesOptions = PlotPortfolioSharesOptions(portfolioSharesOptions)
+    plotPortfolioSharesOptions.plotStocks("abs")
+    plotPortfolioSharesOptions.plotAllocationMarkowitz(returnMax=0.01)
+    plotPortfolioSharesOptions.plotAllocationLinearProgramming(returnMax=1, gamma=1)
+
 if __name__ == "__main__":
-    mainImpliedVolatility()
+    mainTest4()

@@ -14,6 +14,61 @@ class PlotPortfolioSharesOptions:
         self.gammaDefault = 0.5
         self.myDefault = 0.25 # 0.07
 
+    def plotStocks(self, absRel) -> None:
+        fig, ax1 = plt.subplots(figsize=(15,10))
+        # ax2 = ax1.twinx()
+
+        time = self.portfolio.getTime()
+        stocks = self.portfolio.getStocks()
+        symbols = self.portfolio.getSymbols()
+
+        J = len(stocks)
+
+        cmap    = plt.cm.get_cmap("Blues")
+        colors  = cmap(np.linspace(0.2, 1.0, J))
+
+        if absRel == "abs":
+            for j in range(J):
+                ax1.plot(
+                    time, 
+                    stocks[j], 
+                    label=symbols[j], 
+                    color=colors[j]
+                )
+
+        if absRel == "rel":
+            for j in range(J):
+                stocksTemp = stocks[j]
+
+                for i in range(1, len(time)):
+                    stocksTemp[i] /= stocksTemp[0]
+
+                stocksTemp[0] = 1
+
+                ax1.plot(
+                    time, 
+                    stocksTemp, 
+                    label=symbols[j], 
+                    color=colors[j]
+                )
+
+        ax1.grid(axis="y", linewidth=0.25)
+        ax1.legend(loc="best")
+
+        ax1.set_ylabel("relative stock prices " + r"$S_t\,/\,S_0$" + "\n")
+
+        ax1.set_xlim(time[0], time[-1])
+        
+        plt.xticks(rotation=45)
+
+        # plt.show()
+
+        pathDirectory = pl.Path(__file__).resolve().parent
+        pathAssets = pathDirectory / "assets"
+        pathAssets.mkdir(exist_ok=True)
+
+        fig.savefig(pathAssets / "plotStocksNew.svg")
+
     def plotAllocationMarkowitz(self, returnMin: float=0.0, returnMax: float=0.25) -> None:
         fig, ax1 = plt.subplots(figsize=(15, 10))
         # ax2 = ax1.twinx()
@@ -93,7 +148,7 @@ class PlotPortfolioSharesOptions:
 
         J = len(symbols)
 
-        mys = np.linspace(returnMin, returnMax, num=int(1e+1))
+        mys = np.linspace(returnMin, returnMax, num=int(1e+2))
 
         if alpha != self.alphaDefault:
             print("Warning: alpha = " + str(alpha) + " != " + str(self.alphaDefault) + " = alphaDefault")
@@ -118,7 +173,7 @@ class PlotPortfolioSharesOptions:
 
         for j in range(J):
             y = [allocations[i][j] for i in range(len(mys))]
-            print(y)
+            # print(y)
             ax1.plot(
                 mys, 
                 y, 

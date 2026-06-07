@@ -4,6 +4,9 @@ import datetime as dt
 import scipy.stats as st
 import scipy.optimize as opt
 
+np.set_printoptions(threshold=np.inf)
+np.set_printoptions(linewidth=np.inf)
+
 class FinancialMathematics:
     
     def __init__(self):
@@ -48,7 +51,13 @@ class FinancialMathematics:
         XI = np.empty((n,J))
         for i in range(n):
             for j in range(J):
-                XI[i,j] = ((stocks[j][i+1]-stocks[j][i])/stocks[j][0])/prob[i]
+                XI[i,j] = ((stocks[j][i+1]-stocks[j][i])/stocks[j][i])/prob[i]
+                # print(XI[i,j])
+
+        # XI = np.empty((n,J))
+        # for i in range(n):
+        #     for j in range(J):
+        #         XI[i,j] = (stocks[j][i+1]/stocks[j][i] - 1)/prob[i]
 
         # XI = np.empty((n,J))
         # for i in range(n):
@@ -58,6 +67,17 @@ class FinancialMathematics:
         if options == None:
             return XI
         
+        XIcall, XIput = FiMa.annualizedReturnOptions(time, stocks, options)
+
+        XIoptions = np.hstack((XI, XIcall, XIput))
+        print(XIoptions, end=" ")
+        return XIoptions
+    
+    @staticmethod
+    def annualizedReturnOptions(time: list, stocks: list, options: dict):
+        n = FiMa.numberTimestamps(time)
+        prob = FiMa.prob(time)
+
         Jcall = len(options["callIndices"])
         XIcall = np.empty((n, Jcall))
 
@@ -69,21 +89,21 @@ class FinancialMathematics:
                     daysToMaturity=tau, 
                     stockPrice=stocks[j][i], 
                     strikePrice=options["callStrikes"][jCall], 
-                    volatility=options["volatilities"][jCall], 
+                    volatility=options["callVolatilities"][jCall], 
                     riskFreeRate=options["riskFreeRate"]
                 )
                 gamma = FiMa.gamma(
                     daysToMaturity=tau, 
                     stockPrice=stocks[j][i], 
                     strikePrice=options["callStrikes"][jCall], 
-                    volatility=options["volatilities"][jCall], 
+                    volatility=options["callVolatilities"][jCall], 
                     riskFreeRate=options["riskFreeRate"]
                 )
                 theta, _ = FiMa.theta(
                     daysToMaturity=tau, 
                     stockPrice=stocks[j][i], 
                     strikePrice=options["callStrikes"][jCall], 
-                    volatility=options["volatilities"][jCall], 
+                    volatility=options["callVolatilities"][jCall], 
                     riskFreeRate=options["riskFreeRate"]
                 )
 
@@ -91,9 +111,56 @@ class FinancialMathematics:
                 deltaT = prob[i]
                 deltaC = delta*deltaS + 0.5*gamma*deltaS**2 + theta*deltaT
                 
-                priceCall, _ = FiMa.priceOption(daysToMaturity=365, stockPrice=stocks[j][0], strikePrice=options["callStrikes"][jCall], volatility=options["volatilities"][jCall], riskFreeRate=options["riskFreeRate"])
+                # XIcall[i, jCall] = deltaC/(delta*stocks[j][i])/prob[i]
+                
+                # priceCall, _ = FiMa.priceOption(
+                #     daysToMaturity=17, 
+                #     stockPrice=stocks[j][0], 
+                #     strikePrice=options["callStrikes"][jCall], 
+                #     volatility=options["callVolatilities"][jCall], 
+                #     riskFreeRate=options["riskFreeRate"]
+                # )
+                # # print(priceCall)
+                # # priceCall = options["callPrices"][jCall]
+                # # print(priceCall)
 
-                XIcall[i, jCall] = deltaC/priceCall/prob[i]
+                # XIcall[i, jCall] = deltaC/priceCall/prob[i]
+
+                # # +++
+
+                priceCallPrev, _ = FiMa.priceOption(
+                    daysToMaturity=tau, 
+                    stockPrice=stocks[j][i],
+                    strikePrice=options["callStrikes"][jCall],
+                    volatility=options["callVolatilities"][jCall],
+                    riskFreeRate=options["riskFreeRate"]
+                )
+                priceCallNext, _ = FiMa.priceOption(
+                    daysToMaturity=tau+1, 
+                    stockPrice=stocks[j][i+1],
+                    strikePrice=options["callStrikes"][jCall],
+                    volatility=options["callVolatilities"][jCall],
+                    riskFreeRate=options["riskFreeRate"]
+                )
+                priceCall, _ = FiMa.priceOption(
+                    daysToMaturity=(time[-1] - time[0]).days, 
+                    stockPrice=stocks[j][0],
+                    strikePrice=options["callStrikes"][jCall],
+                    volatility=options["callVolatilities"][jCall],
+                    riskFreeRate=options["riskFreeRate"]
+                )
+                # print(priceCallNext - priceCallPrev)
+                # XIcall[i, jCall] = ((priceCallNext - priceCallPrev)/(delta*stocks[j][i]))/prob[i]
+                # print(XIcall[i, jCall])
+
+                # piCall = (priceCallNext - priceCallPrev) - delta*deltaS
+                # XIcall[i, jCall] = piCall/priceCallPrev/prob[i]
+
+                # XIcall[i, jCall] = np.log(priceCallNext/priceCallPrev)/prob[i]
+
+                dv = delta*deltaS + 0.5*gamma*deltaS**2 #+ theta*deltaT
+                XIcall[i, jCall] = dv/priceCallPrev/prob[i]
+
 
         Jput = len(options["putIndices"])
         XIput = np.empty((n, Jput))
@@ -106,35 +173,79 @@ class FinancialMathematics:
                     daysToMaturity=tau, 
                     stockPrice=stocks[j][i], 
                     strikePrice=options["putStrikes"][jPut], 
-                    volatility=options["volatilities"][jPut], 
+                    volatility=options["putVolatilities"][jPut], 
                     riskFreeRate=options["riskFreeRate"]
                 )
                 gamma = FiMa.gamma(
                     daysToMaturity=tau, 
                     stockPrice=stocks[j][i], 
                     strikePrice=options["putStrikes"][jPut], 
-                    volatility=options["volatilities"][jPut], 
+                    volatility=options["putVolatilities"][jPut], 
                     riskFreeRate=options["riskFreeRate"]
                 )
                 _, theta = FiMa.theta(
                     daysToMaturity=tau, 
                     stockPrice=stocks[j][i], 
                     strikePrice=options["putStrikes"][jPut], 
-                    volatility=options["volatilities"][jPut], 
+                    volatility=options["putVolatilities"][jPut], 
                     riskFreeRate=options["riskFreeRate"]
                 )
 
                 deltaS = stocks[j][i+1]-stocks[j][i]
                 deltaT = prob[i]
                 deltaP = delta*deltaS + 0.5*gamma*deltaS**2 + theta*deltaT
+                
+                # XIput[i, jPut] = deltaP/(delta*stocks[j][i])/prob[i]
 
-                _, pricePut = FiMa.priceOption(daysToMaturity=365, stockPrice=stocks[j][0], strikePrice=options["putStrikes"][jPut], volatility=options["volatilities"][jPut], riskFreeRate=options["riskFreeRate"])
+                # _, pricePut = FiMa.priceOption(
+                #     daysToMaturity=17, 
+                #     stockPrice=stocks[j][0], 
+                #     strikePrice=options["putStrikes"][jPut], 
+                #     volatility=options["putVolatilities"][jPut], 
+                #     riskFreeRate=options["riskFreeRate"]
+                # )
+                # # pricePut = options["putPrices"][jPut]
 
-                XIput[i, jPut] = deltaP/pricePut/prob[i]
+                # XIput[i, jPut] = deltaP/pricePut/prob[i]
 
-        XIoptions = np.hstack((XI, XIcall, XIput))
-        return XIoptions
-    
+                # +++
+
+                _, pricePutPrev = FiMa.priceOption(
+                    daysToMaturity=tau, 
+                    stockPrice=stocks[j][i],
+                    strikePrice=options["putStrikes"][jPut],
+                    volatility=options["putVolatilities"][jPut],
+                    riskFreeRate=options["riskFreeRate"]
+                )
+                _, pricePutNext = FiMa.priceOption(
+                    daysToMaturity=tau+1, 
+                    stockPrice=stocks[j][i+1],
+                    strikePrice=options["putStrikes"][jPut],
+                    volatility=options["putVolatilities"][jPut],
+                    riskFreeRate=options["riskFreeRate"]
+                )
+                _, pricePut = FiMa.priceOption(
+                    daysToMaturity=(time[-1] - time[0]).days, 
+                    stockPrice=stocks[j][0],
+                    strikePrice=options["putStrikes"][jPut],
+                    volatility=options["putVolatilities"][jPut],
+                    riskFreeRate=options["riskFreeRate"]
+                )
+                # print(pricePutNext - pricePutPrev)
+                # XIput[i, jPut] = ((pricePutNext - pricePutPrev)/(delta*stocks[j][i]))/prob[i]
+                # print(XIput[i, jPut])
+
+                # piPut = (pricePutNext - pricePutPrev) - delta*deltaS
+                # XIput[i, jPut] = piPut/pricePutPrev/prob[i]
+
+                # XIput[i, jPut] = np.log(pricePutNext/pricePutPrev)/prob[i]
+
+                dv = delta*deltaS + 0.5*gamma*deltaS**2 #+ theta*deltaT
+                XIput[i, jPut] = dv/pricePutPrev/prob[i]
+
+        return XIcall, XIput
+
+
     @staticmethod
     def expectedReturn(time: list, stocks: list, options: dict=None):
         prob = FiMa.prob(time)
@@ -156,7 +267,7 @@ class FinancialMathematics:
     @staticmethod
     def precision(time: list, stocks: list, options: dict=None):
         SIGMA = FiMa.covariance(time, stocks, options)
-        print(SIGMA)
+        
         SIGMAinv = np.linalg.inv(SIGMA)
         return SIGMAinv
     
