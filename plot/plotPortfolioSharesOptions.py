@@ -2,7 +2,7 @@ import numpy as np
 import pathlib as pl
 import matplotlib.pyplot as plt
 plt.rcParams.update({'font.size': 20})
-plt.style.use("dark_background")
+# plt.style.use("dark_background")
 
 from mathematics.financialMathematics import FinancialMathematics as FiMa
 
@@ -148,7 +148,7 @@ class PlotPortfolioSharesOptions:
 
         J = len(symbols)
 
-        mys = np.linspace(returnMin, returnMax, num=int(1e+2))
+        mys = np.linspace(returnMin, returnMax, num=int(5e+1))
 
         if alpha != self.alphaDefault:
             print("Warning: alpha = " + str(alpha) + " != " + str(self.alphaDefault) + " = alphaDefault")
@@ -168,25 +168,55 @@ class PlotPortfolioSharesOptions:
             )
             allocations.append(x)
 
-        cmap    = plt.cm.get_cmap("Blues")
-        colors  = cmap(np.linspace(0.2, 1.0, J))
+        if len(stocks) == 1:
+            lineStocks = ["o-"]
+        elif len(stocks) == 2:
+            lineStocks = ["o-", "s-"]
+        elif len(stocks) == 3:
+            lineStocks = ["o-", "s-", "^-"]
+        elif len(stocks) == 4:
+            lineStocks = ["o-", "s-", "^-", "*-"]
+        elif len(stocks) == 5:
+            lineStocks = ["o-", "s-", "^-", "*-", "P-"]
+
+        cmap = plt.cm.get_cmap("Greens")
+
+        if len(options["callIndices"]) == 0 and len(options["putIndices"]) == 0:
+            linestyles = lineStocks
+            colors = cmap(len(stocks)*[0.3])
+        elif len(options["callIndices"]) != 0 and len(options["putIndices"]) == 0:
+            linestyles = 2*lineStocks
+            colors = cmap(len(stocks)*[0.3] + len(stocks)*[0.6])
+        elif len(options["callIndices"]) == 0 and len(options["putIndices"]) != 0:
+            linestyles = 2*lineStocks
+            colors = cmap(len(stocks)*[0.3] + len(stocks)*[0.6])
+        elif len(options["callIndices"]) != 0 and len(options["putIndices"]) != 0:
+            linestyles = 3*lineStocks
+            colors = cmap(len(stocks)*[0.3] + len(stocks)*[0.6] + len(stocks)*[0.9])
+
+        # linestyles = ["o-", "s-", "^-", "o-", "s-", "^-", "o-", "s-", "^-"]
+
+        # cmap    = plt.cm.get_cmap("Greens")
+        # colors  = cmap(np.linspace(0.2, 1.0, J))
+
+        # colors = cmap([0.3, 0.3, 0.3, 0.6, 0.6, 0.6, 0.9, 0.9, 0.9])
 
         for j in range(J):
             y = [allocations[i][j] for i in range(len(mys))]
-            # print(y)
+            
             ax1.plot(
                 mys, 
                 y, 
-                linestyle="-",
+                linestyles[j],
                 label=symbols[j], 
-                # color=colors[j]
+                color=colors[j]
             )
 
         ax1.set_xlabel("\n" + "minimum return " + r"$\mu$")
         ax1.set_ylabel("allocation " + r"$x^*(\mu)$" + "\n")
 
         ax1.set_xlim(mys[0], mys[-1])
-        # ax1.set_ylim(-0.05, 1.05)
+        ax1.set_ylim(-0.05, 1.05)
 
         ax1.set_yticks([i/10 for i in range(11)])
 

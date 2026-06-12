@@ -31,9 +31,16 @@ class PortfolioSharesOptions:
     
     def setOptions(self, options: dict) -> None:
         self.options = options
+        self.addSymbols()
 
     def getSymbols(self) -> list:
         return self.symbols
     
     def setSymbols(self, symbols: list) -> None:
         self.symbols = symbols
+
+    def addSymbols(self):
+        for callIndex in self.options["callIndices"]:
+            self.symbols += ["Call " + str(callIndex)]
+        for putIndex in self.options["putIndices"]:
+            self.symbols += ["Put " + str(putIndex)]

@@ -51,8 +51,7 @@ class FinancialMathematics:
         XI = np.empty((n,J))
         for i in range(n):
             for j in range(J):
-                XI[i,j] = ((stocks[j][i+1]-stocks[j][i])/stocks[j][i])/prob[i]
-                # print(XI[i,j])
+                XI[i,j] = ((stocks[j][i+1] - stocks[j][i])/stocks[j][i])/prob[i]
 
         # XI = np.empty((n,J))
         # for i in range(n):
@@ -70,7 +69,6 @@ class FinancialMathematics:
         XIcall, XIput = FiMa.annualizedReturnOptions(time, stocks, options)
 
         XIoptions = np.hstack((XI, XIcall, XIput))
-        print(XIoptions, end=" ")
         return XIoptions
     
     @staticmethod
@@ -106,60 +104,19 @@ class FinancialMathematics:
                     volatility=options["callVolatilities"][jCall], 
                     riskFreeRate=options["riskFreeRate"]
                 )
-
-                deltaS = stocks[j][i+1]-stocks[j][i]
-                deltaT = prob[i]
-                deltaC = delta*deltaS + 0.5*gamma*deltaS**2 + theta*deltaT
-                
-                # XIcall[i, jCall] = deltaC/(delta*stocks[j][i])/prob[i]
-                
-                # priceCall, _ = FiMa.priceOption(
-                #     daysToMaturity=17, 
-                #     stockPrice=stocks[j][0], 
-                #     strikePrice=options["callStrikes"][jCall], 
-                #     volatility=options["callVolatilities"][jCall], 
-                #     riskFreeRate=options["riskFreeRate"]
-                # )
-                # # print(priceCall)
-                # # priceCall = options["callPrices"][jCall]
-                # # print(priceCall)
-
-                # XIcall[i, jCall] = deltaC/priceCall/prob[i]
-
-                # # +++
-
-                priceCallPrev, _ = FiMa.priceOption(
+                priceCall, _ = FiMa.priceOption(
                     daysToMaturity=tau, 
                     stockPrice=stocks[j][i],
                     strikePrice=options["callStrikes"][jCall],
                     volatility=options["callVolatilities"][jCall],
                     riskFreeRate=options["riskFreeRate"]
                 )
-                priceCallNext, _ = FiMa.priceOption(
-                    daysToMaturity=tau+1, 
-                    stockPrice=stocks[j][i+1],
-                    strikePrice=options["callStrikes"][jCall],
-                    volatility=options["callVolatilities"][jCall],
-                    riskFreeRate=options["riskFreeRate"]
-                )
-                priceCall, _ = FiMa.priceOption(
-                    daysToMaturity=(time[-1] - time[0]).days, 
-                    stockPrice=stocks[j][0],
-                    strikePrice=options["callStrikes"][jCall],
-                    volatility=options["callVolatilities"][jCall],
-                    riskFreeRate=options["riskFreeRate"]
-                )
-                # print(priceCallNext - priceCallPrev)
-                # XIcall[i, jCall] = ((priceCallNext - priceCallPrev)/(delta*stocks[j][i]))/prob[i]
-                # print(XIcall[i, jCall])
+                deltaS = stocks[j][i+1] - stocks[j][i]
+                deltaT = prob[i]
+                deltaT = (time[i+1]-time[i])/dt.timedelta(days=365)
 
-                # piCall = (priceCallNext - priceCallPrev) - delta*deltaS
-                # XIcall[i, jCall] = piCall/priceCallPrev/prob[i]
-
-                # XIcall[i, jCall] = np.log(priceCallNext/priceCallPrev)/prob[i]
-
-                dv = delta*deltaS + 0.5*gamma*deltaS**2 #+ theta*deltaT
-                XIcall[i, jCall] = dv/priceCallPrev/prob[i]
+                deltaC = delta*deltaS + 0.5*gamma*deltaS**2 + theta*deltaT
+                XIcall[i, jCall] = deltaC/priceCall/prob[i]
 
 
         Jput = len(options["putIndices"])
@@ -191,60 +148,21 @@ class FinancialMathematics:
                     riskFreeRate=options["riskFreeRate"]
                 )
 
-                deltaS = stocks[j][i+1]-stocks[j][i]
-                deltaT = prob[i]
-                deltaP = delta*deltaS + 0.5*gamma*deltaS**2 + theta*deltaT
-                
-                # XIput[i, jPut] = deltaP/(delta*stocks[j][i])/prob[i]
-
-                # _, pricePut = FiMa.priceOption(
-                #     daysToMaturity=17, 
-                #     stockPrice=stocks[j][0], 
-                #     strikePrice=options["putStrikes"][jPut], 
-                #     volatility=options["putVolatilities"][jPut], 
-                #     riskFreeRate=options["riskFreeRate"]
-                # )
-                # # pricePut = options["putPrices"][jPut]
-
-                # XIput[i, jPut] = deltaP/pricePut/prob[i]
-
-                # +++
-
-                _, pricePutPrev = FiMa.priceOption(
+                _, pricePut = FiMa.priceOption(
                     daysToMaturity=tau, 
                     stockPrice=stocks[j][i],
                     strikePrice=options["putStrikes"][jPut],
                     volatility=options["putVolatilities"][jPut],
                     riskFreeRate=options["riskFreeRate"]
                 )
-                _, pricePutNext = FiMa.priceOption(
-                    daysToMaturity=tau+1, 
-                    stockPrice=stocks[j][i+1],
-                    strikePrice=options["putStrikes"][jPut],
-                    volatility=options["putVolatilities"][jPut],
-                    riskFreeRate=options["riskFreeRate"]
-                )
-                _, pricePut = FiMa.priceOption(
-                    daysToMaturity=(time[-1] - time[0]).days, 
-                    stockPrice=stocks[j][0],
-                    strikePrice=options["putStrikes"][jPut],
-                    volatility=options["putVolatilities"][jPut],
-                    riskFreeRate=options["riskFreeRate"]
-                )
-                # print(pricePutNext - pricePutPrev)
-                # XIput[i, jPut] = ((pricePutNext - pricePutPrev)/(delta*stocks[j][i]))/prob[i]
-                # print(XIput[i, jPut])
+                deltaS = stocks[j][i+1] - stocks[j][i]
+                deltaT = prob[i]
+                deltaT = (time[i+1]-time[i])/dt.timedelta(days=365)
 
-                # piPut = (pricePutNext - pricePutPrev) - delta*deltaS
-                # XIput[i, jPut] = piPut/pricePutPrev/prob[i]
-
-                # XIput[i, jPut] = np.log(pricePutNext/pricePutPrev)/prob[i]
-
-                dv = delta*deltaS + 0.5*gamma*deltaS**2 #+ theta*deltaT
-                XIput[i, jPut] = dv/pricePutPrev/prob[i]
+                deltaP = delta*deltaS + 0.5*gamma*deltaS**2 + theta*deltaT
+                XIput[i, jPut] = deltaP/pricePut/prob[i]
 
         return XIcall, XIput
-
 
     @staticmethod
     def expectedReturn(time: list, stocks: list, options: dict=None):
@@ -586,70 +504,70 @@ class FinancialMathematics:
         return vCall, vPut
     
     @staticmethod
-    def volatilityEstimator(times, stock, method: str="rel"):
-        if method == "rel":
-            # bis maximal sigma = 0.5 geeignet
-            # unterschätzt für kleine sigma
+    def historicalVolatility(times, stock):
+        # Schätzter für die Volatilität sigma in der GBM (dS = my*S*dt + sigma*S*dW) aus historisches Stock-Daten
+        # ACHTUNG: Bis maximal sigma = 0.5 geeignet.
+        # Hinweis: Sigma wird in der Regel unterschätzt
 
-            myHat = 0
-            for i in range(len(times)-1):
-                deltaT = (times[i+1] - times[i]) / (times[-1] - times[0])
-                myHat += (stock[i+1] - stock[i]) / stock[i] * deltaT
+        myHat = 0
+        for i in range(len(times)-1):
+            deltaT = (times[i+1] - times[i])/(times[-1] - times[0])
+            myHat += (stock[i+1] - stock[i])/stock[i]*deltaT
 
-            sTemp = 0
-            for i in range(len(times)-1):
-                deltaT = (times[i+1] - times[i]) / (times[-1] - times[0])
-                sTemp += ((stock[i+1] - stock[i]) / stock[i] - myHat)**2 * deltaT
+        sTemp = 0
+        for i in range(len(times)-1):
+            deltaT = (times[i+1] - times[i])/(times[-1] - times[0])
+            sTemp += ((stock[i+1] - stock[i])/stock[i] - myHat)**2*deltaT
 
-            sigmaHat = np.sqrt(sTemp)
-            return sigmaHat
-
-        else:
-            print("Method \"" + method + "\" not available.")
-            return None
+        sigmaHat = np.sqrt(sTemp)
+        return sigmaHat
     
     @staticmethod
-    def impliedVolatility(optionPrice, daysToMaturity, stockPrice, strikePrice, riskFreeRate):
-        cancel = int(1e+4)
-        sigmaCallTemp = float(0.5)
-        sigmaPutTemp = float(0.5)
-        stepSize = float(1e-4)
+    def impliedVolatility(daysToMaturity, stockPrice, strikePrice, optionPrice, riskFreeRate):
+        # Annäherung der Impliziten Volatilität
+        # ACHTUNG: Sehr langsame Methode, wegen hoher Komplexität
+        # Hinweis: Sigma auf vier Nachkommastellen genau
+        
+        sigmaCall = float(0.50) # Startwert sigma für Call-Optionen
+        sigmaPut = float(0.50) # Startwert sigma für Put-Optionen
 
-        for _ in range(cancel):
-            optionPriceCallTemp, _ = FiMa.priceOption(
+        stepSize = float(1e-5) # Schrittweite
+
+        for _ in range(int(1e+5)):
+            optionPriceCall, _ = FiMa.priceOption(
                 daysToMaturity=daysToMaturity, 
                 stockPrice=stockPrice, 
                 strikePrice=strikePrice, 
-                volatility=sigmaCallTemp, 
+                volatility=sigmaCall, 
                 riskFreeRate=riskFreeRate
             )
-            if optionPriceCallTemp < optionPrice:
-                sigmaCallTemp += stepSize
+            if optionPriceCall < optionPrice:
+                sigmaCall += stepSize
             else:
-                sigmaCallTemp -= stepSize
+                sigmaCall -= stepSize
 
-            residuum = abs(optionPriceCallTemp - optionPrice)
-            if residuum < float(1e-3):
+            residuum = abs(optionPriceCall - optionPrice)
+            if residuum < float(1e-5) or sigmaCall < 0:
                 break
 
-        for _ in range(cancel):
-            _, optionPricePutTemp = FiMa.priceOption(
+        for _ in range(int(1e+5)):
+            _, optionPricePut = FiMa.priceOption(
                 daysToMaturity=daysToMaturity, 
                 stockPrice=stockPrice, 
                 strikePrice=strikePrice, 
-                volatility=sigmaPutTemp, 
+                volatility=sigmaPut, 
                 riskFreeRate=riskFreeRate
             )
-            if optionPricePutTemp < optionPrice:
-                sigmaPutTemp += stepSize
+            if optionPricePut < optionPrice:
+                sigmaPut += stepSize
             else:
-                sigmaPutTemp -= stepSize
+                sigmaPut -= stepSize
 
-            residuum = abs(optionPricePutTemp - optionPrice)
-            if residuum < float(1e-3):
+            residuum = abs(optionPricePut - optionPrice)
+            if residuum < float(1e-5) or sigmaPut < 0:
                 break
 
-        return sigmaCallTemp, sigmaPutTemp
+        return sigmaCall, sigmaPut
     
     @staticmethod
     def delta(daysToMaturity: int=None, stockPrice: float=0.00, strikePrice: float=0.00, volatility: float=0.00, riskFreeRate: float=0.00):
@@ -696,34 +614,33 @@ class FinancialMathematics:
 
         return thetaCall/365, thetaPut/365
 
-    # @staticmethod
-    # def vega(daysToMaturity: int=None, stockPrice: float=0.00, strikePrice: float=0.00, volatility: float=0.00, riskFreeRate: float=0.00):
-    #     tau = dt.timedelta(days=daysToMaturity) / dt.timedelta(days=365)
-    #     S = stockPrice
-    #     K = strikePrice
-    #     r = riskFreeRate
-    #     sigma = volatility
+    @staticmethod
+    def vega(daysToMaturity: int=None, stockPrice: float=0.00, strikePrice: float=0.00, volatility: float=0.00, riskFreeRate: float=0.00):
+        tau = dt.timedelta(days=daysToMaturity) / dt.timedelta(days=365)
+        S = stockPrice
+        K = strikePrice
+        r = riskFreeRate
+        sigma = volatility
 
-    #     dPlus = ((r + 0.5*sigma**2)*tau + np.log(S/K))/(sigma*np.sqrt(tau))
+        dPlus = ((r + 0.5*sigma**2)*tau + np.log(S/K))/(sigma*np.sqrt(tau))
 
-    #     vega = S*np.sqrt(tau)*st.norm.pdf(dPlus)
+        vega = S*np.sqrt(tau)*st.norm.pdf(dPlus)
 
-    #     return vega
+        return vega/100
 
-    # @staticmethod
-    # def rho(daysToMaturity: int=None, stockPrice: float=0.00, strikePrice: float=0.00, volatility: float=0.00, riskFreeRate: float=0.00):
-    #     tau = dt.timedelta(days=daysToMaturity) / dt.timedelta(days=365)
-    #     S = stockPrice
-    #     K = strikePrice
-    #     r = riskFreeRate
-    #     sigma = volatility
+    @staticmethod
+    def rho(daysToMaturity: int=None, stockPrice: float=0.00, strikePrice: float=0.00, volatility: float=0.00, riskFreeRate: float=0.00):
+        tau = dt.timedelta(days=daysToMaturity) / dt.timedelta(days=365)
+        S = stockPrice
+        K = strikePrice
+        r = riskFreeRate
+        sigma = volatility
 
-    #     dPlus = ((r + 0.5*sigma**2)*tau + np.log(S/K))/(sigma*np.sqrt(tau))
-    #     dMinus = ((r - 0.5*sigma**2)*tau + np.log(S/K))/(sigma*np.sqrt(tau))
+        dMinus = ((r - 0.5*sigma**2)*tau + np.log(S/K))/(sigma*np.sqrt(tau))
 
-    #     rhoCall = K*tau*np.exp(-r*tau)*st.norm.cdf(dMinus)
-    #     rhoPut = -K*tau*np.exp(-r*tau)*st.norm.cdf(-dMinus)
+        rhoCall = K*tau*np.exp(-r*tau)*st.norm.cdf(dMinus)
+        rhoPut = -K*tau*np.exp(-r*tau)*st.norm.cdf(-dMinus)
 
-    #     return rhoCall, rhoPut
+        return rhoCall/100, rhoPut/100
     
 FiMa = FinancialMathematics

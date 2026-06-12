@@ -2,7 +2,7 @@ import numpy as np
 import pathlib as pl
 import matplotlib.pyplot as plt
 plt.rcParams.update({'font.size': 20})
-plt.style.use("dark_background")
+# plt.style.use("dark_background")
 
 from mathematics.financialMathematics import FinancialMathematics as FiMa
 
