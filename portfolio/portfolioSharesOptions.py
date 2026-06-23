@@ -9,10 +9,10 @@ from iO.input import Input
 
 class PortfolioSharesOptions:
     def __init__(self):
-        self.time : list=[]
-        self.stocks : list=[]
-        self.options : dict={}
-        self.symbols : list=[]
+        self.time : list=None
+        self.stocks : list=None
+        self.options : dict=None
+        self.symbols : list=None
 
     def getTime(self) -> list:
         return self.time
@@ -44,3 +44,22 @@ class PortfolioSharesOptions:
             self.symbols += ["Call " + str(callIndex)]
         for putIndex in self.options["putIndices"]:
             self.symbols += ["Put " + str(putIndex)]
+
+    def databasePortfolio(self) -> None:
+        # data = pd.read_csv(r"C:\Users\j.rode\Desktop\Markowitz\iO\database\lecture.csv", delimiter=";").set_index("Date")
+        data = pd.read_csv(r"C:\Users\j.rode\Desktop\Markowitz\iO\database\master.csv", delimiter=";").set_index("Date")
+        
+        self.symbols = data.columns.values.tolist()
+
+        timeTemp = data.index.tolist()
+        self.time = [dt.datetime.strptime(t, "%Y-%m-%d") for t in timeTemp]
+
+        self.stocks = []
+        J = len(self.symbols)
+
+        for j in range(J):
+            self.stocks.append(data.iloc[:, j].tolist())
+
+    def databaseOptions(self) -> None:
+        data = pd.read_csv(r"C:\Users\j.rode\Desktop\Markowitz\iO\database\options.csv", delimiter=";")
+        #...

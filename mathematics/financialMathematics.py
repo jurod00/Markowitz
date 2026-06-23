@@ -51,7 +51,7 @@ class FinancialMathematics:
         XI = np.empty((n,J))
         for i in range(n):
             for j in range(J):
-                XI[i,j] = ((stocks[j][i+1] - stocks[j][i])/stocks[j][i])/prob[i]
+                XI[i,j] = ((stocks[j][i+1] - stocks[j][i])/stocks[j][0])/prob[i]
 
         # XI = np.empty((n,J))
         # for i in range(n):
@@ -81,7 +81,7 @@ class FinancialMathematics:
 
         for jCall, j in enumerate(options["callIndices"]):
             for i in range(n):
-                tau = (time[-1]-time[i]).days
+                tau = (time[-1] - time[i]).days
 
                 delta, _ = FiMa.delta(
                     daysToMaturity=tau, 
@@ -105,15 +105,15 @@ class FinancialMathematics:
                     riskFreeRate=options["riskFreeRate"]
                 )
                 priceCall, _ = FiMa.priceOption(
-                    daysToMaturity=tau, 
-                    stockPrice=stocks[j][i],
+                    daysToMaturity=(time[-1] - time[0]).days, 
+                    stockPrice=stocks[j][0],
                     strikePrice=options["callStrikes"][jCall],
                     volatility=options["callVolatilities"][jCall],
                     riskFreeRate=options["riskFreeRate"]
                 )
                 deltaS = stocks[j][i+1] - stocks[j][i]
                 deltaT = prob[i]
-                deltaT = (time[i+1]-time[i])/dt.timedelta(days=365)
+                # deltaT = (time[i+1]-time[i])/dt.timedelta(days=365)
 
                 deltaC = delta*deltaS + 0.5*gamma*deltaS**2 + theta*deltaT
                 XIcall[i, jCall] = deltaC/priceCall/prob[i]
@@ -124,7 +124,7 @@ class FinancialMathematics:
 
         for jPut, j in enumerate(options["putIndices"]):
             for i in range(n):
-                tau = (time[-1]-time[i]).days
+                tau = (time[-1] - time[i]).days
 
                 _, delta = FiMa.delta(
                     daysToMaturity=tau, 
@@ -149,15 +149,15 @@ class FinancialMathematics:
                 )
 
                 _, pricePut = FiMa.priceOption(
-                    daysToMaturity=tau, 
-                    stockPrice=stocks[j][i],
+                    daysToMaturity=(time[-1] - time[0]).days, 
+                    stockPrice=stocks[j][0],
                     strikePrice=options["putStrikes"][jPut],
                     volatility=options["putVolatilities"][jPut],
                     riskFreeRate=options["riskFreeRate"]
                 )
                 deltaS = stocks[j][i+1] - stocks[j][i]
                 deltaT = prob[i]
-                deltaT = (time[i+1]-time[i])/dt.timedelta(days=365)
+                # deltaT = (time[i+1]-time[i])/dt.timedelta(days=365)
 
                 deltaP = delta*deltaS + 0.5*gamma*deltaS**2 + theta*deltaT
                 XIput[i, jPut] = deltaP/pricePut/prob[i]

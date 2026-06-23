@@ -59,7 +59,8 @@ class PortfolioShares:
             self.stocks.append(gbm.getStock())
 
     def databasePortfolio(self) -> None:
-        data = pd.read_csv(r"C:\Users\j.rode\Desktop\Markowitz\iO\database\lecture.csv", delimiter=";").set_index("Date")
+        # data = pd.read_csv(r"C:\Users\j.rode\Desktop\Markowitz\iO\database\lecture.csv", delimiter=";").set_index("Date")
+        data = pd.read_csv(r"C:\Users\j.rode\Desktop\Markowitz\iO\database\master.csv", delimiter=";").set_index("Date")
         
         self.symbols = data.columns.values.tolist()
 

@@ -221,7 +221,7 @@ def mainTest3():
     portfolioSharesOptions.setOptions(options)
 
     plotPortfolioSharesOptions = PlotPortfolioSharesOptions(portfolioSharesOptions)
-    plotPortfolioSharesOptions.plotStocks("abs")
+    plotPortfolioSharesOptions.plotStocks("rel")
     plotPortfolioSharesOptions.plotAllocationMarkowitz(returnMax=0.01)
     plotPortfolioSharesOptions.plotAllocationLinearProgramming(returnMax=0.51, gamma=1)
 
@@ -240,9 +240,9 @@ def mainTest4():
     Kcall2 = 230.00
     Kput2 = 220.00
 
-    my0 = -0.05
-    my1 = -0.05
-    my2 = -0.05
+    my0 = -0.1
+    my1 = -0.1
+    my2 = -0.1
 
     sigma0 = 0.5
     sigma1 = 0.5
@@ -292,9 +292,76 @@ def mainTest4():
     portfolioSharesOptions.setOptions(options)
 
     plotPortfolioSharesOptions = PlotPortfolioSharesOptions(portfolioSharesOptions)
-    plotPortfolioSharesOptions.plotStocks("abs")
+    plotPortfolioSharesOptions.plotStocks("rel")
     plotPortfolioSharesOptions.plotAllocationMarkowitz(returnMax=0.01)
     plotPortfolioSharesOptions.plotAllocationLinearProgramming(returnMax=0.52, gamma=1)
 
+def mainMaster():
+    portfolioSharesOptions = PortfolioSharesOptions()
+    portfolioSharesOptions.databasePortfolio()
+
+    # Calls
+    GOOGLcallPrice = 3.07
+    GOOGLcallStrike = 400
+    GOOGLcallVolatility = 0.3872
+
+    AAPLcallPrice = 2.09
+    AAPLcallStrike = 320
+    AAPLcallVolatility = 0.2456
+
+    AMDcallPrice = 23.42
+    AMDcallStrike = 530
+    AMDcallVolatility = 0.7154
+
+    INTCcallPrice = 8.00
+    INTCcallStrike = 110
+    INTCcallVolatility = 0.899
+
+    NVIDIAcallPrice = 6.03
+    NVIDIAcallStrike = 230
+    NVIDIAcallVolatility = 0.4313
+
+    # Puts
+    GOOGLputPrice = 1.86
+    GOOGLputStrike = 350
+    GOOGLputVolatility = 0.2696
+
+    AAPLputPrice = 3.73
+    AAPLputStrike = 300
+    AAPLputVolatility = 0.2571
+
+    AMDputPrice = 21.40
+    AMDputStrike = 490
+    AMDputVolatility = 0.7185
+
+    INTCputPrice = 5.90
+    INTCputStrike = 105
+    INTCputVolatility = 0.8465
+
+    NVIDIAputPrice = 6.05
+    NVIDIAputStrike = 220
+    NVIDIAputVolatility = 0.4280
+
+    options = {
+        "riskFreeRate" : 0.0445,
+
+        "callPrices" : [GOOGLcallPrice, AAPLcallPrice, AMDcallPrice, INTCcallPrice, NVIDIAcallPrice],
+        "callIndices" : [0,1,2,3,4],
+        "callStrikes" : [GOOGLcallStrike, AAPLcallStrike, AMDcallStrike, INTCcallStrike, NVIDIAcallStrike],
+        "callVolatilities" : [GOOGLcallVolatility, AAPLcallVolatility, AMDcallVolatility, INTCcallVolatility, NVIDIAcallVolatility],
+
+        "putPrices" : [GOOGLputPrice, AAPLputPrice, AMDputPrice, INTCputPrice, NVIDIAputPrice],
+        "putIndices" : [0,1,2,3,4],
+        "putStrikes" : [GOOGLputStrike, AAPLputStrike, AMDputStrike, INTCputStrike, NVIDIAputStrike],
+        "putVolatilities" : [GOOGLputVolatility, AAPLputVolatility, AMDputVolatility, INTCputVolatility, NVIDIAputVolatility]
+    }
+
+    portfolioSharesOptions.setOptions(options)
+
+    plotPortfolioSharesOptions = PlotPortfolioSharesOptions(portfolioSharesOptions)
+    plotPortfolioSharesOptions.plotStocks("rel")
+    plotPortfolioSharesOptions.plotAllocationMarkowitz()
+    plotPortfolioSharesOptions.plotAllocationLinearProgramming(returnMax=2.5, gamma=1, alpha=0.999)
+
 if __name__ == "__main__":
-    mainTest4()
+    mainMaster()

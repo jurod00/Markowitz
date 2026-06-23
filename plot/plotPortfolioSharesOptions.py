@@ -38,16 +38,18 @@ class PlotPortfolioSharesOptions:
 
         if absRel == "rel":
             for j in range(J):
-                stocksTemp = stocks[j]
+                # stocksTemp = stocks[j]
 
-                for i in range(1, len(time)):
-                    stocksTemp[i] /= stocksTemp[0]
+                # for i in range(1, len(time)):
+                #     stocksTemp[i] /= stocksTemp[0]
 
-                stocksTemp[0] = 1
+                # stocksTemp[0] = 1
+
+                stocksRel = [stocks[j][i]/stocks[j][0] for i in range(len(time))]
 
                 ax1.plot(
                     time, 
-                    stocksTemp, 
+                    stocksRel, 
                     label=symbols[j], 
                     color=colors[j]
                 )
