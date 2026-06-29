@@ -1,6 +1,6 @@
 import datetime as dt
 import pandas as pd
-import pandas_datareader.data as pdd
+# import pandas_datareader.data as pdd
 
 class Input:
 
@@ -24,27 +24,27 @@ class Input:
     def getStocks(self) -> list:
         return self.stocks
 
-    def downloadShare(self, symbol: str, t0: dt.datetime, tn: dt.datetime):
+    # def downloadShare(self, symbol: str, t0: dt.datetime, tn: dt.datetime):
 
-        data = pdd.DataReader(name=[symbol], data_source="stooq", start=t0, end=tn)
-        data = data.iloc[::-1]["Open"] # Datum aufsteigend sortieren und "Open"-Spalte
-        data = data.iloc[:, 0] # "Symbols" entfernen
+    #     data = pdd.DataReader(name=[symbol], data_source="stooq", start=t0, end=tn)
+    #     data = data.iloc[::-1]["Open"] # Datum aufsteigend sortieren und "Open"-Spalte
+    #     data = data.iloc[:, 0] # "Symbols" entfernen
         
-        self.data = data
-        self.time = data.index.tolist()
-        self.stock = data.tolist()
+    #     self.data = data
+    #     self.time = data.index.tolist()
+    #     self.stock = data.tolist()
 
-    def downloadShares(self, symbols: list, t0: dt.datetime, tn: dt.datetime):
-        data = pdd.DataReader(name=symbols, data_source="stooq", start=t0, end=tn)
-        data = data.iloc[::-1]["Open"]
+    # def downloadShares(self, symbols: list, t0: dt.datetime, tn: dt.datetime):
+    #     data = pdd.DataReader(name=symbols, data_source="stooq", start=t0, end=tn)
+    #     data = data.iloc[::-1]["Open"]
 
-        self.data = data
-        self.time = data.index.tolist()
-        self.stocks = []
+    #     self.data = data
+    #     self.time = data.index.tolist()
+    #     self.stocks = []
 
-        J = len(symbols)
-        for j in range(J):
-            self.stocks.append(data.iloc[:, j].tolist())
+    #     J = len(symbols)
+    #     for j in range(J):
+    #         self.stocks.append(data.iloc[:, j].tolist())
 
     def simulateData(self, shares: list, t0: dt.datetime, tn: dt.datetime):
         pass

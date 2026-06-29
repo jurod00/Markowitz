@@ -5,9 +5,10 @@ import scipy.optimize as opt
 
 from mathematics.financialMathematics import FinancialMathematics as FiMa
 from simulation.geometricBrownianMotion import GeometricBrownianMotion as Gbm
-from iO.input import Input
+# from iO.input import Input
 
 class PortfolioSharesOptions:
+
     def __init__(self):
         self.time : list=None
         self.stocks : list=None
@@ -59,7 +60,3 @@ class PortfolioSharesOptions:
 
         for j in range(J):
             self.stocks.append(data.iloc[:, j].tolist())
-
-    def databaseOptions(self) -> None:
-        data = pd.read_csv(r"C:\Users\j.rode\Desktop\Markowitz\iO\database\options.csv", delimiter=";")
-        #...

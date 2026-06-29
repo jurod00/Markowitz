@@ -5,7 +5,7 @@ import scipy.optimize as opt
 
 from mathematics.financialMathematics import FinancialMathematics as FiMa
 from simulation.geometricBrownianMotion import GeometricBrownianMotion as Gbm
-from iO.input import Input
+# from iO.input import Input
 
 class PortfolioShares:
 
@@ -32,12 +32,12 @@ class PortfolioShares:
     def setSymbols(self, symbols) -> None:
         self.symbols = symbols
     
-    def downloadPortfolio(self) -> None:
-        input = Input()
-        input.downloadShares(self.symbols, self.time[0], self.time[-1])
+    # def downloadPortfolio(self) -> None:
+    #     input = Input()
+    #     input.downloadShares(self.symbols, self.time[0], self.time[-1])
 
-        self.time = input.getTime()
-        self.stocks = input.getStocks()
+    #     self.time = input.getTime()
+    #     self.stocks = input.getStocks()
     
     def simulatePortfolio(self, s0: list, drift: list, volatility: list) -> None:
         J = len(self.symbols)
@@ -73,13 +73,13 @@ class PortfolioShares:
         for j in range(J):
             self.stocks.append(data.iloc[:, j].tolist())
 
-    def addRiskFreeAsset(self, symbol: str="risk-free asset", interestRate: float=0.02):
-        n = FiMa.numberTimestamps(time=self.time)
+    # def addRiskFreeAsset(self, symbol: str="risk-free asset", interestRate: float=0.02):
+    #     n = FiMa.numberTimestamps(time=self.time)
 
-        self.symbols.append(symbol)
+    #     self.symbols.append(symbol)
 
-        stock = [100.0]
-        for i in range(n):
-            stock.append(stock[i]*np.exp(1/n*interestRate))
+    #     stock = [100.0]
+    #     for i in range(n):
+    #         stock.append(stock[i]*np.exp(1/n*interestRate))
 
-        self.stocks.append(stock)
+    #     self.stocks.append(stock)

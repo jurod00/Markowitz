@@ -8,7 +8,7 @@ import datetime as dt
 
 from analysis.sensitivityAnalysis import SensitivityAnalysis
 
-from iO.input import Input
+# from iO.input import Input
 
 from plot.plotPortfolioShares import PlotPortfolioShares
 from plot.plotSensitivityAnalysis import PlotSensitivityAnalysis
@@ -70,25 +70,25 @@ def main():
         print(sensitivityAnalysis.conditionNumber(A))
         print(sensitivityAnalysis.conditionNumber(np.linalg.inv(A)))
     # iO
-    elif skript == "Input.py":
-        input = Input()
+    # elif skript == "Input.py":
+    #     input = Input()
 
-        symbols = ["ADS.DE", "AMZN", "MCD"]
+    #     symbols = ["ADS.DE", "AMZN", "MCD"]
 
-        input.downloadShares(symbols, dt.datetime(2025,11,28), dt.datetime(2025,12,23))
+    #     input.downloadShares(symbols, dt.datetime(2025,11,28), dt.datetime(2025,12,23))
 
-        print(input.getStocks())
+    #     print(input.getStocks())
 
-        time = input.getTime()
-        stocks = input.getStocks()
+    #     time = input.getTime()
+    #     stocks = input.getStocks()
 
-        portfolio = PortfolioShares()
-        portfolio.setTime(time)
-        portfolio.setStocks(stocks)
-        portfolio.setSymbols(symbols)
+    #     portfolio = PortfolioShares()
+    #     portfolio.setTime(time)
+    #     portfolio.setStocks(stocks)
+    #     portfolio.setSymbols(symbols)
 
-        plt = PlotPortfolioShares(portfolio)
-        plt.plotStocks("rel")
+    #     plt = PlotPortfolioShares(portfolio)
+    #     plt.plotStocks("rel")
     # plot
     elif skript == "PlotPortfolioShares.py":
         portfolio = PortfolioShares()

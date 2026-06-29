@@ -14,6 +14,47 @@ class PlotPortfolioSharesOptions:
         self.gammaDefault = 0.5
         self.myDefault = 0.25 # 0.07
 
+    def colors(self):
+        stocks = self.portfolio.getStocks()
+        options = self.portfolio.getOptions()
+
+        if len(options["callIndices"]) == 0 and len(options["putIndices"]) == 0:
+            colors = len(stocks)*["darkseagreen"]
+        elif len(options["callIndices"]) != 0 and len(options["putIndices"]) == 0:
+            colors = len(stocks)*["darkseagreen"] + len(stocks)*["limegreen"]
+        elif len(options["callIndices"]) == 0 and len(options["putIndices"]) != 0:
+            colors = len(stocks)*["darkseagreen"] + len(stocks)*["limegreen"]
+        elif len(options["callIndices"]) != 0 and len(options["putIndices"]) != 0:
+            colors = len(stocks)*["darkseagreen"] + len(stocks)*["limegreen"] + len(stocks)*["forestgreen"]
+
+        return colors
+    
+    def markers(self):
+        stocks = self.portfolio.getStocks()
+        options = self.portfolio.getOptions()
+
+        if len(stocks) == 1:
+            stockMarkers = ["o"]
+        elif len(stocks) == 2:
+            stockMarkers = ["o", "^"]
+        elif len(stocks) == 3:
+            stockMarkers = ["o", "^", "s"]
+        elif len(stocks) == 4:
+            stockMarkers = ["o", "^", "s", "*"]
+        elif len(stocks) == 5:
+            stockMarkers = ["o", "^", "s", "*", "P"]
+
+        if len(options["callIndices"]) == 0 and len(options["putIndices"]) == 0:
+            markers = stockMarkers
+        elif len(options["callIndices"]) != 0 and len(options["putIndices"]) == 0:
+            markers = 2*stockMarkers
+        elif len(options["callIndices"]) == 0 and len(options["putIndices"]) != 0:
+            markers = 2*stockMarkers
+        elif len(options["callIndices"]) != 0 and len(options["putIndices"]) != 0:
+            markers = 3*stockMarkers
+
+        return markers
+
     def plotStocks(self, absRel) -> None:
         fig, ax1 = plt.subplots(figsize=(15,10))
         # ax2 = ax1.twinx()
@@ -22,36 +63,35 @@ class PlotPortfolioSharesOptions:
         stocks = self.portfolio.getStocks()
         symbols = self.portfolio.getSymbols()
 
-        J = len(stocks)
+        colors = ["lightgreen", "limegreen", "forestgreen", "darkgreen"]
+        markers = self.markers()
 
-        cmap    = plt.cm.get_cmap("Blues")
-        colors  = cmap(np.linspace(0.2, 1.0, J))
+        J = len(stocks)
 
         if absRel == "abs":
             for j in range(J):
                 ax1.plot(
                     time, 
                     stocks[j], 
+                    color=colors[j], 
                     label=symbols[j], 
-                    color=colors[j]
+                    marker=markers[j], 
+                    markeredgecolor=colors[j],
+                    markerfacecolor="white"
                 )
 
         if absRel == "rel":
             for j in range(J):
-                # stocksTemp = stocks[j]
-
-                # for i in range(1, len(time)):
-                #     stocksTemp[i] /= stocksTemp[0]
-
-                # stocksTemp[0] = 1
-
                 stocksRel = [stocks[j][i]/stocks[j][0] for i in range(len(time))]
 
                 ax1.plot(
                     time, 
                     stocksRel, 
+                    color=colors[j], 
                     label=symbols[j], 
-                    color=colors[j]
+                    marker=markers[j], 
+                    markeredgecolor=colors[j],
+                    markerfacecolor="white"
                 )
 
         ax1.grid(axis="y", linewidth=0.25)
@@ -86,9 +126,6 @@ class PlotPortfolioSharesOptions:
         x1 = FiMa.allocationBasic(time=time, stocks=stocks, minimumReturn=returnMax, options=options)
 
         _, b, c, _ = FiMa.abcd(time=time, stocks=stocks, options=options)
-
-        # cmap    = plt.cm.get_cmap("Blues")
-        # colors  = cmap(np.linspace(0.2, 1.0, J))
 
         colors = self.colors()
         markers = self.markers()
@@ -147,49 +184,6 @@ class PlotPortfolioSharesOptions:
 
         fig.savefig(pathAssets / "plotAllocationMarkowitzNew.svg")
 
-    def markers(self):
-        stocks = self.portfolio.getStocks()
-        options = self.portfolio.getOptions()
-
-        if len(stocks) == 1:
-            lineStocks = ["o"]
-        elif len(stocks) == 2:
-            lineStocks = ["o", "^"]
-        elif len(stocks) == 3:
-            lineStocks = ["o", "^", "s"]
-        elif len(stocks) == 4:
-            lineStocks = ["o", "^", "s", "*"]
-        elif len(stocks) == 5:
-            lineStocks = ["o", "^", "s", "*", "P"]
-
-        if len(options["callIndices"]) == 0 and len(options["putIndices"]) == 0:
-            markers = lineStocks
-        elif len(options["callIndices"]) != 0 and len(options["putIndices"]) == 0:
-            markers = 2*lineStocks
-        elif len(options["callIndices"]) == 0 and len(options["putIndices"]) != 0:
-            markers = 2*lineStocks
-        elif len(options["callIndices"]) != 0 and len(options["putIndices"]) != 0:
-            markers = 3*lineStocks
-
-        return markers
-    
-    def colors(self):
-        stocks = self.portfolio.getStocks()
-        options = self.portfolio.getOptions()
-
-        cmap = plt.cm.get_cmap("Greens")
-
-        if len(options["callIndices"]) == 0 and len(options["putIndices"]) == 0:
-            colors = cmap(len(stocks)*[0.3])
-        elif len(options["callIndices"]) != 0 and len(options["putIndices"]) == 0:
-            colors = cmap(len(stocks)*[0.3] + len(stocks)*[0.6])
-        elif len(options["callIndices"]) == 0 and len(options["putIndices"]) != 0:
-            colors = cmap(len(stocks)*[0.3] + len(stocks)*[0.6])
-        elif len(options["callIndices"]) != 0 and len(options["putIndices"]) != 0:
-            colors = cmap(len(stocks)*[0.3] + len(stocks)*[0.6] + len(stocks)*[0.9])
-
-        return colors
-
     def plotAllocationLinearProgramming(self, alpha: float=0.95, gamma: float=0.5, returnMin: float=0.0, returnMax: float=0.25) -> None:
         fig, ax1 = plt.subplots(figsize=(15, 10))
         # ax2 = ax1.twinx()
@@ -219,32 +213,6 @@ class PlotPortfolioSharesOptions:
                 options=options
             )
             allocations.append(x)
-
-        # if len(stocks) == 1:
-        #     lineStocks = ["o"]
-        # elif len(stocks) == 2:
-        #     lineStocks = ["o", "s"]
-        # elif len(stocks) == 3:
-        #     lineStocks = ["o", "s", "^"]
-        # elif len(stocks) == 4:
-        #     lineStocks = ["o", "s", "^", "*"]
-        # elif len(stocks) == 5:
-        #     lineStocks = ["o-", "s-", "^-", "*-", "P-"]
-
-        # cmap = plt.cm.get_cmap("Greens")
-
-        # if len(options["callIndices"]) == 0 and len(options["putIndices"]) == 0:
-        #     linestyles = lineStocks
-        #     colors = cmap(len(stocks)*[0.3])
-        # elif len(options["callIndices"]) != 0 and len(options["putIndices"]) == 0:
-        #     linestyles = 2*lineStocks
-        #     colors = cmap(len(stocks)*[0.3] + len(stocks)*[0.6])
-        # elif len(options["callIndices"]) == 0 and len(options["putIndices"]) != 0:
-        #     linestyles = 2*lineStocks
-        #     colors = cmap(len(stocks)*[0.3] + len(stocks)*[0.6])
-        # elif len(options["callIndices"]) != 0 and len(options["putIndices"]) != 0:
-        #     linestyles = 3*lineStocks
-        #     colors = cmap(len(stocks)*[0.3] + len(stocks)*[0.6] + len(stocks)*[0.9])
 
         colors = self.colors()
         markers = self.markers()

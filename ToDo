@@ -8,7 +8,6 @@
 1.7 ax1.set_xticks statt plt.xticks
 1.8 Speed test bei priceOption für dPlus und dMinus
 1.9 GBM überarbeiten
-1.10 Nicht-ausgefüllte Marker in Plots
 
 2.  Mittelfristig
 2.1 Überflüssige Methoden in PortfolioShares.py entfernen
@@ -17,6 +16,7 @@
 2.4 Covarianzmatrix mit Oprionen und Korrelationsgrafik
 2.5 No short selling constraint, also keine Leerverkäufe
 2.6 Binäre Suche für impliedVolatility
+2.7 databaseOptions-Methode zum einlesen einer CSV
 
 3.  Langfristig
 3.1 Frontend entwickeln
