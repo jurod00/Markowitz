@@ -12,6 +12,8 @@ from portfolio.portfolioSharesOptions import PortfolioSharesOptions
 from plot.plotPortfolioShares import PlotPortfolioShares
 from plot.plotPortfolioSharesOptions import PlotPortfolioSharesOptions
 
+from simulation.geometricBrownianMotion import GeometricBrownianMotion
+
 import datetime as dt
 import matplotlib.pyplot as plt
 # plt.rcParams.update({'font.size': 20})
@@ -428,5 +430,43 @@ def mainMasterOhneGoogle():
     plotPortfolioSharesOptions.plotAllocationMarkowitz()
     plotPortfolioSharesOptions.plotAllocationLinearProgramming(gamma=1, returnMax=2.5)
 
+def gbm():
+    times = [dt.datetime(year=2026, month=6, day=1) + dt.timedelta(days=d) for d in range(365)]
+
+    geometricBrownianMotion = GeometricBrownianMotion()
+
+    geometricBrownianMotion.setTimes(times=times)
+    geometricBrownianMotion.setS0(100.00)
+    geometricBrownianMotion.setDrift(0.03)
+    geometricBrownianMotion.setVolatility(0.00)
+    geometricBrownianMotion.setSeed(1)
+
+    geometricBrownianMotion.simulatePDE()
+
+    fig1, ax1 = plt.subplots()
+    ax1.plot(times, geometricBrownianMotion.getStock())
+    ax1.set_xticklabels([])
+    # ax1.set_ylim(0, 150)
+    ax1.set_title("PDE")
+
+    absErr = np.array(geometricBrownianMotion.getStock())
+
+    geometricBrownianMotion.simulateExp()
+    
+    fig2, ax2 = plt.subplots()
+    ax2.plot(times, geometricBrownianMotion.getStock())
+    ax2.set_xticklabels([])
+    # ax2.set_ylim(0, 150)
+    ax2.set_title("Exp")
+
+    absErr -= np.array(geometricBrownianMotion.getStock())
+
+    fig3, ax3 = plt.subplots()
+    ax3.plot(times, absErr)
+    ax3.set_xticklabels([])
+    ax3.set_title("Absolute Abweichung")
+
+    plt.show()
+
 if __name__ == "__main__":
-    mainMasterOhneGoogle()
+    gbm()
