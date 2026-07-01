@@ -6,7 +6,7 @@ riskFreeRate = 0.024
 import numpy as np
 
 from mathematics.financialMathematics import FinancialMathematics as FiMa
-from mathematics.options import Options
+from mathematics.option import Option
 from portfolio.portfolioShares import PortfolioShares
 from portfolio.portfolioSharesOptions import PortfolioSharesOptions
 
@@ -32,16 +32,16 @@ def mainGreeks():
     volatility = 0.2571
     riskFreeRate = 0.0445
 
-    print("Price Call " + str(Options.priceOptionCall(daysToMaturity=daysToMaturity, stockPrice=stockPrice, strikePrice=strikePrice, implVolatility=volatility, riskFreeRate=riskFreeRate)))
-    print("Price Put " + str(Options.priceOptionPut(daysToMaturity=daysToMaturity, stockPrice=stockPrice, strikePrice=strikePrice, implVolatility=volatility, riskFreeRate=riskFreeRate)))
-    print("Delta Call " + str(Options.deltaCall(daysToMaturity=daysToMaturity, stockPrice=stockPrice, strikePrice=strikePrice, implVolatility=volatility, riskFreeRate=riskFreeRate)))
-    print("Delta Put " + str(Options.deltaPut(daysToMaturity=daysToMaturity, stockPrice=stockPrice, strikePrice=strikePrice, implVolatility=volatility, riskFreeRate=riskFreeRate)))
-    print("Gamma " + str(Options.gamma(daysToMaturity=daysToMaturity, stockPrice=stockPrice, strikePrice=strikePrice, implVolatility=volatility, riskFreeRate=riskFreeRate)))
-    print("Theta Call " + str(Options.thetaCall(daysToMaturity=daysToMaturity, stockPrice=stockPrice, strikePrice=strikePrice, implVolatility=volatility, riskFreeRate=riskFreeRate)))
-    print("Theta Put " + str(Options.thetaPut(daysToMaturity=daysToMaturity, stockPrice=stockPrice, strikePrice=strikePrice, implVolatility=volatility, riskFreeRate=riskFreeRate)))
-    print("Vega " + str(Options.vega(daysToMaturity=daysToMaturity, stockPrice=stockPrice, strikePrice=strikePrice, implVolatility=volatility, riskFreeRate=riskFreeRate)))
-    print("Rho Call " + str(Options.rhoCall(daysToMaturity=daysToMaturity, stockPrice=stockPrice, strikePrice=strikePrice, implVolatility=volatility, riskFreeRate=riskFreeRate)))
-    print("Rho Put " + str(Options.rhoPut(daysToMaturity=daysToMaturity, stockPrice=stockPrice, strikePrice=strikePrice, implVolatility=volatility, riskFreeRate=riskFreeRate)))
+    print("Price Call " + str(Option.priceOptionCall(daysToMaturity=daysToMaturity, stockPrice=stockPrice, strikePrice=strikePrice, implVolatility=volatility, riskFreeRate=riskFreeRate)))
+    print("Price Put " + str(Option.priceOptionPut(daysToMaturity=daysToMaturity, stockPrice=stockPrice, strikePrice=strikePrice, implVolatility=volatility, riskFreeRate=riskFreeRate)))
+    print("Delta Call " + str(Option.deltaCall(daysToMaturity=daysToMaturity, stockPrice=stockPrice, strikePrice=strikePrice, implVolatility=volatility, riskFreeRate=riskFreeRate)))
+    print("Delta Put " + str(Option.deltaPut(daysToMaturity=daysToMaturity, stockPrice=stockPrice, strikePrice=strikePrice, implVolatility=volatility, riskFreeRate=riskFreeRate)))
+    print("Gamma " + str(Option.gamma(daysToMaturity=daysToMaturity, stockPrice=stockPrice, strikePrice=strikePrice, implVolatility=volatility, riskFreeRate=riskFreeRate)))
+    print("Theta Call " + str(Option.thetaCall(daysToMaturity=daysToMaturity, stockPrice=stockPrice, strikePrice=strikePrice, implVolatility=volatility, riskFreeRate=riskFreeRate)))
+    print("Theta Put " + str(Option.thetaPut(daysToMaturity=daysToMaturity, stockPrice=stockPrice, strikePrice=strikePrice, implVolatility=volatility, riskFreeRate=riskFreeRate)))
+    print("Vega " + str(Option.vega(daysToMaturity=daysToMaturity, stockPrice=stockPrice, strikePrice=strikePrice, implVolatility=volatility, riskFreeRate=riskFreeRate)))
+    print("Rho Call " + str(Option.rhoCall(daysToMaturity=daysToMaturity, stockPrice=stockPrice, strikePrice=strikePrice, implVolatility=volatility, riskFreeRate=riskFreeRate)))
+    print("Rho Put " + str(Option.rhoPut(daysToMaturity=daysToMaturity, stockPrice=stockPrice, strikePrice=strikePrice, implVolatility=volatility, riskFreeRate=riskFreeRate)))
 
 def mainHistoricalVolatility():
     times = [dt.datetime(year=2026, month=1, day=1) + dt.timedelta(days=d) for d in range(365)]
@@ -79,8 +79,8 @@ def mainImpliedVolatility():
         stockPrice = np.random.randint(300, 310)
         strikePrice = np.random.randint(290, 300)
 
-        price = Options.priceOptionPut(daysToMaturity=daysToMaturity, stockPrice=stockPrice, strikePrice=strikePrice, riskFreeRate=0.0445, implVolatility=sigma)
-        implVola = Options.impliedVolatilityPut(daysToMaturity=daysToMaturity, stockPrice=stockPrice, strikePrice=strikePrice, riskFreeRate=0.0445, priceOptionPut=price)
+        price = Option.priceOptionPut(daysToMaturity=daysToMaturity, stockPrice=stockPrice, strikePrice=strikePrice, riskFreeRate=0.0445, implVolatility=sigma)
+        implVola = Option.impliedVolatilityPut(daysToMaturity=daysToMaturity, stockPrice=stockPrice, strikePrice=strikePrice, riskFreeRate=0.0445, priceOptionPut=price)
         implVolas.append(implVola)
 
     fig, ax = plt.subplots()

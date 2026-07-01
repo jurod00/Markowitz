@@ -1,9 +1,8 @@
 import math
-import numpy as np
 import datetime as dt
 import scipy.stats as st
 
-class Options:
+class Option:
 
     def __init__(self):
         pass
@@ -129,14 +128,14 @@ class Options:
         implVolatility1 = float(5e-2)
 
         for _ in range(N):
-            priceOption0 = Options.priceOptionCall(
+            priceOption0 = Option.priceOptionCall(
                 daysToMaturity=daysToMaturity, 
                 stockPrice=stockPrice, 
                 strikePrice=strikePrice, 
                 riskFreeRate=riskFreeRate, 
                 implVolatility=implVolatility0
             )
-            priceOption1 = Options.priceOptionCall(
+            priceOption1 = Option.priceOptionCall(
                 daysToMaturity=daysToMaturity, 
                 stockPrice=stockPrice, 
                 strikePrice=strikePrice, 
@@ -165,14 +164,14 @@ class Options:
         implVolatility1 = float(5e-2)
 
         for _ in range(N):
-            priceOption0 = Options.priceOptionPut(
+            priceOption0 = Option.priceOptionPut(
                 daysToMaturity=daysToMaturity, 
                 stockPrice=stockPrice, 
                 strikePrice=strikePrice, 
                 riskFreeRate=riskFreeRate, 
                 implVolatility=implVolatility0
             )
-            priceOption1 = Options.priceOptionPut(
+            priceOption1 = Option.priceOptionPut(
                 daysToMaturity=daysToMaturity, 
                 stockPrice=stockPrice, 
                 strikePrice=strikePrice, 
