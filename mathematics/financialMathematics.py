@@ -495,8 +495,11 @@ class FinancialMathematics:
         r = riskFreeRate
         sigma = volatility
 
-        dPlus = ((r + 0.5*sigma**2)*tau + np.log(S/K))/(sigma*np.sqrt(tau))
-        dMinus = ((r - 0.5*sigma**2)*tau + np.log(S/K))/(sigma*np.sqrt(tau))
+        # dPlus = ((r + 0.5*sigma**2)*tau + np.log(S/K))/(sigma*np.sqrt(tau))
+        # dMinus = ((r - 0.5*sigma**2)*tau + np.log(S/K))/(sigma*np.sqrt(tau))
+
+        dPlus = ((r + 0.5*sigma**2)*tau + math.log(S/K))/(sigma*tau**0.5)
+        dMinus = dPlus - sigma*tau**0.5
 
         vCall = S*st.norm.cdf(dPlus) - K*np.exp(-r*tau)*st.norm.cdf(dMinus)
         vPut = K*np.exp(-r*tau)*(1 - st.norm.cdf(dMinus)) - S*(1 - st.norm.cdf(dPlus))

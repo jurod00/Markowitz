@@ -7,7 +7,6 @@
 1.6 fig, ax1 nach unten, erst wenn es gebraucht wird!
 1.7 ax1.set_xticks statt plt.xticks
 1.8 Speed test bei priceOption für dPlus und dMinus
-1.9 GBM überarbeiten
 
 2.  Mittelfristig
 2.1 Überflüssige Methoden in PortfolioShares.py entfernen
