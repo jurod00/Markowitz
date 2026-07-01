@@ -109,7 +109,7 @@ class PlotPortfolioSharesOptions:
         pathAssets = pathDirectory / "assets"
         pathAssets.mkdir(exist_ok=True)
 
-        fig.savefig(pathAssets / "plotStocksNew.svg")
+        fig.savefig(pathAssets / "plotStocks.svg")
 
     def plotAllocationMarkowitz(self, returnMin: float=0.0, returnMax: float=0.25) -> None:
         fig, ax1 = plt.subplots(figsize=(15, 10))
@@ -182,7 +182,7 @@ class PlotPortfolioSharesOptions:
         pathAssets = pathDirectory / "assets"
         pathAssets.mkdir(exist_ok=True)
 
-        fig.savefig(pathAssets / "plotAllocationMarkowitzNew.svg")
+        fig.savefig(pathAssets / "plotAllocationMarkowitz.svg")
 
     def plotAllocationLinearProgramming(self, alpha: float=0.95, gamma: float=0.5, returnMin: float=0.0, returnMax: float=0.25) -> None:
         fig, ax1 = plt.subplots(figsize=(15, 10))
@@ -249,4 +249,4 @@ class PlotPortfolioSharesOptions:
         pathAssets = pathDirectory / "assets"
         pathAssets.mkdir(exist_ok=True)
 
-        fig.savefig(pathAssets / "plotAllocationLinearProgrammingNew.svg")
+        fig.savefig(pathAssets / "plotAllocationLinearProgramming.svg")

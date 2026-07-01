@@ -20,8 +20,6 @@ import matplotlib.pyplot as plt
 # plt.rcParams.update({'font.size': 20})
 # plt.style.use("dark_background")
 
-import pandas_datareader as pdr
-
 def main():
     pass
 
@@ -488,4 +486,4 @@ def gbm():
     plt.show()
 
 if __name__ == "__main__":
-    mainImpliedVolatility()
+    mainMasterOhneGoogle()

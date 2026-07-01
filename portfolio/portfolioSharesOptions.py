@@ -3,6 +3,8 @@ import pandas as pd
 import datetime as dt
 import scipy.optimize as opt
 
+import pathlib as pl
+
 from mathematics.financialMathematics import FinancialMathematics as FiMa
 from simulation.geometricBrownianMotion import GeometricBrownianMotion as Gbm
 # from iO.input import Input
@@ -47,8 +49,11 @@ class PortfolioSharesOptions:
             self.symbols += ["Put " + str(putIndex)]
 
     def databasePortfolio(self) -> None:
+        pathDirectory = pl.Path(__file__).resolve().parent.parent
+        pathDatabase = pathDirectory / "iO" / "database"
+
         # data = pd.read_csv(r"C:\Users\j.rode\Desktop\Markowitz\iO\database\lecture.csv", delimiter=";").set_index("Date")
-        data = pd.read_csv(r"C:\Users\j.rode\Desktop\Markowitz\iO\database\master.csv", delimiter=";").set_index("Date")
+        data = pd.read_csv(pathDatabase / "master.csv", delimiter=";").set_index("Date")
         
         self.symbols = data.columns.values.tolist()
 
