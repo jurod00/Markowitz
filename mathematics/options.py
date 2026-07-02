@@ -2,7 +2,7 @@ import math
 import datetime as dt
 import scipy.stats as st
 
-class Option:
+class Options:
 
     def __init__(self):
         pass
@@ -80,14 +80,14 @@ class Option:
         return 0.01*stockPrice*st.norm.pdf(dPlus)*tau**0.5
     
     @staticmethod
-    def rhoCall(daysToMaturity: int=None, stockPrice: float=None, strikePrice: float=None, riskFreeRate: float=None, implVolatility: float=None) -> None:
+    def rhoCall(daysToMaturity: int=None, stockPrice: float=None, strikePrice: float=None, riskFreeRate: float=None, implVolatility: float=None) -> float:
         tau = dt.timedelta(days=daysToMaturity)/dt.timedelta(days=365)
         dMinus = ((riskFreeRate - 0.5*implVolatility**2)*tau + math.log(stockPrice/strikePrice))/(implVolatility*tau**0.5)
 
         return 0.01*strikePrice*tau*math.exp(-riskFreeRate*tau)*st.norm.cdf(dMinus)
     
     @staticmethod
-    def rhoPut(daysToMaturity: int=None, stockPrice: float=None, strikePrice: float=None, riskFreeRate: float=None, implVolatility: float=None) -> None:
+    def rhoPut(daysToMaturity: int=None, stockPrice: float=None, strikePrice: float=None, riskFreeRate: float=None, implVolatility: float=None) -> float:
         tau = dt.timedelta(days=daysToMaturity)/dt.timedelta(days=365)
         dMinus = ((riskFreeRate - 0.5*implVolatility**2)*tau + math.log(stockPrice/strikePrice))/(implVolatility*tau**0.5)
 
@@ -128,14 +128,14 @@ class Option:
         implVolatility1 = float(5e-2)
 
         for _ in range(N):
-            priceOption0 = Option.priceOptionCall(
+            priceOption0 = Options.priceOptionCall(
                 daysToMaturity=daysToMaturity, 
                 stockPrice=stockPrice, 
                 strikePrice=strikePrice, 
                 riskFreeRate=riskFreeRate, 
                 implVolatility=implVolatility0
             )
-            priceOption1 = Option.priceOptionCall(
+            priceOption1 = Options.priceOptionCall(
                 daysToMaturity=daysToMaturity, 
                 stockPrice=stockPrice, 
                 strikePrice=strikePrice, 
@@ -164,14 +164,14 @@ class Option:
         implVolatility1 = float(5e-2)
 
         for _ in range(N):
-            priceOption0 = Option.priceOptionPut(
+            priceOption0 = Options.priceOptionPut(
                 daysToMaturity=daysToMaturity, 
                 stockPrice=stockPrice, 
                 strikePrice=strikePrice, 
                 riskFreeRate=riskFreeRate, 
                 implVolatility=implVolatility0
             )
-            priceOption1 = Option.priceOptionPut(
+            priceOption1 = Options.priceOptionPut(
                 daysToMaturity=daysToMaturity, 
                 stockPrice=stockPrice, 
                 strikePrice=strikePrice, 

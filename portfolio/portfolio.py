@@ -2,23 +2,23 @@ class Portfolio:
 
     def __init__(self):
 
-        self.times: list=None
-        self.stocks: list=None
-        self.symbols: list=None
+        self.times: list=[]
+        self.stocks: list=[]
+        self.symbols: list=[]
 
-        self.riskFreeRate: float=None
+        self.riskFreeRate: float=float(0.00)
 
-        self.premiumCall: list=None
-        self.strikesCall: list=None
-        self.implVolCall: list=None
-        self.indicesCall: list=None
-        self.symbolsCall: list=None
+        self.premiumCall: list=[]
+        self.strikesCall: list=[]
+        self.implVolCall: list=[]
+        self.indicesCall: list=[]
+        self.symbolsCall: list=[]
 
-        self.premiumPut: list=None
-        self.strikesPut: list=None
-        self.implVolPut: list=None
-        self.indicesPut: list=None
-        self.symbolsPut: list=None
+        self.premiumPut: list=[]
+        self.strikesPut: list=[]
+        self.implVolPut: list=[]
+        self.indicesPut: list=[]
+        self.symbolsPut: list=[]
 
     def setTimes(self, times: list) -> None:
         self.times = times
