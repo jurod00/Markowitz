@@ -6,6 +6,7 @@
 1.6 fig, ax1 nach unten, erst wenn es gebraucht wird!
 1.7 ax1.set_xticks statt plt.xticks
 1.8 ReadMe.md überarbeiten und Optionen ergänzen
+1.9 Testen ob averageValueAtRisk und allocationIntegratedRiskManagement für beta=1 übereinstimmt
 
 2.  Mittelfristig
 2.1 Überflüssige Methoden in PortfolioShares.py entfernen

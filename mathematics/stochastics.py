@@ -1,4 +1,5 @@
 import numpy as np
+import scipy.optimize as opt
 
 from util.time import Time
 from mathematics.returns import Returns
@@ -52,5 +53,39 @@ class Stochastics:
         return mean, variance
     
     @staticmethod
-    def averageValueAtRisk(portfolio: Portfolio, alpha: float, beta: float, allocation: np.ndarray) -> float:
-        pass
+    def averageValueAtRisk(portfolio: Portfolio, alpha: float, allocation: np.ndarray) -> float:
+        n = len(portfolio.times) - 1
+
+        prob = np.array(Time.prob(times=portfolio.times))
+
+        xiStocks = Returns.initialRelativeReturn(portfolio=portfolio)
+        xiCall = Returns.optionReturnCall(portfolio=portfolio)
+        xiPut = Returns.optionReturnPut(portfolio=portfolio)
+
+        xi = np.hstack((xiStocks, xiCall, xiPut))
+
+        c = np.empty(n+1)
+        c[0] = 1
+        c[1:] = 1/(1-alpha)*prob
+
+        A_ub = np.empty((n, n+1))
+        for i in range(n):
+            A_ub[i, 0] = -1
+            A_ub[i,1:] = 0
+            A_ub[i,1+i] = -1
+        
+        b_ub = np.empty(n)
+        for i in range(n):
+            b_ub[i] = allocation.dot(xi[i,:])
+
+        bounds = [(None, None)] + n*[(0, None)]
+
+        solution = opt.linprog(
+            c=c, 
+            A_ub=A_ub, 
+            b_ub=b_ub, 
+            bounds=bounds, 
+            method="highs"
+        )
+
+        return solution.fun
