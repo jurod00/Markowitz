@@ -5,6 +5,7 @@ import numpy as np
 
 def main():
     portfolio = Portfolio()
+    portfolio.setSymbols(["AAPL", "MSFT", "GOOGL"])
     plotPortfolio = PlotPortfolio(portfolio=portfolio)
     plotPortfolio.plotStackedBar(allocation=np.array([0.5, 0.3, 0.2]))
 
