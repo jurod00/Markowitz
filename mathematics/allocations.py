@@ -1,4 +1,5 @@
 import numpy as np
+import scipy.linalg as lina
 import scipy.optimize as opt
 
 from mathematics.returns import Returns
@@ -9,22 +10,42 @@ from util.time import Time
 class Allocations:
 
     def __init__(self):
-        pass
+        self.L = None
 
     @staticmethod
-    def allocationMarkowitz(portfolio: Portfolio, minimumReturn: float):
+    def allocationMarkowitz(portfolio: Portfolio, minimumReturn: float, shortSelling: bool=True):
         d = len(portfolio.stocks) + len(portfolio.indicesCall) + len(portfolio.indicesPut)
         r = Stochastics.expectation(portfolio=portfolio)
-        prec = Stochastics.precision(portfolio=portfolio)
+        # prec = Stochastics.precision(portfolio=portfolio)
         ones = np.ones(d)
 
-        a = r.dot(prec.dot(r))
-        b = r.dot(prec.dot(ones))
-        c = ones.dot(prec.dot(ones))
+        # np.set_printoptions(linewidth=np.inf)
+        # print(prec)
+
+        sigma = Stochastics.covariance(portfolio=portfolio)
+
+        ya = lina.solve(sigma, r)
+        yb = lina.solve(sigma, ones)
+        yc = yb
+
+        a = r.dot(ya)
+        b = r.dot(yb)
+        c = ones.dot(yc)
         d = a*c - b**2
 
-        slopeVector = c/d*prec.dot(r) - b/d*prec.dot(ones)
-        shiftVector = a/d*prec.dot(ones) - b/d*prec.dot(r)
+        slopeVector = c/d*ya - b/d*yb
+        shiftVector = a/d*yb - b/d*ya
+
+        # a = r.dot(prec.dot(r))
+        # b = r.dot(prec.dot(ones))
+        # c = ones.dot(prec.dot(ones))
+        # d = a*c - b**2
+
+        # slopeVector = c/d*prec.dot(r) - b/d*prec.dot(ones)
+        # shiftVector = a/d*prec.dot(ones) - b/d*prec.dot(r)
+
+        if not shortSelling:
+            pass
 
         return minimumReturn*slopeVector + shiftVector
 
@@ -42,7 +63,7 @@ class Allocations:
         d = len(portfolio.stocks) + len(portfolio.indicesCall) + len(portfolio.indicesPut)
         n = len(portfolio.times) - 1
         
-        prob = Time.prob(times=portfolio.times)
+        prob = np.array(Time.prob(times=portfolio.times))
         r = Stochastics.expectation(portfolio=portfolio)
 
         xiStocks = Returns.initialRelativeReturn(portfolio=portfolio)

@@ -1,3 +1,7 @@
+import pandas as pd
+import pathlib as pl
+import datetime as dt
+
 class Portfolio:
 
     def __init__(self):
@@ -64,3 +68,49 @@ class Portfolio:
 
     def setSymbolsPut(self, symbolsPut: list) -> None:
         self.symbolsPut = symbolsPut
+
+    def setStockDataFromCSV(self, fileName: str="master.csv") -> None:
+        pathDatabase = pl.Path(__file__).resolve().parent.parent / "iO" / "database"
+        data = pd.read_csv(pathDatabase / fileName, delimiter=";").set_index("Date")
+        
+        self.setTimes([dt.datetime.strptime(time, "%Y-%m-%d") for time in data.index.tolist()])
+        self.setStocks([data.iloc[:,j].tolist() for j in range(len(data.columns))])
+        self.setSymbols(data.columns.values.tolist())
+
+    def setOptionDataFromCSV(self, fileName: str="option.csv", symbolsOptions: list=None) -> None:
+        if symbolsOptions == None:
+            return None
+        
+        pathDatabase = pl.Path(__file__).resolve().parent.parent / "iO" / "database"
+        data = pd.read_csv(pathDatabase / fileName, delimiter=";", index_col=0)
+
+        d = len(self.symbols)
+        
+        for symbolOption in symbolsOptions:
+            dataSymb = data.loc[:,symbolOption]
+
+            self.riskFreeRate = dataSymb["riskFreeRate"]
+
+            if "Call" in symbolOption:
+                self.premiumCall.append(dataSymb["premium"])
+                self.strikesCall.append(dataSymb["strikes"])
+                self.implVolCall.append(dataSymb["implVol"])
+
+                for j in range(d):
+                    if symbolOption[:-5] == self.symbols[j]:
+                        self.indicesCall.append(j)
+                        break
+
+                self.symbolsCall.append(symbolOption)
+
+            if "Put" in symbolOption:
+                self.premiumPut.append(dataSymb["premium"])
+                self.strikesPut.append(dataSymb["strikes"])
+                self.implVolPut.append(dataSymb["implVol"])
+
+                for j in range(d):
+                    if symbolOption[:-4] == self.symbols[j]:
+                        self.indicesPut.append(j)
+                        break
+
+                self.symbolsPut.append(symbolOption)

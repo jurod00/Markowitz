@@ -67,16 +67,16 @@ class Returns:
         return xi
     
     @staticmethod
-    def optionReturnCall(portfolio: Portfolio) -> np.ndarray:
-        if not portfolio.indicesCall:
-            return np.empty(0) 
-        
+    def optionReturnCall(portfolio: Portfolio):
         d = len(portfolio.indicesCall)
         n = len(portfolio.times) - 1
 
-        xi = np.empty((n,d))
+        if d == 0:
+            return np.empty((n, 0))
+
+        xi = np.empty((n, d))
         for j0, j in enumerate(portfolio.indicesCall):
-            price = Options.priceCall(
+            price = Options.priceOptionCall(
                 daysToMaturity=(portfolio.times[-1] - portfolio.times[0]).days, 
                 stockPrice=portfolio.stocks[j][0], 
                 strikePrice=portfolio.strikesCall[j0], 
@@ -116,16 +116,16 @@ class Returns:
         
         return xi
     
-    def optionReturnPut(portfolio: Portfolio) -> np.ndarray:
-        if not portfolio.indicesPut:
-            return np.empty(0)
-        
+    def optionReturnPut(portfolio: Portfolio):
         d = len(portfolio.indicesPut)
         n = len(portfolio.times) - 1
 
-        xi = np.empty((n,d))
+        if d == 0:
+            return np.empty((n, 0))
+
+        xi = np.empty((n, d))
         for j0, j in enumerate(portfolio.indicesPut):
-            price = Options.pricePut(
+            price = Options.priceOptionPut(
                 daysToMaturity=(portfolio.times[-1] - portfolio.times[0]).days, 
                 stockPrice=portfolio.stocks[j][0], 
                 strikePrice=portfolio.strikesPut[j0], 

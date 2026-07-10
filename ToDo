@@ -7,6 +7,7 @@
 1.7 ax1.set_xticks statt plt.xticks
 1.8 ReadMe.md überarbeiten und Optionen ergänzen
 1.9 Testen ob averageValueAtRisk und allocationIntegratedRiskManagement für beta=1 übereinstimmt
+1.10 Precision abschaffen und in scipy.solve() umwandeln
 
 2.  Mittelfristig
 2.1 Überflüssige Methoden in PortfolioShares.py entfernen
@@ -15,6 +16,7 @@
 2.4 Covarianzmatrix mit Optionen und Korrelationsgrafik
 2.5 No short selling constraint, also keine Leerverkäufe
 2.6 databaseOptions-Methode zum einlesen einer CSV
+2.7 @staticmethod abschaffen
 
 3.  Langfristig
 3.1 Frontend entwickeln
