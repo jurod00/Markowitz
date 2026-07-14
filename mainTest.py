@@ -18,7 +18,7 @@ from mathematics.financialMathematics import FinancialMathematics as FiMa
 
 from simulation.geometricBrownianMotion import GeometricBrownianMotion as Gbm
 
-from util.time import Time
+from util.util import Time
 
 def main():
     # analysis

@@ -1,6 +1,9 @@
 from mathematics.options import Options
 from mathematics.returns import Returns
+from mathematics.returns import RateOfReturn
+from mathematics.covariance import Covariance
 from mathematics.allocations import Allocations
+from mathematics.allocations import AssetAllocation
 from mathematics.stochastics import Stochastics
 from portfolio.portfolio import Portfolio
 
