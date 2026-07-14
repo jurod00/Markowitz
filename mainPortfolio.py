@@ -18,8 +18,8 @@ def main2():
     portfolio.setSymbols(portfolio.symbols[1:])
     symbolOptions = ["GOOGL Call", "GOOGL Put", "AAPL Call", "AAPL Put", "AMD Call", "AMD Put", "INTC Call", "INTC Put", "NVDA Call", "NVDA Put"]
     symbolOptions = ["AAPL Call", "AAPL Put", "AMD Call", "AMD Put", "INTC Call", "INTC Put", "NVDA Call", "NVDA Put"]
-    rand.shuffle(symbolOptions)
-    print(symbolOptions)
+    # rand.shuffle(symbolOptions)
+    # print(symbolOptions)
     portfolio.setOptionDataFromCSV(symbolsOptions=symbolOptions)
 
     # print(portfolio.times)
@@ -41,14 +41,14 @@ def main2():
     # print(portfolio.symbolsPut)
 
     plotPortfolio = PlotPortfolio(portfolio=portfolio)
-    plotPortfolio.plotStocks()
-    plotPortfolio.plotAllocationMarkowitz()
-    plotPortfolio.plotAllocationUtilityMaximization()
-    plotPortfolio.plotAllocationIntegratedRiskManagement(returnMax=2.5, beta=1)
+    # plotPortfolio.plotStocks()
+    # plotPortfolio.plotAllocationMarkowitz()
+    # plotPortfolio.plotAllocationUtilityMaximization()
+    # plotPortfolio.plotAllocationIntegratedRiskManagement(returnMax=2.5, beta=1)
     # plotPortfolio.plotStackedBar(minimumReturn=0.1)
-    # plotPortfolio.plotReturnMatrix()
     # plotPortfolio.plotCovarianceMatrix()
-
+    # plotPortfolio.plotCorrelationMatrix()
+    # plotPortfolio.plotCorrelation("callPut")
 
 if __name__ == "__main__":
     main2()

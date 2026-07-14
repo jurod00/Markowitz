@@ -1,8 +1,10 @@
+from mathematics.options import Options
 from mathematics.returns import Returns
 from mathematics.allocations import Allocations
 from mathematics.stochastics import Stochastics
 from portfolio.portfolio import Portfolio
 
+import math
 import numpy as np
 import pathlib as pl
 import matplotlib.pyplot as plt
@@ -417,30 +419,54 @@ class PlotPortfolio:
     def meanRisk(self):
         pass
 
-    def plotCorrelation(self):
+    def plotCorrelation(self, callPut: str="call"):
         # Scatterplot (2D or 3D)
-        # print(Covariance-Matrix)
-        pass
+        # x-Achse stock value, y-Achse option value
 
-    def plotReturnMatrix(self):
+        d0 = len(self.portfolio.symbols)
+        d1 = len(self.portfolio.symbolsCall)
+
         xiStocks = Returns.initialRelativeReturn(portfolio=self.portfolio)
         xiCall = Returns.optionReturnCall(portfolio=self.portfolio)
         xiPut = Returns.optionReturnPut(portfolio=self.portfolio)
 
         xi = np.hstack((xiStocks, xiCall, xiPut))
 
+        n = len(xi)
+
+        r = Stochastics.expectation(portfolio=self.portfolio)
+
+        x = []
+        y = []
+
+        if callPut == "call":
+            for i, symbolCall in enumerate(self.portfolio.symbolsCall):
+                for j, symbol in enumerate(self.portfolio.symbols):
+                    if symbolCall[:-5] == symbol:
+                        for i in range(n):
+                            x.append(xi[i,j])
+                            y.append(xi[i,d0+j])
+        elif callPut == "put":
+            for i, symbolPut in enumerate(self.portfolio.symbolsPut):
+                for j, symbol in enumerate(self.portfolio.symbols):
+                    if symbolPut[:-4] == symbol:
+                        for i in range(n):
+                            x.append(xi[i,j])
+                            y.append(xi[i,d0+d1+j])
+        elif callPut == "callPut":
+            for i, symbolCall in enumerate(self.portfolio.symbolsCall):
+                for j, symbolPut in enumerate(self.portfolio.symbolsPut):
+                    if symbolCall[:-5] == symbolPut[:-4]:
+                        for i in range(n):
+                            x.append(xi[i,d0+j])
+                            y.append(xi[i,d0+d1+j])
+
         fig, ax = plt.subplots()
 
-        im = ax.matshow(xi, cmap="coolwarm")
-        fig.colorbar(im, ax=ax)
+        ax.scatter(x=x, y=y)
 
-        ax.set_xlabel("Spalten")
-        ax.set_ylabel("Zeilen")
-
-        labels = self.portfolio.symbols + self.portfolio.symbolsCall + self.portfolio.symbolsPut
-
-        ax.set_xticks(range(len(labels)))
-        ax.set_xticklabels(labels, rotation=90)
+        ax.set_xlabel("stock return")
+        ax.set_ylabel("option return")
 
         plt.show()
 
@@ -452,8 +478,30 @@ class PlotPortfolio:
         im = ax.matshow(sigma, cmap="coolwarm")
         fig.colorbar(im, ax=ax)
 
-        ax.set_xlabel("Spalten")
-        ax.set_ylabel("Zeilen")
+        labels = self.portfolio.symbols + self.portfolio.symbolsCall + self.portfolio.symbolsPut
+
+        ax.set_xticks(range(len(labels)))
+        ax.set_yticks(range(len(labels)))
+
+        ax.set_xticklabels(labels, rotation=90)
+        ax.set_yticklabels(labels)
+
+        plt.show()
+
+    def plotCorrelationMatrix(self):
+        sigma = Stochastics.covariance(portfolio=self.portfolio)
+        d = len(sigma)
+
+        correlation = np.empty((d,d))
+        for i in range(d):
+            for j in range(d):
+                denominator = math.sqrt(sigma[i,i])*math.sqrt(sigma[j,j])
+                correlation[i,j] = sigma[i,j]/denominator
+
+        fig, ax = plt.subplots()
+
+        im = ax.matshow(correlation, cmap="coolwarm")
+        fig.colorbar(im, ax=ax)
 
         labels = self.portfolio.symbols + self.portfolio.symbolsCall + self.portfolio.symbolsPut
 
@@ -466,7 +514,4 @@ class PlotPortfolio:
         plt.show()
 
     def plotMarginalDistribution(self):
-        pass
-
-    def plotVolatilitySmile(self):
         pass
