@@ -1,4 +1,4 @@
-from mathematics.allocations import AssetAllocation
+from mathematics.allocations import Allocations
 from portfolio.portfolio import Portfolio
 
 import numpy as np
@@ -7,12 +7,12 @@ import matplotlib.pyplot as plt
 
 class PlotAllocation:
 
-    def __init__(self, portfolio: Portfolio, assetAllocation=None):
+    def __init__(self, portfolio: Portfolio, allocations=None):
         # Memory Property
         self.portfolio = portfolio
 
         # Optional Dependency Injection
-        self.assetAllocation = assetAllocation if assetAllocation is not None else AssetAllocation()
+        self.allocations = allocations if allocations is not None else Allocations()
 
         # Design
         self._color = plt.get_cmap("Greens")
@@ -33,8 +33,8 @@ class PlotAllocation:
 
         mys = np.linspace(returnMin, returnMax, self._markerNumber)
         
-        x0 = self.assetAllocation.allocationMarkowitz(portfolio=self.portfolio, minimumReturn=returnMin)
-        x1 = self.assetAllocation.allocationMarkowitz(portfolio=self.portfolio, minimumReturn=returnMax)
+        x0 = self.allocations.allocationMarkowitz(portfolio=self.portfolio, minimumReturn=returnMin)
+        x1 = self.allocations.allocationMarkowitz(portfolio=self.portfolio, minimumReturn=returnMax)
         
         fig, ax = plt.subplots()
         for j in range(d0):
@@ -122,7 +122,7 @@ class PlotAllocation:
         fig, ax = plt.subplots()
         for j in range(d0):
 
-            xj = [self.assetAllocation.allocationUtilityMaximization(portfolio=self.portfolio, riskAversion=kappa)[j] for kappa in kappas]
+            xj = [self.allocations.allocationUtilityMaximization(portfolio=self.portfolio, riskAversion=kappa)[j] for kappa in kappas]
 
             ax.plot(
                 kappas, 
@@ -135,7 +135,7 @@ class PlotAllocation:
             )
         for j0, j in enumerate(indicesCall):
 
-            xj = [self.assetAllocation.allocationUtilityMaximization(portfolio=self.portfolio, riskAversion=kappa)[d0+j0] for kappa in kappas]
+            xj = [self.allocations.allocationUtilityMaximization(portfolio=self.portfolio, riskAversion=kappa)[d0+j0] for kappa in kappas]
 
             ax.plot(
                 kappas, 
@@ -148,7 +148,7 @@ class PlotAllocation:
             )
         for j0, j in enumerate(indicesPut):
 
-            xj = [self.assetAllocation.allocationUtilityMaximization(portfolio=self.portfolio, riskAversion=kappa)[d0+d1+j0] for kappa in kappas]
+            xj = [self.allocations.allocationUtilityMaximization(portfolio=self.portfolio, riskAversion=kappa)[d0+d1+j0] for kappa in kappas]
 
             ax.plot(
                 kappas, 
@@ -195,7 +195,7 @@ class PlotAllocation:
         fig, ax = plt.subplots()
         for j in range(d0):
 
-            xj = [self.assetAllocation.allocationIntegratedRiskManagement(portfolio=self.portfolio, alpha=alpha, beta=beta, minimumReturn=my)[0][j] for my in mys]
+            xj = [self.allocations.allocationIntegratedRiskManagement(portfolio=self.portfolio, alpha=alpha, beta=beta, minimumReturn=my)[0][j] for my in mys]
             
             ax.plot(
                 mys, 
@@ -208,7 +208,7 @@ class PlotAllocation:
             )
         for j0, j in enumerate(indicesCall):
 
-            xj = [self.assetAllocation.allocationIntegratedRiskManagement(portfolio=self.portfolio, alpha=alpha, beta=beta, minimumReturn=my)[0][d0+j0] for my in mys]
+            xj = [self.allocations.allocationIntegratedRiskManagement(portfolio=self.portfolio, alpha=alpha, beta=beta, minimumReturn=my)[0][d0+j0] for my in mys]
             
             ax.plot(
                 mys, 
@@ -222,7 +222,7 @@ class PlotAllocation:
             )
         for j0, j in enumerate(indicesPut):
 
-            xj = [self.assetAllocation.allocationIntegratedRiskManagement(portfolio=self.portfolio, alpha=alpha, beta=beta, minimumReturn=my)[0][d0+d1+j0] for my in mys]
+            xj = [self.allocations.allocationIntegratedRiskManagement(portfolio=self.portfolio, alpha=alpha, beta=beta, minimumReturn=my)[0][d0+d1+j0] for my in mys]
             
             ax.plot(
                 mys, 
@@ -291,7 +291,7 @@ class PlotAllocation:
 
         if minimumReturn is not None and (alpha is None or beta is None): # Markowitz
             symbols = list(self.portfolio.symbols)
-            x = self.assetAllocation.allocationMarkowitz(portfolio=self.portfolio, minimumReturn=minimumReturn)
+            x = self.allocations.allocationMarkowitz(portfolio=self.portfolio, minimumReturn=minimumReturn)
             d = len(x)
 
             fig, ax = plt.subplots(figsize=(10, 2))

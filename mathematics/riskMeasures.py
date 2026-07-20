@@ -1,19 +1,19 @@
-from util.util import Util
-from portfolio.portfolio import Portfolio
-from mathematics.returns import RateOfReturn
 from mathematics.covariance import Covariance
+from mathematics.returns import Returns
+from portfolio.portfolio import Portfolio
+from util.util import Util
 
 import numpy as np
 import scipy.optimize as opt
 
 class RiskMeasures:
 
-    def __init__(self):
-        self.rateOfReturn = RateOfReturn()
-        self.covariance = Covariance()
+    def __init__(self, returns: Returns=None, covariance: Covariance=None):
+        self.returns = returns if returns is not None else Returns()
+        self.covariance = covariance if covariance is not None else Covariance()
 
     def mean(self, portfolio: Portfolio, allocation: np.ndarray) -> float:
-        r = self.rateOfReturn.expectedReturn(portfolio=portfolio)
+        r = self.returns.expectedReturn(portfolio=portfolio)
         return r.dot(allocation)
     
     def variance(self, portfolio: Portfolio, allocation: np.ndarray) -> float:
@@ -25,9 +25,9 @@ class RiskMeasures:
 
         prob = np.array(Util.prob(times=portfolio.times))
 
-        xiStocks = self.rateOfReturn.initialRelativeReturn(portfolio=portfolio)
-        xiCall = self.rateOfReturn.optionReturnCall(portfolio=portfolio)
-        xiPut = self.rateOfReturn.optionReturnPut(portfolio=portfolio)
+        xiStocks = self.returns.initialRelativeReturn(portfolio=portfolio)
+        xiCall = self.returns.optionReturnCall(portfolio=portfolio)
+        xiPut = self.returns.optionReturnPut(portfolio=portfolio)
 
         xi = np.hstack((xiStocks, xiCall, xiPut))
 

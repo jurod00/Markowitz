@@ -1,24 +1,24 @@
-from util.util import Util
+from mathematics.returns import Returns
 from portfolio.portfolio import Portfolio
-from mathematics.returns import RateOfReturn
+from util.util import Util
 
 import numpy as np
 
 class Covariance:
 
-    def __init__(self):
-        self.rateOfReturn = RateOfReturn()
+    def __init__(self, returns: Returns=None):
+        self.returns = returns if returns is not None else Returns()
 
     def covariance(self, portfolio: Portfolio) -> np.ndarray:
         prob = np.array(Util.prob(times=portfolio.times))
         diag = np.diag(prob)
 
-        xiStocks = self.rateOfReturn.initialRelativeReturn(portfolio=portfolio)
-        xiCall = self.rateOfReturn.optionReturnCall(portfolio=portfolio)
-        xiPut = self.rateOfReturn.optionReturnPut(portfolio=portfolio)
+        xiStocks = self.returns.initialRelativeReturn(portfolio=portfolio)
+        xiCall = self.returns.optionReturnCall(portfolio=portfolio)
+        xiPut = self.returns.optionReturnPut(portfolio=portfolio)
 
         xi = np.hstack((xiStocks, xiCall, xiPut))
-        r = self.rateOfReturn.expectedReturn(portfolio=portfolio)
+        r = self.returns.expectedReturn(portfolio=portfolio)
 
         return xi.transpose().dot(diag.dot(xi)) - np.outer(r, r)
 
