@@ -3,19 +3,21 @@ from portfolio.portfolio import Portfolio
 
 import math
 import numpy as np
+import pathlib as pl
 import matplotlib.pyplot as plt
 
 class PlotMatrix:
 
     def __init__(self, portfolio: Portfolio, covariance: Covariance=None):
+        # Memory
         self.portfolio = portfolio
-
+        # Optional Dependency Injection
         self.covariance = covariance if covariance is not None else Covariance()
 
     def plotReturnMatrix(self):
         pass
     
-    def plotCovarianceMatrix(self):
+    def plotCovarianceMatrix(self, format: str="svg"):
         sigma = self.covariance.covariance(portfolio=self.portfolio)
 
         fig, ax = plt.subplots()
@@ -31,9 +33,12 @@ class PlotMatrix:
         ax.set_xticklabels(labels, rotation=90)
         ax.set_yticklabels(labels)
 
-        plt.show()
+        pathAssets = pl.Path(__file__).resolve().parent / "assets"
+        pathAssets.mkdir(exist_ok=True)
 
-    def plotCorrelationMatrix(self):
+        fig.savefig(pathAssets / f"plotCovarianceMatrix.{format}")
+
+    def plotCorrelationMatrix(self, format: str="svg"):
         sigma = self.covariance.covariance(portfolio=self.portfolio)
         d = len(sigma)
 
@@ -56,4 +61,7 @@ class PlotMatrix:
         ax.set_xticklabels(labels, rotation=90)
         ax.set_yticklabels(labels)
 
-        plt.show()
+        pathAssets = pl.Path(__file__).resolve().parent / "assets"
+        pathAssets.mkdir(exist_ok=True)
+
+        fig.savefig(pathAssets / f"plotCorrelationMatrix.{format}")

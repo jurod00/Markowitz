@@ -1,16 +1,18 @@
 from portfolio.portfolio import Portfolio
 from mathematics.returns import Returns
 
+import pathlib as pl
 import matplotlib.pyplot as plt
 
 class PlotCorrelation:
 
     def __init__(self, portfolio: Portfolio, returns: Returns=None):
+        # Memory
         self.portfolio = portfolio
-
+        # Optional Dependency Injection
         self.returns = returns if returns is not None else Returns()
 
-    def plotCorrelationStockCall(self):
+    def plotCorrelationStockCall(self, format: str="svg"):
         r = self.returns.expectedReturn(portfolio=self.portfolio)
 
         x = []
@@ -24,9 +26,13 @@ class PlotCorrelation:
 
         fig, ax = plt.subplots()
         ax.scatter(x=x, y=y)
-        plt.show()
 
-    def plotCorrelationStockPut(self):
+        pathAssets = pl.Path(__file__).resolve().parent / "assets"
+        pathAssets.mkdir(exist_ok=True)
+
+        fig.savefig(pathAssets / f"plotCorrelationStockCall.{format}")
+
+    def plotCorrelationStockPut(self, format: str="svg"):
         r = self.returns.expectedReturn(portfolio=self.portfolio)
 
         x = []
@@ -40,11 +46,15 @@ class PlotCorrelation:
 
         fig, ax = plt.subplots()
         ax.scatter(x=x, y=y)
-        plt.show()
 
-    def plotCorrelationCallPut(self):
+        pathAssets = pl.Path(__file__).resolve().parent / "assets"
+        pathAssets.mkdir(exist_ok=True)
+
+        fig.savefig(pathAssets / f"plotCorrelationStockPut.{format}")
+
+    def plotCorrelationCallPut(self, format: str="svg"):
         pass
 
-    def plotCorrelationStockCallPut(self):
+    def plotCorrelationStockCallPut(self, format: str="svg"):
         # 3D Plot
         pass
