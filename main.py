@@ -20,14 +20,14 @@ def main():
     portfolio.setOptionDataFromCSV(symbolsOptions=symbolOptions)
 
     plotStocks = PlotStocks(portfolio=portfolio)
-    # plotStocks.plotStocksAbs(format="png")
-    # plotStocks.plotStocksRel(format="png")
+    plotStocks.plotStocksAbs(format="png")
+    plotStocks.plotStocksRel(format="png")
 
     plotAllocation = PlotAllocation(portfolio=portfolio)
     plotAllocation.plotAllocationMarkowitz(format="png")
-    # plotAllocation.plotAllocationUtilityMaximization(format="png")
-    # plotAllocation.plotAllocationIntegratedRiskManagement(returnMax=2.5, format="png")
-    # plotAllocation.plotStackedBar(np.array([0.5, 0.2, 0.1, 0.1]), format="png")
+    plotAllocation.plotAllocationUtilityMaximization(format="png")
+    plotAllocation.plotAllocationIntegratedRiskManagement(returnMax=2.5, format="png")
+    plotAllocation.plotStackedBar(np.array([0.5, 0.2, 0.18, 0.12]), format="png")
 
     # plotMeanRisk = PlotMeanRisk(portfolio=portfolio)
     # plotMeanRisk.plotMeanVarianceMarkowitz(format="png")

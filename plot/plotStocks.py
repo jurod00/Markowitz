@@ -1,20 +1,10 @@
 from portfolio.portfolio import Portfolio
 
 import pathlib as pl
+import datetime as dt
 import matplotlib.dates as mdates
 import matplotlib.ticker as mtick
 import matplotlib.pyplot as plt
-
-plt.rcParams.update(
-    {
-        "font.size": 16,
-        "axes.titlesize": 14,
-        "axes.labelsize": 14,
-        "xtick.labelsize": 12,
-        "ytick.labelsize": 16,
-        "legend.fontsize": 14,
-    }
-)
 
 class PlotStocks:
 
@@ -23,6 +13,17 @@ class PlotStocks:
         self.portfolio = portfolio
         # Design
         self._color = plt.get_cmap("Greens")
+
+        plt.rcParams.update(
+            {
+                "font.size": 16,
+                "axes.titlesize": 14,
+                "axes.labelsize": 14,
+                "xtick.labelsize": 12,
+                "ytick.labelsize": 16,
+                "legend.fontsize": 14,
+            }
+        )
 
     def plotStocksAbs(self, format: str="svg"):
         times = list(self.portfolio.times)
@@ -43,8 +44,9 @@ class PlotStocks:
 
         # x-axis
         plt.xticks(rotation=45)
-        ax.set_xlim(times[0], times[-1])
+        plt.gca().xaxis.set_major_locator(mtick.MaxNLocator(nbins=4))
         ax.xaxis.set_major_formatter(mdates.DateFormatter(r"%B %d"))
+        ax.set_xlim(times[0], times[-1])
         
         # y-axis
         ax.set_ylabel("absolute stock prices " + r"$S_t$ in $\$$")
@@ -77,8 +79,9 @@ class PlotStocks:
         
         # x-axis
         plt.xticks(rotation=45)
-        ax.set_xlim(times[0], times[-1])
+        plt.gca().xaxis.set_major_locator(mtick.MaxNLocator(nbins=4))
         ax.xaxis.set_major_formatter(mdates.DateFormatter(r"%B %d"))
+        ax.set_xlim(times[0], times[-1])
 
         # y-axis
         ax.set_ylabel("relative stock prices " + r"$S_t\,/\,S_0$")

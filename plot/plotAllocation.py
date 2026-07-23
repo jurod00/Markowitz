@@ -3,6 +3,7 @@ from portfolio.portfolio import Portfolio
 
 import numpy as np
 import pathlib as pl
+import matplotlib.ticker as mtick
 import matplotlib.pyplot as plt
 
 class PlotAllocation:
@@ -102,19 +103,21 @@ class PlotAllocation:
         ax.set_xlabel("minimum return " + r"$\mu$")
 
         # y-axis
-        ax.set_yticks([])
         ax.set_ylabel("allocation " + r"$x^*(\mu)$")
+        ax.set_ylim(-5, 15)
+        ax.yaxis.set_major_formatter(mtick.FormatStrFormatter("%.1f"))
+        ax.yaxis.set_major_locator(mtick.MultipleLocator(5))
         # ax.set_ylim(-0.05, 1.05)
 
         # legend
-        ax.legend(loc="lower center", ncol=3, frameon=False)
+        ax.legend(loc="upper center", ncol=3, frameon=False)
 
         pathAssets = pl.Path(__file__).resolve().parent / "assets"
         pathAssets.mkdir(exist_ok=True)
 
         fig.savefig(pathAssets / f"plotAllocationMarkowitz.{format}", bbox_inches="tight", pad_inches=0.05)
 
-    def plotAllocationUtilityMaximization(self, riskAversionMin: float=float(1e-1), riskAversionMax: float=float(1e+6), format: str="svg") -> None:
+    def plotAllocationUtilityMaximization(self, riskAversionMin: float=float(1e+2), riskAversionMax: float=float(1e+6), format: str="svg") -> None:
         symbolsStock = list(self.portfolio.symbols)
         symbolsCall = list(self.portfolio.symbolsCall)
         symbolsPut = list(self.portfolio.symbolsPut)
@@ -133,6 +136,7 @@ class PlotAllocation:
         kappas = np.logspace(start=start, stop=stop, num=self._markerNumber, endpoint=True, base=base)
 
         fig, ax = plt.subplots(figsize=(7, 4.5), layout="constrained")
+
         for j in range(d0):
 
             xj = [self.allocations.allocationUtilityMaximization(portfolio=self.portfolio, riskAversion=kappa)[j] for kappa in kappas]
@@ -146,6 +150,7 @@ class PlotAllocation:
                 markeredgecolor=self._color(1/3), 
                 markerfacecolor="white"
             )
+
         for j0, j in enumerate(indicesCall):
 
             xj = [self.allocations.allocationUtilityMaximization(portfolio=self.portfolio, riskAversion=kappa)[d0+j0] for kappa in kappas]
@@ -159,6 +164,7 @@ class PlotAllocation:
                 markeredgecolor=self._color(2/3), 
                 markerfacecolor="white"
             )
+
         for j0, j in enumerate(indicesPut):
 
             xj = [self.allocations.allocationUtilityMaximization(portfolio=self.portfolio, riskAversion=kappa)[d0+d1+j0] for kappa in kappas]
@@ -172,23 +178,27 @@ class PlotAllocation:
                 markeredgecolor=self._color(1.0), 
                 markerfacecolor="white"
             )
+
         ax.hlines(y=0, xmin=riskAversionMin, xmax=riskAversionMax, linewidth=1, color="black", zorder=-1)
 
-        ax.set_xlabel("risk aversion " + r"$\kappa$")
-        ax.set_ylabel("allocation " + r"$x^*(\kappa)$")
-
-        ax.set_xscale("log")
+        # x-axis
         ax.set_xlim(riskAversionMin, riskAversionMax)
+        ax.set_xlabel("risk aversion " + r"$\kappa$")
+        ax.set_xscale("log")
+
+        # y-axis
+        ax.set_ylabel("allocation " + r"$x^*(\kappa)$")
+        ax.yaxis.set_major_formatter(mtick.FormatStrFormatter("%.1f"))
+        ax.yaxis.set_major_locator(mtick.MultipleLocator(0.5))
         # ax.set_ylim(-0.05, 1.05)
 
+        # legend
         ax.legend(loc="upper center", ncol=3, frameon=False)
-
-        plt.subplots_adjust(bottom=0.1, top=0.975, left=0.09, right=0.975)
 
         pathAssets = pl.Path(__file__).resolve().parent / "assets"
         pathAssets.mkdir(exist_ok=True)
 
-        fig.savefig(pathAssets / f"plotAllocationUtilityMaximization.{format}")
+        fig.savefig(pathAssets / f"plotAllocationUtilityMaximization.{format}", bbox_inches="tight", pad_inches=0.05)
 
     def plotAllocationIntegratedRiskManagement(self, alpha: float=0.95, beta: float=0.5, returnMin: float=0.0, returnMax: float=0.25, format: str="svg") -> None:
         symbolsStock = list(self.portfolio.symbols)
@@ -205,6 +215,7 @@ class PlotAllocation:
         mys = np.linspace(returnMin, returnMax, self._markerNumber)
 
         fig, ax = plt.subplots(figsize=(7, 4.5), layout="constrained")
+
         for j in range(d0):
 
             xj = [self.allocations.allocationIntegratedRiskManagement(portfolio=self.portfolio, alpha=alpha, beta=beta, minimumReturn=my)[0][j] for my in mys]
@@ -218,6 +229,7 @@ class PlotAllocation:
                 markeredgecolor=self._color(1/3), 
                 markerfacecolor="white"
             )
+
         for j0, j in enumerate(indicesCall):
 
             xj = [self.allocations.allocationIntegratedRiskManagement(portfolio=self.portfolio, alpha=alpha, beta=beta, minimumReturn=my)[0][d0+j0] for my in mys]
@@ -232,6 +244,7 @@ class PlotAllocation:
                 markerfacecolor="white", 
                 zorder=j
             )
+
         for j0, j in enumerate(indicesPut):
 
             xj = [self.allocations.allocationIntegratedRiskManagement(portfolio=self.portfolio, alpha=alpha, beta=beta, minimumReturn=my)[0][d0+d1+j0] for my in mys]
@@ -246,29 +259,33 @@ class PlotAllocation:
                 markerfacecolor="white", 
                 zorder=j
             )
+
         ax.hlines(y=0, xmin=returnMin, xmax=returnMax, linewidth=1, color="black", zorder=-1)
 
-        ax.set_xlabel("minimum return " + r"$\mu$")
-        ax.set_ylabel("allocation " + r"$x^*(\mu)$")
-
+        # x-axis
         ax.set_xlim(returnMin, returnMax)
-        # ax.set_ylim(-0.05, 1.05)
+        ax.set_xlabel("minimum return " + r"$\mu$")
 
+        # y-axis
+        ax.set_ylabel("allocation " + r"$x^*(\mu)$")
+        ax.yaxis.set_major_formatter(mtick.FormatStrFormatter("%.2f"))
+        ax.yaxis.set_major_locator(mtick.MultipleLocator(0.25))
+        ax.set_ylim(-0.05, 1.05)
+
+        # legend
         ax.legend(loc="upper center", ncol=3, frameon=False)
-
-        plt.subplots_adjust(bottom=0.1, top=0.975, left=0.09, right=0.975)
 
         pathAssets = pl.Path(__file__).resolve().parent / "assets"
         pathAssets.mkdir(exist_ok=True)
 
-        fig.savefig(pathAssets / f"plotAllocationIntegratedRiskManagement.{format}")
+        fig.savefig(pathAssets / f"plotAllocationIntegratedRiskManagement.{format}", bbox_inches="tight", pad_inches=0.05)
 
     def plotStackedBar(self, allocation: np.ndarray=None, minimumReturn: float=None, alpha: float=None, beta: float=None, riskAversion: float=None, format: str="svg") -> None:
         if allocation is not None:
             symbols = list(self.portfolio.symbols)
             d = len(allocation)
 
-            fig, ax = plt.subplots(figsize=(10, 2))
+            fig, ax = plt.subplots(figsize=(10, 1.5), layout="constrained")
             for i in range(d):
                 left = (0 if i == 0 else sum(allocation[:i]))
                 ax.barh(
@@ -296,43 +313,10 @@ class PlotAllocation:
             pathAssets = pl.Path(__file__).resolve().parent / "assets"
             pathAssets.mkdir(exist_ok=True)
 
-            fig.savefig(pathAssets / f"plotStackedBar.{format}")
+            fig.savefig(pathAssets / f"plotStackedBar.{format}", bbox_inches="tight", pad_inches=0.05)
 
         if minimumReturn is not None and (alpha is None or beta is None): # Markowitz
-            symbols = list(self.portfolio.symbols)
-            x = self.allocations.allocationMarkowitz(portfolio=self.portfolio, minimumReturn=minimumReturn)
-            d = len(x)
-
-            fig, ax = plt.subplots(figsize=(10, 2))
-            for i in range(d):
-                left = (0 if i == 0 else sum(x[:i]))
-                ax.barh(
-                    y=[0], 
-                    width=x[i], 
-                    left=left, 
-                    label=symbols[i], 
-                    color=self._color((i+1)/d)
-                )
-                ax.text(
-                    x=left+0.5*x[i], 
-                    y=-0.05, 
-                    s="{:.2f}".format(100*x[i]) + "%", 
-                    ha="center", 
-                    color="white", 
-                    weight="bold", 
-                    size=10
-                )
-            
-            ax.set_axis_off()
-            ax.set_xlim(0, 1)
-            ax.set_ylim(-1, 1)
-            ax.legend(loc="upper center", ncol=d, frameon=False)
-
-            pathAssets = pl.Path(__file__).resolve().parent / "assets"
-            pathAssets.mkdir(exist_ok=True)
-
-            fig.savefig(pathAssets / f"plotStackedBar.{format}")
-
+            pass
         if minimumReturn is not None and alpha is not None and beta is not None: # IntegratedRiskManagement
             pass
         if riskAversion is not None: # UtilityMaximization
