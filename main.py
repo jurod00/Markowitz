@@ -34,14 +34,14 @@ def main():
     # plotMeanRisk.plotMeanVarianceUtilityMaximization(riskAversionMin=20, format="png")
     # plotMeanRisk.plotMeanAVaR(returnMax=2.0, format="png")
 
-    # plotMatrix = PlotMatrix(portfolio=portfolio)
-    # plotMatrix.plotCovarianceMatrix(format="png")
-    # plotMatrix.plotCorrelationMatrix(format="png")
+    plotMatrix = PlotMatrix(portfolio=portfolio)
+    plotMatrix.plotCovarianceMatrix(format="png")
+    plotMatrix.plotCorrelationMatrix(format="png")
 
-    plotCorrelation = PlotCorrelation(portfolio=portfolio)
-    plotCorrelation.plotCorrelationStockCall(format="png")
-    plotCorrelation.plotCorrelationStockPut(format="png")
-    plotCorrelation.plotCorrelationCallPut(format="png")
+    # plotCorrelation = PlotCorrelation(portfolio=portfolio)
+    # plotCorrelation.plotCorrelationStockCall(format="png")
+    # plotCorrelation.plotCorrelationStockPut(format="png")
+    # plotCorrelation.plotCorrelationCallPut(format="png")
 
     # plotDistribution = PlotDistribution(portfolio=portfolio)
     # plotDistribution.plotMarginalDistribution(format="png")
