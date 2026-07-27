@@ -117,6 +117,82 @@ class PlotAllocation:
 
         fig.savefig(pathAssets / f"plotAllocationMarkowitz.{format}", bbox_inches="tight", pad_inches=0.05)
 
+    def plotAllocationMarkowitzNoShortSelling(self, returnMin: float=0.0, returnMax: float=0.25, format: str="svg") -> None:
+            symbolsStock = list(self.portfolio.symbols)
+            symbolsCall = list(self.portfolio.symbolsCall)
+            symbolsPut = list(self.portfolio.symbolsPut)
+            
+            indicesCall = list(self.portfolio.indicesCall)
+            indicesPut = list(self.portfolio.indicesPut)
+    
+            d0 = len(symbolsStock)
+            d1 = len(symbolsCall)
+            d2 = len(symbolsPut)
+    
+            mys = np.linspace(returnMin, returnMax, self._markerNumber)
+            
+            fig, ax = plt.subplots(figsize=(7, 4.5), layout="constrained")
+    
+            for j in range(d0):
+                xj = [self.allocations.allocationMarkowitz(portfolio=self.portfolio, minimumReturn=my, shortSellingAllowed=False)[j] for my in mys]
+                
+                ax.plot(
+                    mys, 
+                    xj, 
+                    label=symbolsStock[j], 
+                    color=self._color(1/3), 
+                    marker=self._marker[j], 
+                    markeredgecolor=self._color(1/3), 
+                    markerfacecolor="white"
+                )
+    
+            for j0, j in enumerate(indicesCall):
+                xj = [self.allocations.allocationMarkowitz(portfolio=self.portfolio, minimumReturn=my, shortSellingAllowed=False)[d0+j0] for my in mys]
+    
+                ax.plot(
+                    mys, 
+                    xj, 
+                    label=symbolsCall[j0], 
+                    color=self._color(2/3), 
+                    marker=self._marker[j], 
+                    markeredgecolor=self._color(2/3), 
+                    markerfacecolor="white"
+                )
+    
+            for j0, j in enumerate(indicesPut):
+                xj = [self.allocations.allocationMarkowitz(portfolio=self.portfolio, minimumReturn=my, shortSellingAllowed=False)[d0+d1+j0] for my in mys]
+
+                ax.plot(
+                    mys, 
+                    xj, 
+                    label=symbolsPut[j0], 
+                    color=self._color(1.0), 
+                    marker=self._marker[j], 
+                    markeredgecolor=self._color(1.0), 
+                    markerfacecolor="white"
+                )
+    
+            ax.hlines(y=0, xmin=returnMin, xmax=returnMax, linewidth=1, color="black", zorder=-1)
+    
+            # x-axis
+            ax.set_xlim(returnMin, returnMax)
+            ax.set_xlabel("minimum return " + r"$\mu$")
+    
+            # y-axis
+            ax.set_ylabel("allocation " + r"$x^*(\mu)$")
+            ax.set_ylim(-5, 15)
+            ax.yaxis.set_major_formatter(mtick.FormatStrFormatter("%.1f"))
+            ax.yaxis.set_major_locator(mtick.MultipleLocator(5))
+            # ax.set_ylim(-0.05, 1.05)
+    
+            # legend
+            ax.legend(loc="upper center", ncol=3, frameon=False)
+    
+            pathAssets = pl.Path(__file__).resolve().parent / "assets"
+            pathAssets.mkdir(exist_ok=True)
+    
+            fig.savefig(pathAssets / f"plotAllocationMarkowitzNoShortSelling.{format}", bbox_inches="tight", pad_inches=0.05)
+
     def plotAllocationUtilityMaximization(self, riskAversionMin: float=float(1e+2), riskAversionMax: float=float(1e+6), format: str="svg") -> None:
         symbolsStock = list(self.portfolio.symbols)
         symbolsCall = list(self.portfolio.symbolsCall)

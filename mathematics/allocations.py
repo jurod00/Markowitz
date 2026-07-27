@@ -26,16 +26,29 @@ class Allocations:
         self.ones = np.ones(self.d)
         self.sigma = self.covariance.covariance(portfolio=portfolio)
 
-        y1 = lina.solve(self.sigma, self.r)
-        y2 = lina.solve(self.sigma, self.ones)
+        precisionR = lina.solve(self.sigma, self.r)
+        precisionOnes = lina.solve(self.sigma, self.ones)
 
-        self.a = self.r.dot(y1)
-        self.b = self.r.dot(y2)
-        self.c = self.ones.dot(y2)
+        self.a = self.r.dot(precisionR)
+        self.b = self.r.dot(precisionOnes)
+        self.c = self.ones.dot(precisionOnes)
         det = self.a*self.c - self.b**2
 
-        self.slopeVector = self.c/det*y1 - self.b/det*y2
-        self.shiftVector = self.a/det*y2 - self.b/det*y1
+        self.slopeVector = self.c/det*precisionR - self.b/det*precisionOnes
+        self.shiftVector = self.a/det*precisionOnes - self.b/det*precisionR
+
+        A = np.empty((self.d+2, self.d+2))
+        A[0, 0] = self.a
+        A[0, 1] = self.b
+        A[0, 2:] = precisionR
+        A[1, 0] = self.b
+        A[1, 1] = self.c
+        A[1, 2:] = precisionOnes
+        A[2:, 0] = precisionR
+        A[2:, 1] = precisionOnes
+        A[2:, 2:] = self.covariance.precision(portfolio=portfolio)
+
+        self.lu, self.piv = lina.lu_factor(A)
 
         self.memoryMarkowitz = True
 
@@ -85,7 +98,12 @@ class Allocations:
             self.saveMemoryMarkowitz(portfolio=portfolio)
 
         if not shortSellingAllowed:
-            pass
+            b = np.zeros(self.d+2)
+            b[0] = minimumReturn
+            b[1] = 1
+
+            lambdas = lina.lu_solve((self.lu, self.piv), b)
+            return lina.solve(self.sigma, lambdas[0]*self.r + lambdas[1]*self.ones + lambdas[2:])
 
         return minimumReturn*self.slopeVector + self.shiftVector
 
