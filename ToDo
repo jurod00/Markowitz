@@ -1,21 +1,13 @@
 1.  Kurzfristig
-1.1 Epsilon im Dateipfad intuitiver oder gar nicht unterbringen
-1.2 Mean-Variance plot mit eigenen Allocationen
-1.3 Allocationen im Kreisdiagramm bzw. Prozentangaben
-1.4 senstitivity(theta, model) bzw. senstitivityNew in senstitivity umbenennen
-1.6 fig, ax1 nach unten, erst wenn es gebraucht wird!
-1.7 ax1.set_xticks statt plt.xticks
-1.8 ReadMe.md überarbeiten und Optionen ergänzen
-1.9 Testen ob averageValueAtRisk und allocationIntegratedRiskManagement für beta=1 übereinstimmt
-1.10 Precision abschaffen und in scipy.solve() umwandeln
+1.1 ReadMe.md überarbeiten und Optionen ergänzen
+1.2 Testen ob averageValueAtRisk und allocationIntegratedRiskManagement für beta=1 übereinstimmt
 
 2.  Mittelfristig
-2.1 Überflüssige Methoden in PortfolioShares.py entfernen
-2.2 Return Randverteilung
-2.3 Covarianzmatrix mit Optionen und Korrelationsgrafik
-2.4 No short selling constraint, also keine Leerverkäufe
-2.5 @staticmethod abschaffen
+2.1 Suchmethode für Option-Symbol-Index => Stock-Symbol-Index
 
 3.  Langfristig
 3.1 Frontend entwickeln
 3.2 Speichere bereits heruntergeladene Daten in einer csv (im Package database) und gleiche anschließend ab, ob ein erneuter download notwendig ist.
+
+Masterarbeit:
+M1 Algorithmen Markowitz, MarkowitzAlternative (mit Solver)

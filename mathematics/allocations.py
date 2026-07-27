@@ -93,25 +93,56 @@ class Allocations:
 
         self.memoryIRM = True
 
-    def allocationMarkowitz(self, portfolio: Portfolio, minimumReturn: float, shortSellingAllowed: bool=True) -> np.ndarray:
+    def allocationMarkowitz(self, portfolio: Portfolio, minimumReturn: float, shortSellingAllowed: bool=True, method: str="") -> np.ndarray:
         if not self.memoryMarkowitz:
             self.saveMemoryMarkowitz(portfolio=portfolio)
+
+        if method == "lecture": # depricated
+            return minimumReturn*self.slopeVector + self.shiftVector
+
+        if method == "LU": # depricated
+            pass
+
+        def fun(x: np.ndarray) -> float:
+            return x.dot(self.sigma.dot(x))
+
+        x0 = np.ones(self.d)/self.d
 
         if not shortSellingAllowed:
-            b = np.zeros(self.d+2)
-            b[0] = minimumReturn
-            b[1] = 1
+            bounds = self.d*[(0, None)]
+        else:
+            bounds = self.d*[(None, None)]
 
-            lambdas = lina.lu_solve((self.lu, self.piv), b)
-            return lina.solve(self.sigma, lambdas[0]*self.r + lambdas[1]*self.ones + lambdas[2:])
+        constraints = [
+            {'type': 'ineq', 'fun': lambda x: x @ self.r - minimumReturn}, 
+            {'type': 'eq',   'fun': lambda x: sum(x) - 1}
+        ]
 
-        return minimumReturn*self.slopeVector + self.shiftVector
+        result = opt.minimize(fun=fun, x0=x0, method="SLSQP", bounds=bounds, constraints=constraints)
+        return result.x
 
-    def allocationUtilityMaximization(self, portfolio: Portfolio, riskAversion: float) -> np.ndarray:
+    def allocationUtilityMaximization(self, portfolio: Portfolio, riskAversion: float, shortSellingAllowed: bool=True, method: str="") -> np.ndarray:
         if not self.memoryMarkowitz:
             self.saveMemoryMarkowitz(portfolio=portfolio)
 
-        return 1/riskAversion*lina.solve(self.sigma, self.r + (riskAversion-self.b)/self.c*self.ones)
+        if method == "lecture": # depricated
+            return 1/riskAversion*lina.solve(self.sigma, self.r + (riskAversion-self.b)/self.c*self.ones)
+
+        def fun(x: np.ndarray) -> float:
+            return x.dot(self.r) - 0.5*riskAversion*x.dot(self.sigma.dot(x))
+
+        x0 = np.ones(self.d)/self.d
+
+        if not shortSellingAllowed:
+            bounds = self.d*[(0, None)]
+        else:
+            bounds = self.d*[(None, None)]
+        
+        constraints = [{'type': 'eq', 'fun': lambda x: sum(x) - 1}]
+
+        result = opt.minimize(fun=fun, x0=x0, bounds=bounds, constraints=constraints)
+        print("Hi")
+        return result.x
 
     def allocationIntegratedRiskManagement(self, portfolio: Portfolio, alpha: float, beta: float, minimumReturn: float) -> tuple:
         if not self.memoryIRM:
