@@ -10,25 +10,25 @@ import numpy as np
 
 def main():
     portfolio = Portfolio()
-    portfolio.setStockDataFromCSV(fileName="master.csv")
-    portfolio.setStocks(portfolio.stocks[1:])
-    portfolio.setSymbols(portfolio.symbols[1:])
+    portfolio.setStockDataFromCSV(fileName="lecture.csv")
+    # portfolio.setStocks(portfolio.stocks[1:])
+    # portfolio.setSymbols(portfolio.symbols[1:])
     # symbolOptions = ["GOOGL Call", "GOOGL Put", "AAPL Call", "AAPL Put", "AMD Call", "AMD Put", "INTC Call", "INTC Put", "NVDA Call", "NVDA Put"]
-    symbolOptions = ["AAPL Call", "AAPL Put", "AMD Call", "AMD Put", "INTC Call", "INTC Put", "NVDA Call", "NVDA Put"]
+    # symbolOptions = ["AAPL Call", "AAPL Put", "AMD Call", "AMD Put", "INTC Call", "INTC Put", "NVDA Call", "NVDA Put"]
     # rand.shuffle(symbolOptions)
     # print(symbolOptions)
-    portfolio.setOptionDataFromCSV(symbolsOptions=symbolOptions)
+    # portfolio.setOptionDataFromCSV(symbolsOptions=symbolOptions)
 
-    plotStocks = PlotStocks(portfolio=portfolio)
-    plotStocks.plotStocksAbs()
-    plotStocks.plotStocksRel()
+    # plotStocks = PlotStocks(portfolio=portfolio)
+    # plotStocks.plotStocksAbs()
+    # plotStocks.plotStocksRel()
 
     plotAllocation = PlotAllocation(portfolio=portfolio)
-    # plotAllocation.plotAllocationMarkowitz(returnMin=0.05)
+    plotAllocation.plotAllocationMarkowitz(returnMin=0.05)
     # plotAllocation.plotAllocationMarkowitzNoShortSelling()#returnMax=2.5)
     # plotAllocation.plotAllocationUtilityMaximization()
     # plotAllocation.plotAllocationUtilityMaximizationNoShortSelling()
-    plotAllocation.plotAllocationIntegratedRiskManagement(returnMax=2.5)
+    # plotAllocation.plotAllocationIntegratedRiskManagement(returnMax=2.5)
     # plotAllocation.plotStackedBar(np.array([0.5, 0.2, 0.18, 0.12]))
 
     # plotMeanRisk = PlotMeanRisk(portfolio=portfolio)

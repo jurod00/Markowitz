@@ -2,6 +2,8 @@
 1.1 ReadMe.md überarbeiten und Optionen ergänzen
 1.2 Testen ob averageValueAtRisk und allocationIntegratedRiskManagement für beta=1 übereinstimmt
 1.3 Allocation IntegratedRiskManagement implement Short-Selling
+1.4.1 Implementiere AVaR einfacher
+1.4.2 IntegratedRiskManagement mit minimize(fun=AVaR, ...)
 
 2.  Mittelfristig
 2.1 Suchmethode für Option-Symbol-Index => Stock-Symbol-Index

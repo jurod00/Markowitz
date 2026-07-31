@@ -103,6 +103,11 @@ class Allocations:
         if method == "LU": # depricated
             pass
 
+        if method == "fast":
+            # cacheMarkowitz(...)
+            # memorizedMarkowitz = True
+            pass
+
         def fun(x: np.ndarray) -> float:
             return x.dot(self.sigma.dot(x))
 
@@ -114,8 +119,8 @@ class Allocations:
             bounds = self.d*[(None, None)]
 
         constraints = [
-            {'type': 'ineq', 'fun': lambda x: x @ self.r - minimumReturn}, 
-            {'type': 'eq',   'fun': lambda x: sum(x) - 1}
+            {'type': 'eq', 'fun': lambda x: x @ self.r - minimumReturn}, 
+            {'type': 'eq', 'fun': lambda x: sum(x) - 1}
         ]
 
         result = opt.minimize(fun=fun, x0=x0, method="SLSQP", bounds=bounds, constraints=constraints)
