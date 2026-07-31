@@ -197,7 +197,7 @@ class PlotAllocation:
     
             fig.savefig(pathAssets / f"plotAllocationMarkowitzNoShortSelling.{format}", bbox_inches="tight", pad_inches=0.05)
 
-    def plotAllocationUtilityMaximization(self, riskAversionMin: float=float(1e+2), riskAversionMax: float=float(1e+6), format: str="svg") -> None:
+    def plotAllocationUtilityMaximization(self, riskAversionMin: float=float(1e-1), riskAversionMax: float=float(1e+3), format: str="svg") -> None:
         symbolsStock = list(self.portfolio.symbols)
         symbolsCall = list(self.portfolio.symbolsCall)
         symbolsPut = list(self.portfolio.symbolsPut)
@@ -269,8 +269,8 @@ class PlotAllocation:
         # y-axis
         ax.set_ylabel("allocation " + r"$x^*(\kappa)$")
         # ax.set_ylim(-0.05, 1.05)
-        ax.yaxis.set_major_formatter(mtick.FormatStrFormatter("%.1f"))
-        ax.yaxis.set_major_locator(mtick.MultipleLocator(0.1))
+        # ax.yaxis.set_major_formatter(mtick.FormatStrFormatter("%.1f"))
+        # ax.yaxis.set_major_locator(mtick.MultipleLocator(0.1))
 
         # legend
         ax.legend(loc="upper center", ncol=3, frameon=False)
@@ -280,7 +280,7 @@ class PlotAllocation:
 
         fig.savefig(pathAssets / f"plotAllocationUtilityMaximization.{format}", bbox_inches="tight", pad_inches=0.05)
 
-    def plotAllocationUtilityMaximizationNoShortSelling(self, riskAversionMin: float=float(1e+2), riskAversionMax: float=float(1e+6), format: str="svg") -> None:
+    def plotAllocationUtilityMaximizationNoShortSelling(self, riskAversionMin: float=float(1e-1), riskAversionMax: float=float(1e+3), format: str="svg") -> None:
         symbolsStock = list(self.portfolio.symbols)
         symbolsCall = list(self.portfolio.symbolsCall)
         symbolsPut = list(self.portfolio.symbolsPut)
@@ -431,9 +431,9 @@ class PlotAllocation:
 
         # y-axis
         ax.set_ylabel("allocation " + r"$x^*(\mu)$")
-        ax.yaxis.set_major_formatter(mtick.FormatStrFormatter("%.2f"))
-        ax.yaxis.set_major_locator(mtick.MultipleLocator(0.25))
-        ax.set_ylim(-0.05, 1.05)
+        # ax.yaxis.set_major_formatter(mtick.FormatStrFormatter("%.2f"))
+        # ax.yaxis.set_major_locator(mtick.MultipleLocator(0.25))
+        # ax.set_ylim(-0.05, 1.05)
 
         # legend
         ax.legend(loc="upper center", ncol=3, frameon=False)

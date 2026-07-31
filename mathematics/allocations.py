@@ -129,7 +129,7 @@ class Allocations:
             return 1/riskAversion*lina.solve(self.sigma, self.r + (riskAversion-self.b)/self.c*self.ones)
 
         def fun(x: np.ndarray) -> float:
-            return x.dot(self.r) - 0.5*riskAversion*x.dot(self.sigma.dot(x))
+            return 0.5*riskAversion*x.dot(self.sigma.dot(x)) - x.dot(self.r)
 
         x0 = np.ones(self.d)/self.d
 
@@ -141,7 +141,6 @@ class Allocations:
         constraints = [{'type': 'eq', 'fun': lambda x: sum(x) - 1}]
 
         result = opt.minimize(fun=fun, x0=x0, bounds=bounds, constraints=constraints)
-        print("Hi")
         return result.x
 
     def allocationIntegratedRiskManagement(self, portfolio: Portfolio, alpha: float, beta: float, minimumReturn: float) -> tuple:
