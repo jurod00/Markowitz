@@ -6,6 +6,8 @@ from plot.plotMeanRisk import PlotMeanRisk
 from plot.plotStocks import PlotStocks
 from plot.plotMatrix import PlotMatrix
 
+from mathematics.minimization import Minimization
+
 import numpy as np
 
 def main():
@@ -24,8 +26,8 @@ def main():
     # plotStocks.plotStocksRel()
 
     plotAllocation = PlotAllocation(portfolio=portfolio)
-    plotAllocation.plotAllocationMarkowitz(returnMin=0.05)
-    # plotAllocation.plotAllocationMarkowitzNoShortSelling()#returnMax=2.5)
+    # plotAllocation.plotAllocationMarkowitz(returnMin=0.05)
+    plotAllocation.plotAllocationMarkowitzNoShortSelling()#returnMax=2.5)
     # plotAllocation.plotAllocationUtilityMaximization()
     # plotAllocation.plotAllocationUtilityMaximizationNoShortSelling()
     # plotAllocation.plotAllocationIntegratedRiskManagement(returnMax=2.5)
@@ -47,6 +49,15 @@ def main():
 
     # plotDistribution = PlotDistribution(portfolio=portfolio)
     # plotDistribution.plotMarginalDistribution()
+
+    minimization = Minimization()
+    x = minimization.quadraticProgramming(
+        Q=np.array([[1.0, 0.0], [0.0, 1.0]]), 
+        A=np.array([[1.0, 1.0]]), 
+        b=np.array([3.0]), 
+        c=np.array([-2.0, -5.0])
+    )
+    print(x)
 
 if __name__ == "__main__":
     main()

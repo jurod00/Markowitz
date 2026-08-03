@@ -1,5 +1,6 @@
 from mathematics.covariance import Covariance
 from mathematics.returns import Returns
+from mathematics.minimization import Minimization
 from portfolio.portfolio import Portfolio
 from util.util import Util
 
@@ -9,10 +10,11 @@ import scipy.optimize as opt
 
 class Allocations:
 
-    def __init__(self, returns: Returns=None, covariance: Covariance=None):
+    def __init__(self, returns: Returns=None, covariance: Covariance=None, minimization: Minimization=None):
         # Optional Dependency Injection
         self.returns = returns if returns is not None else Returns()
         self.covariance = covariance if covariance is not None else Covariance()
+        self.minimization = minimization if minimization is not None else Minimization()
         # Access Memory
         self.memoryMarkowitz: bool=False
         self.memoryIRM: bool=False
@@ -108,23 +110,32 @@ class Allocations:
             # memorizedMarkowitz = True
             pass
 
-        def fun(x: np.ndarray) -> float:
-            return x.dot(self.sigma.dot(x))
+        # def fun(x: np.ndarray) -> float:
+        #     return x.dot(self.sigma.dot(x))
 
-        x0 = np.ones(self.d)/self.d
+        # x0 = np.ones(self.d)/self.d
 
-        if not shortSellingAllowed:
-            bounds = self.d*[(0, None)]
-        else:
-            bounds = self.d*[(None, None)]
+        # if not shortSellingAllowed:
+        #     bounds = self.d*[(0, None)]
+        # else:
+        #     bounds = self.d*[(None, None)]
 
-        constraints = [
-            {'type': 'eq', 'fun': lambda x: x @ self.r - minimumReturn}, 
-            {'type': 'eq', 'fun': lambda x: sum(x) - 1}
-        ]
+        # constraints = [
+        #     {'type': 'eq', 'fun': lambda x: x @ self.r - minimumReturn}, 
+        #     {'type': 'eq', 'fun': lambda x: sum(x) - 1}
+        # ]
 
-        result = opt.minimize(fun=fun, x0=x0, method="SLSQP", bounds=bounds, constraints=constraints)
-        return result.x
+        # result = opt.minimize(fun=fun, x0=x0, method="SLSQP", bounds=bounds, constraints=constraints)
+        # return result.x
+
+        if method == "interiorPoint":
+            Q = self.sigma
+            A = np.block([[self.r], [self.ones]])
+            b = np.array([minimumReturn, 1])
+            c = np.zeros(self.d)
+
+            x = self.minimization.quadraticProgramming(Q=Q, A=A, b=b, c=c)
+            return x
 
     def allocationUtilityMaximization(self, portfolio: Portfolio, riskAversion: float, shortSellingAllowed: bool=True, method: str="") -> np.ndarray:
         if not self.memoryMarkowitz:
