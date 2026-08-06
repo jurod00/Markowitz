@@ -29,100 +29,100 @@ class PlotAllocation:
             }
         )
 
-    def plotAllocationMarkowitz(self, returnMin: float=0.0, returnMax: float=0.25, format: str="svg") -> None:
-        symbolsStock = list(self.portfolio.symbols)
-        symbolsCall = list(self.portfolio.symbolsCall)
-        symbolsPut = list(self.portfolio.symbolsPut)
+    # def plotAllocationMarkowitz(self, returnMin: float=0.0, returnMax: float=0.25, format: str="svg") -> None:
+    #     symbolsStock = list(self.portfolio.symbols)
+    #     symbolsCall = list(self.portfolio.symbolsCall)
+    #     symbolsPut = list(self.portfolio.symbolsPut)
         
-        indicesCall = list(self.portfolio.indicesCall)
-        indicesPut = list(self.portfolio.indicesPut)
+    #     indicesCall = list(self.portfolio.indicesCall)
+    #     indicesPut = list(self.portfolio.indicesPut)
 
-        d0 = len(symbolsStock)
-        d1 = len(symbolsCall)
-        d2 = len(symbolsPut)
+    #     d0 = len(symbolsStock)
+    #     d1 = len(symbolsCall)
+    #     d2 = len(symbolsPut)
 
-        mys = np.linspace(returnMin, returnMax, self._markerNumber)
+    #     mys = np.linspace(returnMin, returnMax, self._markerNumber)
         
-        x0 = self.allocations.allocationMarkowitz(portfolio=self.portfolio, minimumReturn=returnMin)
-        x1 = self.allocations.allocationMarkowitz(portfolio=self.portfolio, minimumReturn=returnMax)
+    #     x0 = self.allocations.allocationMarkowitz(portfolio=self.portfolio, minimumReturn=returnMin)
+    #     x1 = self.allocations.allocationMarkowitz(portfolio=self.portfolio, minimumReturn=returnMax)
         
-        fig, ax = plt.subplots(figsize=(7, 4.5), layout="constrained")
+    #     fig, ax = plt.subplots(figsize=(7, 4.5), layout="constrained")
 
-        for j in range(d0):
-            # m = (x1[j] - x0[j])/(returnMax - returnMin)
-            # n = x0[j] - m*returnMin
+    #     for j in range(d0):
+    #         # m = (x1[j] - x0[j])/(returnMax - returnMin)
+    #         # n = x0[j] - m*returnMin
 
-            # xj = m*mys + n
+    #         # xj = m*mys + n
 
-            xj = [self.allocations.allocationMarkowitz(portfolio=self.portfolio, minimumReturn=my)[j] for my in mys]
+    #         xj = [self.allocations.allocationMarkowitz(portfolio=self.portfolio, minimumReturn=my)[j] for my in mys]
             
-            ax.plot(
-                mys, 
-                xj, 
-                label=symbolsStock[j], 
-                color=self._color(1/3), 
-                marker=self._marker[j], 
-                markeredgecolor=self._color(1/3), 
-                markerfacecolor="white"
-            )
+    #         ax.plot(
+    #             mys, 
+    #             xj, 
+    #             label=symbolsStock[j], 
+    #             color=self._color(1/3), 
+    #             marker=self._marker[j], 
+    #             markeredgecolor=self._color(1/3), 
+    #             markerfacecolor="white"
+    #         )
 
-        for j0, j in enumerate(indicesCall):
-            # m = (x1[d0+j0] - x0[d0+j0])/(returnMax - returnMin)
-            # n = x0[d0+j0] - m*returnMin
+    #     for j0, j in enumerate(indicesCall):
+    #         # m = (x1[d0+j0] - x0[d0+j0])/(returnMax - returnMin)
+    #         # n = x0[d0+j0] - m*returnMin
 
-            # xj = m*mys + n
+    #         # xj = m*mys + n
 
-            xj = [self.allocations.allocationMarkowitz(portfolio=self.portfolio, minimumReturn=my)[d0+j0] for my in mys]
+    #         xj = [self.allocations.allocationMarkowitz(portfolio=self.portfolio, minimumReturn=my)[d0+j0] for my in mys]
             
-            ax.plot(
-                mys, 
-                xj, 
-                label=symbolsCall[j0], 
-                color=self._color(2/3), 
-                marker=self._marker[j], 
-                markeredgecolor=self._color(2/3), 
-                markerfacecolor="white"
-            )
+    #         ax.plot(
+    #             mys, 
+    #             xj, 
+    #             label=symbolsCall[j0], 
+    #             color=self._color(2/3), 
+    #             marker=self._marker[j], 
+    #             markeredgecolor=self._color(2/3), 
+    #             markerfacecolor="white"
+    #         )
 
-        for j0, j in enumerate(indicesPut):
-            # m = (x1[d0+d1+j0] - x0[d0+d1+j0])/(returnMax - returnMin)
-            # n = x0[d0+d1+j0] - m*returnMin
+    #     for j0, j in enumerate(indicesPut):
+    #         # m = (x1[d0+d1+j0] - x0[d0+d1+j0])/(returnMax - returnMin)
+    #         # n = x0[d0+d1+j0] - m*returnMin
 
-            # xj = m*mys + n
+    #         # xj = m*mys + n
 
-            xj = [self.allocations.allocationMarkowitz(portfolio=self.portfolio, minimumReturn=my)[d0+d1+j0] for my in mys]
+    #         xj = [self.allocations.allocationMarkowitz(portfolio=self.portfolio, minimumReturn=my)[d0+d1+j0] for my in mys]
             
-            ax.plot(
-                mys, 
-                xj, 
-                label=symbolsPut[j0], 
-                color=self._color(1.0), 
-                marker=self._marker[j], 
-                markeredgecolor=self._color(1.0), 
-                markerfacecolor="white"
-            )
+    #         ax.plot(
+    #             mys, 
+    #             xj, 
+    #             label=symbolsPut[j0], 
+    #             color=self._color(1.0), 
+    #             marker=self._marker[j], 
+    #             markeredgecolor=self._color(1.0), 
+    #             markerfacecolor="white"
+    #         )
 
-        ax.hlines(y=0, xmin=returnMin, xmax=returnMax, linewidth=1, color="black", zorder=-1)
+    #     ax.hlines(y=0, xmin=returnMin, xmax=returnMax, linewidth=1, color="black", zorder=-1)
 
-        # x-axis
-        ax.set_xlim(returnMin, returnMax)
-        ax.set_xlabel("minimum return " + r"$\mu$")
+    #     # x-axis
+    #     ax.set_xlim(returnMin, returnMax)
+    #     ax.set_xlabel("minimum return " + r"$\mu$")
 
-        # y-axis
-        ax.set_ylabel("allocation " + r"$x^*(\mu)$")
-        ax.set_ylim(-0.05, 1.05)
-        ax.yaxis.set_major_formatter(mtick.FormatStrFormatter("%.1f"))
-        ax.yaxis.set_major_locator(mtick.MultipleLocator(0.1))
+    #     # y-axis
+    #     ax.set_ylabel("allocation " + r"$x^*(\mu)$")
+    #     ax.set_ylim(-0.05, 1.05)
+    #     ax.yaxis.set_major_formatter(mtick.FormatStrFormatter("%.1f"))
+    #     ax.yaxis.set_major_locator(mtick.MultipleLocator(0.1))
 
-        # legend
-        ax.legend(loc="upper center", ncol=3, frameon=False)
+    #     # legend
+    #     ax.legend(loc="upper center", ncol=3, frameon=False)
 
-        pathAssets = pl.Path(__file__).resolve().parent / "assets"
-        pathAssets.mkdir(exist_ok=True)
+    #     pathAssets = pl.Path(__file__).resolve().parent / "assets"
+    #     pathAssets.mkdir(exist_ok=True)
 
-        fig.savefig(pathAssets / f"plotAllocationMarkowitz.{format}", bbox_inches="tight", pad_inches=0.05)
+    #     fig.savefig(pathAssets / f"plotAllocationMarkowitz.{format}", bbox_inches="tight", pad_inches=0.05)
 
-    def plotAllocationMarkowitzNoShortSelling(self, returnMin: float=0.0, returnMax: float=0.25, format: str="svg") -> None:
+    def plotAllocationMarkowitz(self, returnMin: float=0.0, returnMax: float=0.25, shortSellingAllowed: bool=True, method: str="default", format: str="svg") -> None:
             symbolsStock = list(self.portfolio.symbols)
             symbolsCall = list(self.portfolio.symbolsCall)
             symbolsPut = list(self.portfolio.symbolsPut)
@@ -139,7 +139,7 @@ class PlotAllocation:
             fig, ax = plt.subplots(figsize=(7, 4.5), layout="constrained")
     
             for j in range(d0):
-                xj = [self.allocations.allocationMarkowitz(portfolio=self.portfolio, minimumReturn=my, shortSellingAllowed=False)[j] for my in mys]
+                xj = [self.allocations.allocationMarkowitz(portfolio=self.portfolio, minimumReturn=my, shortSellingAllowed=shortSellingAllowed, method=method)[j] for my in mys]
                 
                 ax.plot(
                     mys, 
@@ -152,7 +152,7 @@ class PlotAllocation:
                 )
     
             for j0, j in enumerate(indicesCall):
-                xj = [self.allocations.allocationMarkowitz(portfolio=self.portfolio, minimumReturn=my, shortSellingAllowed=False)[d0+j0] for my in mys]
+                xj = [self.allocations.allocationMarkowitz(portfolio=self.portfolio, minimumReturn=my, shortSellingAllowed=shortSellingAllowed, method=method)[d0+j0] for my in mys]
     
                 ax.plot(
                     mys, 
@@ -165,7 +165,7 @@ class PlotAllocation:
                 )
     
             for j0, j in enumerate(indicesPut):
-                xj = [self.allocations.allocationMarkowitz(portfolio=self.portfolio, minimumReturn=my, shortSellingAllowed=False)[d0+d1+j0] for my in mys]
+                xj = [self.allocations.allocationMarkowitz(portfolio=self.portfolio, minimumReturn=my, shortSellingAllowed=shortSellingAllowed, method=method)[d0+d1+j0] for my in mys]
 
                 ax.plot(
                     mys, 
@@ -195,7 +195,7 @@ class PlotAllocation:
             pathAssets = pl.Path(__file__).resolve().parent / "assets"
             pathAssets.mkdir(exist_ok=True)
     
-            fig.savefig(pathAssets / f"plotAllocationMarkowitzNoShortSelling.{format}", bbox_inches="tight", pad_inches=0.05)
+            fig.savefig(pathAssets / f"plotAllocationMarkowitz.{format}", bbox_inches="tight", pad_inches=0.05)
 
     def plotAllocationUtilityMaximization(self, riskAversionMin: float=float(1e-1), riskAversionMax: float=float(1e+3), format: str="svg") -> None:
         symbolsStock = list(self.portfolio.symbols)

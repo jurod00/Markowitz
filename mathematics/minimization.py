@@ -5,6 +5,11 @@ class Minimization:
         pass
 
     def quadraticProgramming(self, Q: np.ndarray, A: np.ndarray, b: np.ndarray, c: np.ndarray) -> np.ndarray:
+        # Interior Point Method for
+        
+        # minimize x.T Q x + c.T x
+        # subject to A x = b
+
         m = A.shape[0]
         n = Q.shape[0]
 

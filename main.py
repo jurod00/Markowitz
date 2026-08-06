@@ -11,53 +11,57 @@ from mathematics.minimization import Minimization
 import numpy as np
 
 def main():
-    portfolio = Portfolio()
-    portfolio.setStockDataFromCSV(fileName="lecture.csv")
-    # portfolio.setStocks(portfolio.stocks[1:])
-    # portfolio.setSymbols(portfolio.symbols[1:])
-    # symbolOptions = ["GOOGL Call", "GOOGL Put", "AAPL Call", "AAPL Put", "AMD Call", "AMD Put", "INTC Call", "INTC Put", "NVDA Call", "NVDA Put"]
-    # symbolOptions = ["AAPL Call", "AAPL Put", "AMD Call", "AMD Put", "INTC Call", "INTC Put", "NVDA Call", "NVDA Put"]
-    # rand.shuffle(symbolOptions)
-    # print(symbolOptions)
-    # portfolio.setOptionDataFromCSV(symbolsOptions=symbolOptions)
+    fileName = "master.csv"
 
-    # plotStocks = PlotStocks(portfolio=portfolio)
-    # plotStocks.plotStocksAbs()
-    # plotStocks.plotStocksRel()
+    if fileName == "lecture.csv":
+        portfolio = Portfolio()
+        portfolio.setStockDataFromCSV(fileName=fileName)
+        
+        plotStocks = PlotStocks(portfolio=portfolio)
+        plotStocks.plotStocksAbs()
+        plotStocks.plotStocksRel()
 
-    plotAllocation = PlotAllocation(portfolio=portfolio)
-    # plotAllocation.plotAllocationMarkowitz(returnMin=0.05)
-    plotAllocation.plotAllocationMarkowitzNoShortSelling()#returnMax=2.5)
-    # plotAllocation.plotAllocationUtilityMaximization()
-    # plotAllocation.plotAllocationUtilityMaximizationNoShortSelling()
-    # plotAllocation.plotAllocationIntegratedRiskManagement(returnMax=2.5)
-    # plotAllocation.plotStackedBar(np.array([0.5, 0.2, 0.18, 0.12]))
+        plotAllocation = PlotAllocation(portfolio=portfolio)
+        plotAllocation.plotAllocationMarkowitz(shortSellingAllowed=True, method="twoFund")
+        plotAllocation.plotAllocationIntegratedRiskManagement(returnMax=0.25)
 
-    # plotMeanRisk = PlotMeanRisk(portfolio=portfolio)
-    # plotMeanRisk.plotMeanVarianceMarkowitz(returnMax=0.01)
-    # plotMeanRisk.plotMeanVarianceUtilityMaximization(riskAversionMin=20)
-    # plotMeanRisk.plotMeanAVaR(returnMax=2.0)
+        plotMeanRisk = PlotMeanRisk(portfolio=portfolio)
+        plotMeanRisk.plotMeanVarianceMarkowitz(returnMax=0.5)
+        plotMeanRisk.plotMeanAVaR(returnMax=0.5)
 
-    # plotMatrix = PlotMatrix(portfolio=portfolio)
-    # plotMatrix.plotCovarianceMatrix()
-    # plotMatrix.plotCorrelationMatrix()
+        plotMatrix = PlotMatrix(portfolio=portfolio)
+        plotMatrix.plotCovarianceMatrix()
+        plotMatrix.plotCorrelationMatrix()
 
-    # plotCorrelation = PlotCorrelation(portfolio=portfolio)
-    # plotCorrelation.plotCorrelationStockCall()
-    # plotCorrelation.plotCorrelationStockPut()
-    # plotCorrelation.plotCorrelationCallPut()
+    elif fileName == "master.csv":
+        portfolio = Portfolio()
+        portfolio.setStockDataFromCSV(fileName=fileName)
+        portfolio.setStocks(portfolio.stocks[1:])
+        portfolio.setSymbols(portfolio.symbols[1:])
+        symbolOptions = ["AAPL Call", "AAPL Put", "AMD Call", "AMD Put", "INTC Call", "INTC Put", "NVDA Call", "NVDA Put"]
+        # rand.shuffle(symbolOptions)
+        portfolio.setOptionDataFromCSV(symbolsOptions=symbolOptions)
 
-    # plotDistribution = PlotDistribution(portfolio=portfolio)
-    # plotDistribution.plotMarginalDistribution()
+        plotStocks = PlotStocks(portfolio=portfolio)
+        plotStocks.plotStocksAbs()
+        plotStocks.plotStocksRel()
 
-    minimization = Minimization()
-    x = minimization.quadraticProgramming(
-        Q=np.array([[1.0, 0.0], [0.0, 1.0]]), 
-        A=np.array([[1.0, 1.0]]), 
-        b=np.array([3.0]), 
-        c=np.array([-2.0, -5.0])
-    )
-    print(x)
+        plotAllocation = PlotAllocation(portfolio=portfolio)
+        plotAllocation.plotAllocationMarkowitz(shortSellingAllowed=True, method="twoFund")
+        plotAllocation.plotAllocationIntegratedRiskManagement(returnMax=0.5, beta=1)
+
+        plotMeanRisk = PlotMeanRisk(portfolio=portfolio)
+        plotMeanRisk.plotMeanVarianceMarkowitz(returnMax=0.01)
+        plotMeanRisk.plotMeanAVaR(returnMax=2.0)
+
+        plotMatrix = PlotMatrix(portfolio=portfolio)
+        plotMatrix.plotCovarianceMatrix()
+        plotMatrix.plotCorrelationMatrix()
+
+        plotCorrelation = PlotCorrelation(portfolio=portfolio)
+        plotCorrelation.plotCorrelationStockCall()
+        plotCorrelation.plotCorrelationStockPut()
+        plotCorrelation.plotCorrelationCallPut()
 
 if __name__ == "__main__":
     main()

@@ -6,7 +6,9 @@ from util.util import Util
 
 import numpy as np
 import scipy.linalg as lina
-import scipy.optimize as opt
+
+from scipy.optimize import linprog
+from scipy.optimize import minimize
 
 class Allocations:
 
@@ -15,51 +17,23 @@ class Allocations:
         self.returns = returns if returns is not None else Returns()
         self.covariance = covariance if covariance is not None else Covariance()
         self.minimization = minimization if minimization is not None else Minimization()
-        # Access Memory
-        self.memoryMarkowitz: bool=False
-        self.memoryIRM: bool=False
+        # Memory flag
+        self.memorizedIRM: bool=False
+        self.memorizedTwoFund: bool=False
+        self.memorizedInteriorPoint: bool=False
+        self.memorizedDefault: bool=False
 
-    def saveMemoryMarkowitz(self, portfolio: Portfolio):
-        self.d = len(portfolio.stocks) + len(portfolio.indicesCall) + len(portfolio.indicesPut)
-        self.n = len(portfolio.times) - 1
+    # ------------------------------------------------------------------------------------------------------------------------------------------------------------
+    #                                                                           Cache
+    # ------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-        self.r = self.returns.expectedReturn(portfolio=portfolio)
-
-        self.ones = np.ones(self.d)
-        self.sigma = self.covariance.covariance(portfolio=portfolio)
-
-        precisionR = lina.solve(self.sigma, self.r)
-        precisionOnes = lina.solve(self.sigma, self.ones)
-
-        self.a = self.r.dot(precisionR)
-        self.b = self.r.dot(precisionOnes)
-        self.c = self.ones.dot(precisionOnes)
-        det = self.a*self.c - self.b**2
-
-        self.slopeVector = self.c/det*precisionR - self.b/det*precisionOnes
-        self.shiftVector = self.a/det*precisionOnes - self.b/det*precisionR
-
-        A = np.empty((self.d+2, self.d+2))
-        A[0, 0] = self.a
-        A[0, 1] = self.b
-        A[0, 2:] = precisionR
-        A[1, 0] = self.b
-        A[1, 1] = self.c
-        A[1, 2:] = precisionOnes
-        A[2:, 0] = precisionR
-        A[2:, 1] = precisionOnes
-        A[2:, 2:] = self.covariance.precision(portfolio=portfolio)
-
-        self.lu, self.piv = lina.lu_factor(A)
-
-        self.memoryMarkowitz = True
-
-    def saveMemoryIRM(self, portfolio: Portfolio, alpha: float, beta: float):
+    def cacheIRM(self, portfolio: Portfolio, alpha: float, beta: float) -> None:
         self.d = len(portfolio.stocks) + len(portfolio.indicesCall) + len(portfolio.indicesPut)
         self.n = len(portfolio.times) - 1
 
         prob = np.array(Util.prob(times=portfolio.times))
         r = self.returns.expectedReturn(portfolio=portfolio)
+        print(r)
 
         xiStocks = self.returns.initialRelativeReturn(portfolio=portfolio)
         xiCall = self.returns.optionReturnCall(portfolio=portfolio)
@@ -93,49 +67,105 @@ class Allocations:
 
         self.bounds = self.d*[(0, None)] + [(None, None)] + self.n*[(0, None)]
 
-        self.memoryIRM = True
+    def cacheTwoFund(self, portfolio: Portfolio) -> None:
+        d = len(portfolio.stocks) + len(portfolio.indicesCall) + len(portfolio.indicesPut)
+        r = self.returns.expectedReturn(portfolio=portfolio)
 
-    def allocationMarkowitz(self, portfolio: Portfolio, minimumReturn: float, shortSellingAllowed: bool=True, method: str="") -> np.ndarray:
-        if not self.memoryMarkowitz:
-            self.saveMemoryMarkowitz(portfolio=portfolio)
+        ones = np.ones(d)
+        sigma = self.covariance.covariance(portfolio=portfolio)
 
-        if method == "lecture": # depricated
+        precisionR = np.linalg.solve(sigma, r)
+        precisionOnes = np.linalg.solve(sigma, ones)
+
+        a = r.dot(precisionR)
+        b = r.dot(precisionOnes)
+        c = ones.dot(precisionOnes)
+        det = a*c - b**2
+
+        self.slopeVector = c/det*precisionR - b/det*precisionOnes
+        self.shiftVector = a/det*precisionOnes - b/det*precisionR
+
+    def cacheInteriorPoint(self, portfolio: Portfolio) -> None:
+        d = len(portfolio.stocks) + len(portfolio.indicesCall) + len(portfolio.indicesPut)
+        r = self.returns.expectedReturn(portfolio=portfolio)
+
+        ones = np.ones(d)
+        sigma = self.covariance.covariance(portfolio=portfolio)
+
+        self.Q = sigma
+        self.A = np.block([[r], [ones]])
+        self.c = np.zeros(d)
+
+    def cacheDefault(self, portfolio: Portfolio) -> None:
+        self.d = len(portfolio.stocks) + len(portfolio.indicesCall) + len(portfolio.indicesPut)
+        self.r = self.returns.expectedReturn(portfolio=portfolio)
+        self.sigma = self.covariance.covariance(portfolio=portfolio)
+
+    # ------------------------------------------------------------------------------------------------------------------------------------------------------------
+    #                                                                           Allocation
+    # ------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+    def allocationIntegratedRiskManagement(self, portfolio: Portfolio, alpha: float, beta: float, minimumReturn: float) -> tuple:
+        if not self.memorizedIRM:
+            self.cacheIRM(portfolio=portfolio, alpha=alpha, beta=beta)
+            self.memorizedIRM = True
+    
+        self.b_ub[0] = -minimumReturn
+    
+        solution = linprog(
+            c=self.cost, 
+            A_ub=self.A_ub, 
+            b_ub=self.b_ub, 
+            A_eq=self.A_eq, 
+            b_eq=self.b_eq, 
+            bounds=self.bounds, 
+            method="highs"
+        )
+    
+        if not solution.success:
+            return self.d*[None], None
+            
+        return solution.x[:self.d], solution.fun
+
+    def allocationMarkowitz(self, portfolio: Portfolio, minimumReturn: float, shortSellingAllowed: bool=True, method: str="default") -> np.ndarray:
+
+        if shortSellingAllowed and method == "twoFund":
+            if not self.memorizedTwoFund:
+                self.cacheTwoFund(portfolio=portfolio)
+                self.memorizedTwoFund = True
+
             return minimumReturn*self.slopeVector + self.shiftVector
 
-        if method == "LU": # depricated
-            pass
+        elif not shortSellingAllowed and method == "interiorPoint":
+            if not self.memorizedInteriorPoint:
+                self.cacheInteriorPoint(portfolio=portfolio)
+                self.memorizedInteriorPoint = True
 
-        if method == "fast":
-            # cacheMarkowitz(...)
-            # memorizedMarkowitz = True
-            pass
-
-        # def fun(x: np.ndarray) -> float:
-        #     return x.dot(self.sigma.dot(x))
-
-        # x0 = np.ones(self.d)/self.d
-
-        # if not shortSellingAllowed:
-        #     bounds = self.d*[(0, None)]
-        # else:
-        #     bounds = self.d*[(None, None)]
-
-        # constraints = [
-        #     {'type': 'eq', 'fun': lambda x: x @ self.r - minimumReturn}, 
-        #     {'type': 'eq', 'fun': lambda x: sum(x) - 1}
-        # ]
-
-        # result = opt.minimize(fun=fun, x0=x0, method="SLSQP", bounds=bounds, constraints=constraints)
-        # return result.x
-
-        if method == "interiorPoint":
-            Q = self.sigma
-            A = np.block([[self.r], [self.ones]])
-            b = np.array([minimumReturn, 1])
-            c = np.zeros(self.d)
-
-            x = self.minimization.quadraticProgramming(Q=Q, A=A, b=b, c=c)
+            x = self.minimization.quadraticProgramming(Q=self.Q, A=self.A, b=np.array([minimumReturn, 1]), c=self.c)
             return x
+
+        elif method == "default":
+            if not self.memorizedDefault:
+                self.cacheDefault(portfolio=portfolio)
+                self.memorizedDefault = True
+
+            def fun(x: np.ndarray) -> float:
+                return x.T @ self.sigma @ x
+
+            if not shortSellingAllowed:
+                bounds = self.d*[(0, None)]
+            else:
+                bounds = self.d*[(None, None)]
+
+            constraints = [
+                {'type': 'eq', 'fun': lambda x: x.T @ self.r - minimumReturn}, 
+                {'type': 'eq', 'fun': lambda x: sum(x) - 1}
+            ]
+
+            result = minimize(fun=fun, x0=np.ones(self.d)/self.d, method="SLSQP", bounds=bounds, constraints=constraints)
+            return result.x
+
+        return None
 
     def allocationUtilityMaximization(self, portfolio: Portfolio, riskAversion: float, shortSellingAllowed: bool=True, method: str="") -> np.ndarray:
         if not self.memoryMarkowitz:
@@ -156,26 +186,5 @@ class Allocations:
         
         constraints = [{'type': 'eq', 'fun': lambda x: sum(x) - 1}]
 
-        result = opt.minimize(fun=fun, x0=x0, bounds=bounds, constraints=constraints)
+        result = minimize(fun=fun, x0=x0, bounds=bounds, constraints=constraints)
         return result.x
-
-    def allocationIntegratedRiskManagement(self, portfolio: Portfolio, alpha: float, beta: float, minimumReturn: float) -> tuple:
-        if not self.memoryIRM:
-            self.saveMemoryIRM(portfolio=portfolio, alpha=alpha, beta=beta)
-
-        self.b_ub[0] = -minimumReturn
-
-        solution = opt.linprog(
-            c=self.cost, 
-            A_ub=self.A_ub, 
-            b_ub=self.b_ub, 
-            A_eq=self.A_eq, 
-            b_eq=self.b_eq, 
-            bounds=self.bounds, 
-            method="highs"
-        )
-
-        if not solution.success:
-            return self.d*[None], None
-        
-        return solution.x[:self.d], solution.fun
