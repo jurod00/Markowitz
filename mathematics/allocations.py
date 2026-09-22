@@ -33,7 +33,6 @@ class Allocations:
 
         prob = np.array(Util.prob(times=portfolio.times))
         r = self.returns.expectedReturn(portfolio=portfolio)
-        print(r)
 
         xiStocks = self.returns.initialRelativeReturn(portfolio=portfolio)
         xiCall = self.returns.optionReturnCall(portfolio=portfolio)
@@ -105,10 +104,13 @@ class Allocations:
     #                                                                           Allocation
     # ------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-    def allocationIntegratedRiskManagement(self, portfolio: Portfolio, alpha: float, beta: float, minimumReturn: float) -> tuple:
+    def allocationIntegratedRiskManagement(self, portfolio: Portfolio, alpha: float, beta: float, minimumReturn: float, shortSellingAllowed: bool=False, method: str="default", useCache: bool=True) -> tuple:
         if not self.memorizedIRM:
             self.cacheIRM(portfolio=portfolio, alpha=alpha, beta=beta)
             self.memorizedIRM = True
+
+        if not useCache:
+            self.cacheIRM(portfolio=portfolio, alpha=alpha, beta=beta)
     
         self.b_ub[0] = -minimumReturn
     
@@ -127,12 +129,15 @@ class Allocations:
             
         return solution.x[:self.d], solution.fun
 
-    def allocationMarkowitz(self, portfolio: Portfolio, minimumReturn: float, shortSellingAllowed: bool=True, method: str="default") -> np.ndarray:
+    def allocationMarkowitz(self, portfolio: Portfolio, minimumReturn: float, shortSellingAllowed: bool=True, method: str="default", useCache: bool=True) -> np.ndarray:
 
         if shortSellingAllowed and method == "twoFund":
             if not self.memorizedTwoFund:
                 self.cacheTwoFund(portfolio=portfolio)
                 self.memorizedTwoFund = True
+
+            if not useCache:
+                self.cacheTwoFund(portfolio=portfolio)
 
             return minimumReturn*self.slopeVector + self.shiftVector
 
@@ -141,6 +146,9 @@ class Allocations:
                 self.cacheInteriorPoint(portfolio=portfolio)
                 self.memorizedInteriorPoint = True
 
+            if not useCache:
+                self.cacheInteriorPoint(portfolio=portfolio)
+
             x = self.minimization.quadraticProgramming(Q=self.Q, A=self.A, b=np.array([minimumReturn, 1]), c=self.c)
             return x
 
@@ -148,6 +156,9 @@ class Allocations:
             if not self.memorizedDefault:
                 self.cacheDefault(portfolio=portfolio)
                 self.memorizedDefault = True
+
+            if not useCache:
+                self.cacheDefault(portfolio=portfolio)
 
             def fun(x: np.ndarray) -> float:
                 return x.T @ self.sigma @ x
